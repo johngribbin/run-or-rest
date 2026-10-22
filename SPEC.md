@@ -426,7 +426,7 @@ Defined once, in `config.py`. Values are fixed; never tune them to the backtest'
 | Generated types current | `make types` (`openapi-typescript`), then `git diff --exit-code` |
 | Pinned versions | `.python-version`, `.nvmrc`, `engines`, lockfiles, `npm ci`, Actions pinned by SHA |
 | Least-privilege CI | `permissions: contents: read`; job timeout |
-| Rule changes need human approval | `.github/CODEOWNERS` assigns the human-only files (AGENTS.md) to the human, and the `main` ruleset requires code-owner review. The agent opens PRs from a dedicated bot account, so it cannot approve them. All other PRs merge themselves once CI passes |
+| Rule changes need human approval | `.github/CODEOWNERS` assigns the human-only files (AGENTS.md) to the human, and the `main` ruleset requires code-owner review. The agent opens PRs from a dedicated bot account, so it cannot approve them. The agent merges all other PRs once CI passes |
 
 ### Guardrail tests
 

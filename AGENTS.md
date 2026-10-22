@@ -11,7 +11,7 @@ Rules for any AI agent working in this repository. CI enforces most of them; the
 ## Workflow
 
 - Start every task on a new branch from `main` and finish it with a PR. Never commit or push to `main`.
-- After opening the PR, enable auto-merge with `gh pr merge --auto --squash`. Never merge a PR whose checks have not passed.
+- After opening the PR, wait for its checks (`gh pr checks --watch`), then merge it with `gh pr merge --squash`. Never merge a PR whose checks have not passed. If the PR needs the human's review, say so and stop; the human merges it.
 - Every change ships with its tests in the same PR. Tests cover the required cases in SPEC section 11, not just the coverage target.
 - When coverage fails, add tests for real behavior. Never add tests that only execute code to raise coverage.
 - Keep PRs small: one coherent change. Refactors and behavior changes go in separate PRs.
