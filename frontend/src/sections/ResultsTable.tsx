@@ -1,16 +1,18 @@
 import { Badge, Table } from "@mantine/core";
 import type { Backtest } from "../api/backtest.ts";
+import { TOOLTIPS } from "../config.ts";
 import { formatHours, formatUsd } from "../format.ts";
+import { Term } from "./Term.tsx";
 
-const HEADERS = [
-  "Strategy",
-  "Revenue",
-  "Energy cost",
-  "Transmission",
-  "Net profit",
-  "Hours off",
-  "Price gain",
-  "4CP gain",
+const HEADERS: { title: string; tooltip?: string }[] = [
+  { title: "Strategy" },
+  { title: "Revenue" },
+  { title: "Energy cost" },
+  { title: "Transmission", tooltip: TOOLTIPS.transmission },
+  { title: "Net profit" },
+  { title: "Hours off", tooltip: TOOLTIPS.hoursOff },
+  { title: "Price gain", tooltip: TOOLTIPS.priceGain },
+  { title: "4CP gain", tooltip: TOOLTIPS.fourcpGain },
 ];
 
 export function ResultsTable({ backtest }: { backtest: Backtest }) {
@@ -19,8 +21,14 @@ export function ResultsTable({ backtest }: { backtest: Backtest }) {
       <Table striped highlightOnHover aria-label="Results by strategy">
         <Table.Thead>
           <Table.Tr>
-            {HEADERS.map((header) => (
-              <Table.Th key={header}>{header}</Table.Th>
+            {HEADERS.map(({ title, tooltip }) => (
+              <Table.Th key={title}>
+                {tooltip === undefined ? (
+                  title
+                ) : (
+                  <Term tooltip={tooltip}>{title}</Term>
+                )}
+              </Table.Th>
             ))}
           </Table.Tr>
         </Table.Thead>
@@ -34,7 +42,9 @@ export function ResultsTable({ backtest }: { backtest: Backtest }) {
                 bg={winner ? "var(--mantine-color-teal-light)" : undefined}
               >
                 <Table.Td>
-                  {strategy.label}{" "}
+                  <Term tooltip={TOOLTIPS.strategies[strategy.id]}>
+                    {strategy.label}
+                  </Term>{" "}
                   {winner ? (
                     <Badge color="teal" variant="filled" size="sm">
                       Winner

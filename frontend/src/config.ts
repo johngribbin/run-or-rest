@@ -32,3 +32,25 @@ export const CHART_COLORS = {
   offBand: "rgba(250, 82, 82, 0.18)",
   peak: "#7048e8",
 };
+
+export const TOOLTIPS = {
+  peakGuardThreshold:
+    "Switch off when grid demand reaches this share of the month’s highest demand so far (or last month’s, if higher), to dodge the 4CP peaks.",
+  strategies: {
+    always_on: "Never switches off. The baseline.",
+    strike_price:
+      "Switches off when the last 15 minutes’ power price was above breakeven.",
+    strike_peak_guard:
+      "Strike price, plus switching off when grid demand nears the month’s peak.",
+  },
+  transmission:
+    "Next year’s charge, set by power used during this summer’s four 4CP peak intervals.",
+  hoursOff: "Total time the fleet was switched off.",
+  priceGain:
+    "Saved by avoiding expensive power, minus mining revenue given up, compared with always on.",
+  fourcpGain: "Transmission charges avoided compared with always on.",
+  breakevenEstimate:
+    "The power price where mining just pays for itself, using yesterday’s bitcoin price and rewards.",
+};
+
+export const TOOLTIP_WIDTH_PX = 280;
