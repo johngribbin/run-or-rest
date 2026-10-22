@@ -66,9 +66,8 @@ def _strategy(result: StrategyResult) -> schemas.Strategy:
 
 
 def _peak(peak: FourCpPeak) -> schemas.FourCpPeak:
-    year, month = peak.month
     return schemas.FourCpPeak(
-        month=f"{year:04d}-{month:02d}",
+        month=f"{peak.month.year:04d}-{peak.month.month:02d}",
         interval_start_utc=utc(peak.start),
         system_load_mw=rounded(peak.load_mw, LOAD_DECIMAL_PLACES),
     )

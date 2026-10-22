@@ -3,7 +3,6 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import Decimal
 
-from run_or_rest.config import MONTH_TIMEZONE
 from run_or_rest.core.economics import (
     breakeven_usd_per_mwh,
     interval_net_sats,
@@ -16,20 +15,7 @@ from run_or_rest.core.models import (
     HistoryInterval,
     WindowInterval,
 )
-
-MonthKey = tuple[int, int]
-
-
-def month_of(start: datetime) -> MonthKey:
-    local = start.astimezone(MONTH_TIMEZONE)
-    return (local.year, local.month)
-
-
-def previous_month(month: MonthKey) -> MonthKey:
-    year, number = month
-    if number == 1:
-        return (year - 1, 12)
-    return (year, number - 1)
+from run_or_rest.core.months import MonthKey, month_of, previous_month
 
 
 @dataclass(frozen=True)
