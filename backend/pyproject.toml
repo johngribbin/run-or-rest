@@ -1,0 +1,74 @@
+[project]
+name = "run-or-rest"
+version = "0.1.0"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "fastapi==0.159.1",
+    "polars==2.0.0",
+    "pydantic==2.14.1",
+    "uvicorn==0.54.0",
+]
+
+[dependency-groups]
+dev = [
+    "crap4py==0.1.1",
+    "httpx2==2.16.0",
+    "pyright==1.1.414",
+    "pytest==9.1.1",
+    "pytest-cov==7.1.0",
+    "ruff==0.17.1",
+]
+fetch = [
+    "gridstatusio==0.16.1",
+]
+
+[build-system]
+requires = ["uv_build>=0.13.4,<0.14"]
+build-backend = "uv_build"
+
+[tool.uv]
+required-version = "==0.13.4"
+default-groups = ["dev", "fetch"]
+
+[tool.ruff]
+target-version = "py313"
+extend-exclude = ["tools/canaries"]
+force-exclude = true
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = ["D", "COM812", "ISC001", "CPY001"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "PLR2004"]
+"tools/tests/**" = ["S101", "PLR2004", "S603"]
+"scripts/**" = ["T201"]
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"typing.cast".msg = "typing.cast is banned; narrow the type instead."
+"typing.Any".msg = "typing.Any is banned; use a precise type."
+
+[tool.pyright]
+pythonVersion = "3.13"
+venvPath = "."
+venv = ".venv"
+include = ["src", "tests", "tools/*.py", "tools/tests", "scripts"]
+exclude = ["**/.venv", "**/__pycache__"]
+typeCheckingMode = "standard"
+strict = ["src", "tests", "tools"]
+
+[tool.pytest.ini_options]
+addopts = ["-x", "--strict-config", "--strict-markers"]
+testpaths = ["tests", "tools/tests"]
+pythonpath = ["."]
+norecursedirs = ["tools/canaries"]
+
+[tool.coverage.run]
+branch = true
+omit = ["tools/canaries/*"]
+
+[tool.coverage.report]
+exclude_also = ["assert_never\\("]
