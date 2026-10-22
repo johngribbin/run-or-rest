@@ -1,0 +1,15 @@
+.env
+.env.*
+.DS_Store
+.cache/
+data/raw/
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+lcov.info
+node_modules/
+dist/
+*.tsbuildinfo
