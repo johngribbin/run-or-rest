@@ -352,7 +352,7 @@ Response `200`. Every decimal is a string, rounded independently from its unroun
 
 These meanings are also the Pydantic field descriptions.
 
-Errors: `422` for an out-of-range or off-step parameter; `503` with `{"detail": "Grid data not found. Run make fetch with GRIDSTATUS_API_KEY set."}` when data files are missing; `500` with a clear `detail` when a 4CP peak interval has no price.
+Errors: `422` for an out-of-range or off-step parameter; `503` with `{"detail": "Grid data not found. Run make fetch with GRIDSTATUS_API_KEY set."}` when a Grid Status data file is missing (section 7); `500` with a clear `detail` when a 4CP peak interval has no price.
 
 ## 9. UI
 
@@ -361,7 +361,7 @@ Title "Run or Rest", subtitle "A transparent ERCOT curtailment backtest for bitc
 1. **Answer:** question 1, the winner, and its advantage over always on
 2. **Peak guard control:** Mantine slider using `controls.peak_guard_threshold` (min, max, step, default), current value shown beside it. A change refetches `/api/backtest` after 300 ms without further input and updates every section below.
 3. **Results table:** per strategy: revenue, energy cost, transmission, net profit, hours off, price gain, 4CP gain; winner highlighted
-4. **Chart (ECharts):** price and breakeven estimate over time; shaded bands where the selected strategy is off (segmented control picks the strategy); four 4CP peaks marked; zoom
+4. **Chart (ECharts):** price and breakeven estimate over time; shaded bands where the selected strategy is off (segmented control picks the strategy); the 4CP peaks marked; zoom
 5. **Assumptions:** the `assumptions` values from the API, and the list in section 3.8 as static text
 6. **Footer:** "Data provided by Grid Status" linking to https://www.gridstatus.io/; Coin Metrics attribution with licence link
 
