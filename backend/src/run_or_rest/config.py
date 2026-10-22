@@ -1,63 +1,65 @@
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
+from typing import Final
 from zoneinfo import ZoneInfo
 
-APP_TITLE = "Run or Rest"
+APP_TITLE: Final = "Run or Rest"
 
-FLEET_MW = Decimal(1)
-EFFICIENCY_J_PER_TH = Decimal(15)
-POOL_FEE_RATE = Decimal("0.02")
-TRANSMISSION_RATE_USD_PER_MW_YEAR = Decimal(50000)
+FLEET_MW: Final = Decimal(1)
+EFFICIENCY_J_PER_TH: Final = Decimal(15)
+POOL_FEE_RATE: Final = Decimal("0.02")
+TRANSMISSION_RATE_USD_PER_MW_YEAR: Final = Decimal(50000)
 
-PEAK_GUARD_THRESHOLD_DEFAULT = Decimal("0.95")
-PEAK_GUARD_THRESHOLD_MIN = Decimal("0.80")
-PEAK_GUARD_THRESHOLD_MAX = Decimal("1.00")
-PEAK_GUARD_THRESHOLD_STEP = Decimal("0.01")
+PEAK_GUARD_THRESHOLD_DEFAULT: Final = Decimal("0.95")
+PEAK_GUARD_THRESHOLD_MIN: Final = Decimal("0.80")
+PEAK_GUARD_THRESHOLD_MAX: Final = Decimal("1.00")
+PEAK_GUARD_THRESHOLD_STEP: Final = Decimal("0.01")
 
-SETTLEMENT_POINT = "LZ_WEST"
-MONTH_TIMEZONE = ZoneInfo("America/Chicago")
+SETTLEMENT_POINT: Final = "LZ_WEST"
+MONTH_TIMEZONE: Final = ZoneInfo("America/Chicago")
 
-INTERVAL_SECONDS = 900
-INTERVAL = timedelta(seconds=INTERVAL_SECONDS)
-INTERVAL_HOURS = Decimal("0.25")
-WATTS_PER_MW = 10**6
-HASHES_PER_TERAHASH = 10**12
-HASHES_PER_DIFFICULTY = 2**32
-SATS_PER_BTC = 100_000_000
-MAX_TARGET = 0xFFFF * 256**26
+INTERVAL_SECONDS: Final = 900
+SECONDS_PER_HOUR: Final = 3600
+INTERVAL: Final = timedelta(seconds=INTERVAL_SECONDS)
+INTERVAL_HOURS: Final = Decimal(INTERVAL_SECONDS) / SECONDS_PER_HOUR
+WATTS_PER_MW: Final = 10**6
+HASHES_PER_TERAHASH: Final = 10**12
+HASHES_PER_DIFFICULTY: Final = 2**32
+SATS_PER_BTC: Final = 100_000_000
+MAX_TARGET: Final = 0xFFFF * 256**26
 
-WINDOW_START = datetime(2026, 6, 1, tzinfo=MONTH_TIMEZONE)
-WINDOW_END = datetime(2026, 10, 1, tzinfo=MONTH_TIMEZONE)
-HISTORY_START = datetime(2026, 5, 1, tzinfo=MONTH_TIMEZONE)
-DAILY_FIRST_DATE_UTC = date(2026, 5, 31)
-DAILY_LAST_DATE_UTC = date(2026, 10, 1)
-CHAIN_FETCH_START_UTC = datetime(2026, 5, 31, tzinfo=UTC)
-CHAIN_FETCH_END_UTC = datetime(2026, 10, 2, tzinfo=UTC)
+WINDOW_START: Final = datetime(2026, 6, 1, tzinfo=MONTH_TIMEZONE)
+WINDOW_END: Final = datetime(2026, 10, 1, tzinfo=MONTH_TIMEZONE)
+HISTORY_START: Final = datetime(2026, 5, 1, tzinfo=MONTH_TIMEZONE)
+DAILY_FIRST_DATE_UTC: Final = date(2026, 5, 31)
+DAILY_LAST_DATE_UTC: Final = date(2026, 10, 1)
+CHAIN_FETCH_START_UTC: Final = datetime(2026, 5, 31, tzinfo=UTC)
+CHAIN_FETCH_END_UTC: Final = datetime(2026, 10, 2, tzinfo=UTC)
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-DATA_DIR = REPO_ROOT / "data"
-RAW_DATA_DIR = DATA_DIR / "raw"
-SPP_PATH = RAW_DATA_DIR / "ercot_spp_lz_west.parquet"
-LOAD_PATH = RAW_DATA_DIR / "ercot_load.parquet"
-CHAIN_DAILY_PATH = DATA_DIR / "chain_daily.csv"
-DIFFICULTY_EPOCHS_PATH = DATA_DIR / "difficulty_epochs.csv"
-BTC_PRICE_DAILY_PATH = DATA_DIR / "btc_price_daily.csv"
+REPO_ROOT: Final = Path(__file__).resolve().parents[3]
+DATA_DIR: Final = REPO_ROOT / "data"
+RAW_DATA_DIR: Final = DATA_DIR / "raw"
+SPP_PATH: Final = RAW_DATA_DIR / "ercot_spp_lz_west.parquet"
+LOAD_PATH: Final = RAW_DATA_DIR / "ercot_load.parquet"
+CHAIN_DAILY_PATH: Final = DATA_DIR / "chain_daily.csv"
+DIFFICULTY_EPOCHS_PATH: Final = DATA_DIR / "difficulty_epochs.csv"
+BTC_PRICE_DAILY_PATH: Final = DATA_DIR / "btc_price_daily.csv"
 
-GRIDSTATUS_API_KEY_ENV = "GRIDSTATUS_API_KEY"
-SPP_DATASET = "ercot_spp_real_time_15_min"
-LOAD_DATASET = "ercot_load"
-BITCOIN_RPC_ENV = ("BITCOIN_RPC_URL", "BITCOIN_RPC_USER", "BITCOIN_RPC_PASSWORD")
-RETARGET_INTERVAL_BLOCKS = 2016
-COIN_METRICS_ASSET_METRICS_URL = (
+GRIDSTATUS_API_KEY_ENV: Final = "GRIDSTATUS_API_KEY"
+SPP_DATASET: Final = "ercot_spp_real_time_15_min"
+LOAD_DATASET: Final = "ercot_load"
+BITCOIN_RPC_ENV: Final = ("BITCOIN_RPC_URL", "BITCOIN_RPC_USER", "BITCOIN_RPC_PASSWORD")
+RETARGET_INTERVAL_BLOCKS: Final = 2016
+COIN_METRICS_ASSET_METRICS_URL: Final = (
     "https://community-api.coinmetrics.io/v4/timeseries/asset-metrics"
 )
 
-USD_DECIMAL_PLACES = 2
-PRICE_DECIMAL_PLACES = 2
-HOURS_DECIMAL_PLACES = 2
-LOAD_DECIMAL_PLACES = 1
-THRESHOLD_DECIMAL_PLACES = 2
-GRID_DATA_MISSING_DETAIL = (
+USD_DECIMAL_PLACES: Final = 2
+PRICE_DECIMAL_PLACES: Final = 2
+HOURS_DECIMAL_PLACES: Final = 2
+LOAD_DECIMAL_PLACES: Final = 1
+THRESHOLD_DECIMAL_PLACES: Final = 2
+GRID_DATA_MISSING_DETAIL: Final = (
     "Grid data not found. Run make fetch with GRIDSTATUS_API_KEY set."
 )
