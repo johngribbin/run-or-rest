@@ -4,6 +4,7 @@
 /README.md @johngribbin
 /Makefile @johngribbin
 /.gitignore @johngribbin
+/.env.example @johngribbin
 /.github/ @johngribbin
 /backend/tools/ @johngribbin
 /backend/pyproject.toml @johngribbin

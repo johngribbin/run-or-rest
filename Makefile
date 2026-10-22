@@ -1,5 +1,12 @@
 .PHONY: setup fetch dev test test-backend test-frontend lint format typecheck rules verify coverage crap types types-check build verify-ci
 
+EXPORTED_GRIDSTATUS_API_KEY := $(GRIDSTATUS_API_KEY)
+-include .env
+ifneq ($(strip $(EXPORTED_GRIDSTATUS_API_KEY)),)
+GRIDSTATUS_API_KEY := $(EXPORTED_GRIDSTATUS_API_KEY)
+endif
+export GRIDSTATUS_API_KEY
+
 BACKEND = cd backend &&
 FRONTEND = cd frontend &&
 CACHE = $(CURDIR)/.cache

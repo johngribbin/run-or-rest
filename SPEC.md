@@ -2,7 +2,7 @@
 
 Repository `run-or-rest`, Python package `run_or_rest`.
 
-This file defines what gets built. Agents build only what is written here; anything else is out of scope. Only a human edits this file.
+This file defines what gets built. Agents build only what is written here; anything else is out of scope. Changes to this file need the human's approval.
 
 ## 1. The question
 
@@ -238,7 +238,7 @@ Winner: highest net profit. Exact tie: the earlier of always_on, strike_price, s
 
 ### 6.4 Fetch scripts
 
-- `fetch_grid.py`: reads `GRIDSTATUS_API_KEY` (exits with a clear message if missing); uses `gridstatusio`; fetches the history and window ranges; filters prices to `LZ_WEST`; averages load to 15-minute intervals by start time if it is finer, and exits with a clear error if it is coarser; converts prices and load to decimal strings rounded to 2 places with ROUND_HALF_EVEN; writes the two Parquet files.
+- `fetch_grid.py`: reads `GRIDSTATUS_API_KEY` from the environment (exits with a clear message if missing); the Makefile loads it from `.env` if present; uses `gridstatusio`; fetches the history and window ranges; filters prices to `LZ_WEST`; averages load to 15-minute intervals by start time if it is finer, and exits with a clear error if it is coarser; converts prices and load to decimal strings rounded to 2 places with ROUND_HALF_EVEN; writes the two Parquet files.
 - `fetch_chain.py`: reads `BITCOIN_RPC_URL`, `BITCOIN_RPC_USER`, `BITCOIN_RPC_PASSWORD` and never logs them. Heights run from the last retarget height (a multiple of 2,016) at or before the first block with time ≥ 2026-05-31 00:00 UTC, to the last block with time < 2026-10-02 00:00 UTC. Per height: `getblockhash`, `getblockstats` with `["height", "time", "subsidy", "totalfee"]`, `getblockheader` for `bits`. Writes daily totals for the daily range, grouping blocks by the UTC date of their block time, and a difficulty row at the first height and whenever `bits` changes.
 - `fetch_price.py`: downloads `https://raw.githubusercontent.com/coinmetrics/data/master/csv/btc.csv`; keeps the `time` (a date) and `PriceUSD` columns for the daily range, written as `date_utc` (YYYY-MM-DD) and `price_usd`.
 
@@ -288,6 +288,7 @@ Rules in this spec and in AGENTS.md refer to these paths, so they are fixed. Eve
 | `frontend/src/config.ts` | Frontend presentation constants |
 | `frontend/src/api/schema.ts` | Generated API types |
 | `data/`, `data/raw/` | Committed CSVs; gitignored Grid Status files |
+| `.env.example` | Template for the gitignored `.env`: `GRIDSTATUS_API_KEY=` only |
 | `.github/workflows/ci.yml`, `.github/CODEOWNERS` | CI and code owners |
 | `backend/.python-version` (3.13), `frontend/.nvmrc` (Node 26) | Pinned runtimes |
 
@@ -449,7 +450,7 @@ The Makefile works with GNU Make 3.81, the macOS default.
 | Command | Does |
 | --- | --- |
 | `make setup` | `uv sync`, `npm ci` |
-| `make fetch` | runs `fetch_grid.py` (needs `GRIDSTATUS_API_KEY`) |
+| `make fetch` | runs `fetch_grid.py`; `GRIDSTATUS_API_KEY` comes from the environment, and the Makefile loads it from `.env` if present |
 | `make dev` | API (started by `uvicorn` from the Makefile; no Python entry point) and frontend together, using `concurrently` so stopping one stops both |
 | `make test` | all tests; no key needed |
 | `make verify` | lint, format, types, source rules, tests |

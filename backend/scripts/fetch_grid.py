@@ -29,7 +29,7 @@ CENTS = Decimal("0.01")
 def require_env(name: str, environ: Mapping[str, str]) -> str:
     value = environ.get(name, "")
     if not value:
-        sys.exit(f"{name} is not set. Export it and run make fetch again.")
+        sys.exit(f"{name} is not set. Export it or add it to .env and retry.")
     return value
 
 
