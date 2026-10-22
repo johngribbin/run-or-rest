@@ -412,10 +412,10 @@ Defined once, in `config.py`. Values are fixed; never tune them to the backtest'
 
 | Rule | Enforced by |
 | --- | --- |
-| Lint, complexity ≤ 10 | Ruff `select = ["ALL"]`, `C901` max 10. The only ignores: `D` (docstrings are banned), `COM812` and `ISC001` (conflict with the formatter); in `backend/tests/` and `backend/tools/tests/`: `S101` (assert) and `PLR2004` (literal expected values); in `backend/scripts/`: `T201` (print) |
-| Strict types; no `Any`, no `cast` | Pyright strict; Ruff `ANN401`; Ruff banned-api for `typing.cast` |
+| Lint, complexity ≤ 10 | Ruff `select = ["ALL"]`, `C901` max 10. The only ignores: `D` and `CPY001` (docstrings and copyright headers are comments, which are banned), `COM812` and `ISC001` (conflict with the formatter); in `backend/tests/` and `backend/tools/tests/`: `S101` (assert) and `PLR2004` (literal expected values); in `backend/tools/tests/` only: `S603` (canary tests run the real tools as subprocesses on repository fixtures); in `backend/scripts/`: `T201` (print) |
+| Strict types; no `Any`, no `cast` | Pyright strict; Ruff `ANN401`; Ruff banned-api for `typing.Any` and `typing.cast` |
 | Formatting | `ruff format --check`; Prettier `--check` |
-| TypeScript strict; no `any`, no assertions | `tsc --noEmit`; typescript-eslint strict-type-checked; `consistent-type-assertions: never` |
+| TypeScript strict; no `any`, no assertions, complexity ≤ 10 | `tsc --noEmit`; typescript-eslint strict-type-checked; `consistent-type-assertions: never`; ESLint `complexity: 10` |
 | No comments, docstrings or suppressions (Python) | Checker in `backend/tools/` |
 | No comments or suppressions (TypeScript), including triple-slash directives | `frontend/tools/check_ts_comments.ts`, run with Node. Vite client types come from `tsconfig` `types`, not a directive |
 | At most 400 lines per source and test file | Checker in `backend/tools/` |

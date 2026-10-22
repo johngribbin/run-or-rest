@@ -59,7 +59,7 @@ These files define what gets built and how it is checked: `SPEC.md`, `AGENTS.md`
 
 ## Dependencies
 
-Packages named in SPEC.md are approved, along with the packages they need to work: peer dependencies, build plugins, test environments (such as `httpx` for FastAPI's test client and `jsdom` for Vitest) and the linters' own packages. Any other dependency needs human approval. Prefer the standard library and what is already installed.
+Packages named in SPEC.md are approved, along with the packages they need to work: peer dependencies, build plugins, test environments (such as `httpx2` for FastAPI's test client and `jsdom` for Vitest) and the linters' own packages. Any other dependency needs human approval. Prefer the standard library and what is already installed.
 
 ## PR description template
 
