@@ -43,3 +43,12 @@ LOAD_PATH = RAW_DATA_DIR / "ercot_load.parquet"
 CHAIN_DAILY_PATH = DATA_DIR / "chain_daily.csv"
 DIFFICULTY_EPOCHS_PATH = DATA_DIR / "difficulty_epochs.csv"
 BTC_PRICE_DAILY_PATH = DATA_DIR / "btc_price_daily.csv"
+
+GRIDSTATUS_API_KEY_ENV = "GRIDSTATUS_API_KEY"
+SPP_DATASET = "ercot_spp_real_time_15_min"
+LOAD_DATASET = "ercot_load"
+BITCOIN_RPC_ENV = ("BITCOIN_RPC_URL", "BITCOIN_RPC_USER", "BITCOIN_RPC_PASSWORD")
+RETARGET_INTERVAL_BLOCKS = 2016
+COIN_METRICS_BTC_CSV_URL = (
+    "https://raw.githubusercontent.com/coinmetrics/data/master/csv/btc.csv"
+)
