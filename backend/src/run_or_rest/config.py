@@ -1,4 +1,4 @@
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -19,6 +19,13 @@ SETTLEMENT_POINT = "LZ_WEST"
 MONTH_TIMEZONE = ZoneInfo("America/Chicago")
 
 INTERVAL_SECONDS = 900
+INTERVAL = timedelta(seconds=INTERVAL_SECONDS)
+INTERVAL_HOURS = Decimal("0.25")
+WATTS_PER_MW = 10**6
+HASHES_PER_TERAHASH = 10**12
+HASHES_PER_DIFFICULTY = 2**32
+SATS_PER_BTC = 100_000_000
+MAX_TARGET = 0xFFFF * 256**26
 
 WINDOW_START = datetime(2026, 6, 1, tzinfo=MONTH_TIMEZONE)
 WINDOW_END = datetime(2026, 10, 1, tzinfo=MONTH_TIMEZONE)
