@@ -49,6 +49,6 @@ SPP_DATASET = "ercot_spp_real_time_15_min"
 LOAD_DATASET = "ercot_load"
 BITCOIN_RPC_ENV = ("BITCOIN_RPC_URL", "BITCOIN_RPC_USER", "BITCOIN_RPC_PASSWORD")
 RETARGET_INTERVAL_BLOCKS = 2016
-COIN_METRICS_BTC_CSV_URL = (
-    "https://raw.githubusercontent.com/coinmetrics/data/master/csv/btc.csv"
+COIN_METRICS_ASSET_METRICS_URL = (
+    "https://community-api.coinmetrics.io/v4/timeseries/asset-metrics"
 )

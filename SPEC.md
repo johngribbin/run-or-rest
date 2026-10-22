@@ -222,7 +222,7 @@ Winner: highest net profit. Exact tie: the earlier of always_on, strike_price, s
 | `data/raw/ercot_load.parquet` | Grid Status `ercot_load` | `fetch_grid.py` | No | Same |
 | `data/chain_daily.csv` | Own Bitcoin Core node (v31.1), RPC | `fetch_chain.py` | Yes | Public chain data |
 | `data/difficulty_epochs.csv` | Own Bitcoin Core node (v31.1), RPC | `fetch_chain.py` | Yes | Public chain data |
-| `data/btc_price_daily.csv` | Coin Metrics Community `btc.csv`, `PriceUSD` | `fetch_price.py` | Yes | CC BY-NC 4.0; attribution required |
+| `data/btc_price_daily.csv` | Coin Metrics Community API `asset-metrics`, `PriceUSD` | `fetch_price.py` | Yes | CC BY-NC 4.0; attribution required |
 
 ### 6.3 File schemas
 
@@ -240,7 +240,7 @@ Winner: highest net profit. Exact tie: the earlier of always_on, strike_price, s
 
 - `fetch_grid.py`: reads `GRIDSTATUS_API_KEY` from the environment (exits with a clear message if missing); the Makefile loads it from `.env` if present; uses `gridstatusio`; fetches the history and window ranges; filters prices to `LZ_WEST`; averages load to 15-minute intervals by start time if it is finer, and exits with a clear error if it is coarser; converts prices and load to decimal strings rounded to 2 places with ROUND_HALF_EVEN; writes the two Parquet files.
 - `fetch_chain.py`: reads `BITCOIN_RPC_URL`, `BITCOIN_RPC_USER`, `BITCOIN_RPC_PASSWORD` and never logs them. Heights run from the last retarget height (a multiple of 2,016) at or before the first block with time ≥ 2026-05-31 00:00 UTC, to the last block with time < 2026-10-02 00:00 UTC. Per height: `getblockhash`, `getblockstats` with `["height", "time", "subsidy", "totalfee"]`, `getblockheader` for `bits`. Writes daily totals for the daily range, grouping blocks by the UTC date of their block time, and a difficulty row at the first height and whenever `bits` changes.
-- `fetch_price.py`: downloads `https://raw.githubusercontent.com/coinmetrics/data/master/csv/btc.csv`; keeps the `time` (a date) and `PriceUSD` columns for the daily range, written as `date_utc` (YYYY-MM-DD) and `price_usd`.
+- `fetch_price.py`: requests `https://community-api.coinmetrics.io/v4/timeseries/asset-metrics` with `assets=btc`, `metrics=PriceUSD` and `frequency=1d` for the daily range, following `next_page_url` while present; writes each row's `time` (midnight UTC, e.g. `2026-05-31T00:00:00.000000000Z`) as `date_utc` (YYYY-MM-DD) and its `PriceUSD` as `price_usd`.
 
 `fetch_chain.py` and `fetch_price.py` are run once by the human (`uv run python backend/scripts/<name>.py`), and their CSVs are committed. `make fetch` runs only `fetch_grid.py`, because Grid Status data is never committed.
 
