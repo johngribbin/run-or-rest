@@ -3,10 +3,300 @@
  * Do not make direct changes to the file.
  */
 
-export type paths = Record<string, never>;
+export interface paths {
+    "/api/backtest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Backtest
+         * @description Run the backtest for all three strategies over the window
+         */
+        get: operations["backtest_api_backtest_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+}
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: never;
+    schemas: {
+        /** Assumptions */
+        Assumptions: {
+            /**
+             * Efficiency J Per Th
+             * @description Fleet efficiency in J/TH
+             */
+            efficiency_j_per_th: string;
+            /**
+             * Fleet Mw
+             * @description Fleet size in MW
+             */
+            fleet_mw: string;
+            /**
+             * Peak Guard Threshold
+             * @description The peak_guard_threshold used for this request
+             */
+            peak_guard_threshold: string;
+            /**
+             * Pool Fee Rate
+             * @description Share of rewards the pool keeps
+             */
+            pool_fee_rate: string;
+            /**
+             * Transmission Rate Usd Per Mw Year
+             * @description 4CP transmission rate in USD per MW-year
+             */
+            transmission_rate_usd_per_mw_year: string;
+        };
+        /** BacktestResponse */
+        BacktestResponse: {
+            /** @description The inputs this run used: the defaults in section 10 and the request's peak_guard_threshold */
+            assumptions: components["schemas"]["Assumptions"];
+            /** @description The allowed range, step and default of each request parameter; the UI builds its controls from these instead of copying the values */
+            controls: components["schemas"]["Controls"];
+            /** @description Window intervals expected and how many were skipped for missing data (section 6.5) */
+            data_quality: components["schemas"]["DataQuality"];
+            /**
+             * Fourcp Peaks
+             * @description The 4CP peak intervals (section 5.1), one per peak month, with the system load at each
+             */
+            fourcp_peaks: components["schemas"]["FourCpPeak"][];
+            /** @description The window's start and end in UTC (section 6.1) and the settlement point priced */
+            period: components["schemas"]["Period"];
+            /**
+             * Series
+             * @description One entry per non-skipped window interval: the actual price, the breakeven estimate the strategies decided on (section 3.7), and each strategy's decision
+             */
+            series: components["schemas"]["SeriesPoint"][];
+            /**
+             * Strategies
+             * @description One entry per strategy, in the order always_on, strike_price, strike_peak_guard: the totals in section 5.3, and gain_vs_always_on split into price, 4CP and total (zero for always_on itself)
+             */
+            strategies: components["schemas"]["Strategy"][];
+            /** @description The strategy with the highest net profit (section 5.3) and how much more it made than always on */
+            winner: components["schemas"]["Winner"];
+        };
+        /** Controls */
+        Controls: {
+            /** @description Allowed range, step and default of peak_guard_threshold */
+            peak_guard_threshold: components["schemas"]["ThresholdControl"];
+        };
+        /** DataQuality */
+        DataQuality: {
+            /**
+             * Expected Intervals
+             * @description Window intervals expected
+             */
+            expected_intervals: number;
+            /**
+             * Missing Intervals
+             * @description Window intervals skipped for missing data (section 6.5)
+             */
+            missing_intervals: number;
+        };
+        /**
+         * Decision
+         * @enum {string}
+         */
+        Decision: "run" | "off";
+        /** Decisions */
+        Decisions: {
+            /** @description Always on's decision */
+            always_on: components["schemas"]["Decision"];
+            /** @description Strike + peak guard's decision */
+            strike_peak_guard: components["schemas"]["Decision"];
+            /** @description Strike price's decision */
+            strike_price: components["schemas"]["Decision"];
+        };
+        /** ErrorResponse */
+        ErrorResponse: {
+            /**
+             * Detail
+             * @description What went wrong
+             */
+            detail: string;
+        };
+        /** FourCpPeak */
+        FourCpPeak: {
+            /**
+             * Interval Start Utc
+             * @description Start of the peak interval in UTC
+             */
+            interval_start_utc: string;
+            /**
+             * Month
+             * @description Peak month, YYYY-MM
+             */
+            month: string;
+            /**
+             * System Load Mw
+             * @description ERCOT system load at the peak, MW
+             */
+            system_load_mw: string;
+        };
+        /** Gain */
+        Gain: {
+            /**
+             * Fourcp Usd
+             * @description Gain from avoiding 4CP charges, USD
+             */
+            fourcp_usd: string;
+            /**
+             * Price Usd
+             * @description Gain from avoiding high power prices, USD
+             */
+            price_usd: string;
+            /**
+             * Total Usd
+             * @description Total gain over always on, USD
+             */
+            total_usd: string;
+        };
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
+        };
+        /** Period */
+        Period: {
+            /**
+             * End Utc
+             * @description Window end in UTC (section 6.1)
+             */
+            end_utc: string;
+            /**
+             * Settlement Point
+             * @description The settlement point priced
+             */
+            settlement_point: string;
+            /**
+             * Start Utc
+             * @description Window start in UTC (section 6.1)
+             */
+            start_utc: string;
+        };
+        /** SeriesPoint */
+        SeriesPoint: {
+            /**
+             * Breakeven Estimate Usd Per Mwh
+             * @description The breakeven estimate the strategies decided on (section 3.7)
+             */
+            breakeven_estimate_usd_per_mwh: string;
+            /** @description Each strategy's decision */
+            decisions: components["schemas"]["Decisions"];
+            /**
+             * Interval Start Utc
+             * @description Interval start in UTC
+             */
+            interval_start_utc: string;
+            /**
+             * Price Usd Per Mwh
+             * @description The interval's actual price
+             */
+            price_usd_per_mwh: string;
+        };
+        /** Strategy */
+        Strategy: {
+            /**
+             * Energy Cost Usd
+             * @description Energy cost, USD
+             */
+            energy_cost_usd: string;
+            /** @description Gain over always on split into price, 4CP and total; zero for always on itself */
+            gain_vs_always_on: components["schemas"]["Gain"];
+            /**
+             * Hours Off
+             * @description Hours the fleet was switched off
+             */
+            hours_off: string;
+            /** @description Strategy id */
+            id: components["schemas"]["StrategyId"];
+            /**
+             * Label
+             * @description Strategy label
+             */
+            label: string;
+            /**
+             * Mined Sats
+             * @description Net sats mined
+             */
+            mined_sats: number;
+            /**
+             * Net Profit Usd
+             * @description Revenue minus energy cost minus transmission, USD
+             */
+            net_profit_usd: string;
+            /**
+             * Revenue Usd
+             * @description Mining revenue, USD
+             */
+            revenue_usd: string;
+            /**
+             * Transmission Usd
+             * @description 4CP transmission charge, USD
+             */
+            transmission_usd: string;
+        };
+        /**
+         * StrategyId
+         * @enum {string}
+         */
+        StrategyId: "always_on" | "strike_price" | "strike_peak_guard";
+        /** ThresholdControl */
+        ThresholdControl: {
+            /**
+             * Default
+             * @description Value used when the parameter is omitted
+             */
+            default: string;
+            /**
+             * Max
+             * @description Highest allowed value
+             */
+            max: string;
+            /**
+             * Min
+             * @description Lowest allowed value
+             */
+            min: string;
+            /**
+             * Step
+             * @description Allowed step between values
+             */
+            step: string;
+        };
+        /** ValidationError */
+        ValidationError: {
+            /** Context */
+            ctx?: Record<string, never>;
+            /** Input */
+            input?: unknown;
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
+        };
+        /** Winner */
+        Winner: {
+            /**
+             * Advantage Over Always On Usd
+             * @description How much more the winner made than always on, in USD
+             */
+            advantage_over_always_on_usd: string;
+            /** @description The strategy with the highest net profit */
+            id: components["schemas"]["StrategyId"];
+        };
+    };
     responses: never;
     parameters: never;
     requestBodies: never;
@@ -14,4 +304,55 @@ export interface components {
     pathItems: never;
 }
 export type $defs = Record<string, never>;
-export type operations = Record<string, never>;
+export interface operations {
+    backtest_api_backtest_get: {
+        parameters: {
+            query?: {
+                /** @description Peak guard threshold: fraction of the reference monthly peak at which the guard switches the fleet off */
+                peak_guard_threshold?: number | string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BacktestResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+}

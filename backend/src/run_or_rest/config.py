@@ -52,3 +52,12 @@ RETARGET_INTERVAL_BLOCKS = 2016
 COIN_METRICS_ASSET_METRICS_URL = (
     "https://community-api.coinmetrics.io/v4/timeseries/asset-metrics"
 )
+
+USD_DECIMAL_PLACES = 2
+PRICE_DECIMAL_PLACES = 2
+HOURS_DECIMAL_PLACES = 2
+LOAD_DECIMAL_PLACES = 1
+THRESHOLD_DECIMAL_PLACES = 2
+GRID_DATA_MISSING_DETAIL = (
+    "Grid data not found. Run make fetch with GRIDSTATUS_API_KEY set."
+)
