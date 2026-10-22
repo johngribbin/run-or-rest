@@ -66,6 +66,17 @@ class BacktestResult:
 
 
 @dataclass(frozen=True)
+class _Totals:
+    strategy: Strategy
+    revenue_usd: Decimal
+    energy_cost_usd: Decimal
+    transmission_usd: Decimal
+    net_profit_usd: Decimal
+    mined_sats: Sats
+    hours_off: Decimal
+
+
+@dataclass(frozen=True)
 class _Settlement:
     point: SeriesPoint
     sats: Sats
@@ -122,12 +133,12 @@ def _split_by_decision(
         for settlement in settlements
         if settlement.point.decisions[strategy_id] is Decision.RUN
     ]
-    off = [
-        settlement
+    intervals_off = sum(
+        1
         for settlement in settlements
         if settlement.point.decisions[strategy_id] is Decision.OFF
-    ]
-    return running, len(off)
+    )
+    return running, intervals_off
 
 
 def _totals(
@@ -135,7 +146,7 @@ def _totals(
     settlements: Sequence[_Settlement],
     peaks: Sequence[FourCpPeak],
     assumptions: Assumptions,
-) -> StrategyResult:
+) -> _Totals:
     peak_starts = {peak.start for peak in peaks}
     running, intervals_off = _split_by_decision(strategy.id, settlements)
     revenue = sum((settlement.revenue_usd for settlement in running), Decimal(0))
@@ -146,36 +157,33 @@ def _totals(
         sum(1 for settlement in running if settlement.point.start in peak_starts),
         len(peaks),
     )
-    zero = Decimal(0)
-    return StrategyResult(
-        id=strategy.id,
-        label=strategy.label,
+    return _Totals(
+        strategy=strategy,
         revenue_usd=revenue,
         energy_cost_usd=cost,
         transmission_usd=transmission,
         net_profit_usd=revenue - cost - transmission,
         mined_sats=Sats(sum(settlement.sats for settlement in running)),
         hours_off=intervals_off * INTERVAL_HOURS,
-        gain_vs_always_on=Gain(zero, zero, zero),
     )
 
 
-def _with_gain(result: StrategyResult, baseline: StrategyResult) -> StrategyResult:
+def _result(totals: _Totals, baseline: _Totals) -> StrategyResult:
     gain = Gain(
-        price_usd=(baseline.energy_cost_usd - result.energy_cost_usd)
-        - (baseline.revenue_usd - result.revenue_usd),
-        fourcp_usd=baseline.transmission_usd - result.transmission_usd,
-        total_usd=result.net_profit_usd - baseline.net_profit_usd,
+        price_usd=(baseline.energy_cost_usd - totals.energy_cost_usd)
+        - (baseline.revenue_usd - totals.revenue_usd),
+        fourcp_usd=baseline.transmission_usd - totals.transmission_usd,
+        total_usd=totals.net_profit_usd - baseline.net_profit_usd,
     )
     return StrategyResult(
-        id=result.id,
-        label=result.label,
-        revenue_usd=result.revenue_usd,
-        energy_cost_usd=result.energy_cost_usd,
-        transmission_usd=result.transmission_usd,
-        net_profit_usd=result.net_profit_usd,
-        mined_sats=result.mined_sats,
-        hours_off=result.hours_off,
+        id=totals.strategy.id,
+        label=totals.strategy.label,
+        revenue_usd=totals.revenue_usd,
+        energy_cost_usd=totals.energy_cost_usd,
+        transmission_usd=totals.transmission_usd,
+        net_profit_usd=totals.net_profit_usd,
+        mined_sats=totals.mined_sats,
+        hours_off=totals.hours_off,
         gain_vs_always_on=gain,
     )
 
@@ -199,10 +207,12 @@ def run_backtest(
     settled = settled_intervals(history, window, assumptions)
     peaks = fourcp_peaks(window)
     settlements = [_settle(interval, assumptions) for interval in settled]
-    totals = [
-        _totals(strategy, settlements, peaks, assumptions) for strategy in STRATEGIES
-    ]
-    results = tuple(_with_gain(result, totals[0]) for result in totals)
+    totals = {
+        strategy.id: _totals(strategy, settlements, peaks, assumptions)
+        for strategy in STRATEGIES
+    }
+    baseline = totals[StrategyId.ALWAYS_ON]
+    results = tuple(_result(each, baseline) for each in totals.values())
     winner = _winner(results)
     return BacktestResult(
         window_start=window_start,
