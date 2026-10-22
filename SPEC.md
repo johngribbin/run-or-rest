@@ -366,7 +366,7 @@ Title "Run or Rest", subtitle "A transparent ERCOT curtailment backtest for bitc
 5. **Assumptions:** the `assumptions` values from the API, and the list in section 3.8 as static text
 6. **Footer:** "Data provided by Grid Status" linking to https://www.gridstatus.io/; Coin Metrics attribution with licence link
 
-Tooltips: these terms show a Mantine `Tooltip` with exactly this text, marked by a dotted underline: the peak guard slider's label, the results table's strategy names and its transmission, hours off, price gain and 4CP gain headers, and "Breakeven estimate" in the chart legend. The text is static, defined once in `frontend/src/config.ts`, and not served by the API.
+Tooltips: these terms show a Mantine `Tooltip` with exactly this text, marked by a dotted underline: the three rule names in question 1 above the answer, the peak guard slider's label, the results table's strategy names and its transmission, hours off, price gain and 4CP gain headers, and "Breakeven estimate" in the chart legend. The text is static, defined once in `frontend/src/config.ts`, and not served by the API.
 
 | Term | Tooltip |
 | --- | --- |
