@@ -1,5 +1,7 @@
 import { Group, Slider, Stack, Text } from "@mantine/core";
 import type { Backtest } from "../api/backtest.ts";
+import { TOOLTIPS } from "../config.ts";
+import { Term } from "./Term.tsx";
 
 type Control = Backtest["controls"]["peak_guard_threshold"];
 
@@ -20,7 +22,7 @@ export function ThresholdControl({
   return (
     <Stack gap={4}>
       <Text fw={600} id="threshold-label">
-        Peak guard threshold
+        <Term tooltip={TOOLTIPS.peakGuardThreshold}>Peak guard threshold</Term>
       </Text>
       <Group gap="md" wrap="nowrap">
         <Slider

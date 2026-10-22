@@ -2,7 +2,6 @@ import type { LineSeriesOption } from "echarts/charts";
 import type {
   DataZoomComponentOption,
   GridComponentOption,
-  LegendComponentOption,
   TooltipComponentOption,
 } from "echarts/components";
 import type { ComposeOption } from "echarts/core";
@@ -14,7 +13,6 @@ export type ChartOption = ComposeOption<
   | GridComponentOption
   | TooltipComponentOption
   | DataZoomComponentOption
-  | LegendComponentOption
 >;
 
 export interface OffBand {
@@ -103,8 +101,7 @@ export function chartOption(
   return {
     animation: false,
     tooltip: { trigger: "axis" },
-    legend: { top: 0 },
-    grid: { left: 56, right: 24, top: 40, bottom: 72 },
+    grid: { left: 56, right: 24, top: 24, bottom: 72 },
     xAxis: { type: "time" },
     yAxis: { type: "value", name: "$/MWh" },
     dataZoom: [{ type: "inside" }, { type: "slider" }],

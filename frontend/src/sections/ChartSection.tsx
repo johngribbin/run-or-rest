@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import type { Backtest, StrategyId } from "../api/backtest.ts";
 import { BacktestChart } from "../chart/BacktestChart.tsx";
 import { chartOption } from "../chart/option.ts";
+import { ChartLegend } from "./ChartLegend.tsx";
 
 export function ChartSection({ backtest }: { backtest: Backtest }) {
   const [selected, setSelected] = useState<StrategyId>(backtest.winner.id);
@@ -27,6 +28,7 @@ export function ChartSection({ backtest }: { backtest: Backtest }) {
           value: strategy.id,
         }))}
       />
+      <ChartLegend />
       <BacktestChart option={option} />
     </Stack>
   );

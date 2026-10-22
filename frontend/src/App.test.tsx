@@ -1,36 +1,8 @@
-import { MantineProvider } from "@mantine/core";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { App } from "./App.tsx";
+import { renderApp, respondWith } from "./test/renderApp.tsx";
 import { sampleBacktest } from "./test/sampleBacktest.ts";
-
-function respondWith(status: number, body: unknown) {
-  const fetchStub = vi.fn(() =>
-    Promise.resolve(
-      new Response(JSON.stringify(body), {
-        status,
-        headers: { "Content-Type": "application/json" },
-      }),
-    ),
-  );
-  vi.stubGlobal("fetch", fetchStub);
-  return fetchStub;
-}
-
-function renderApp() {
-  const client = new QueryClient({
-    defaultOptions: { queries: { retry: false } },
-  });
-  return render(
-    <MantineProvider>
-      <QueryClientProvider client={client}>
-        <App />
-      </QueryClientProvider>
-    </MantineProvider>,
-  );
-}
 
 afterEach(() => {
   vi.unstubAllGlobals();

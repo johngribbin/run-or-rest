@@ -366,6 +366,20 @@ Title "Run or Rest", subtitle "A transparent ERCOT curtailment backtest for bitc
 5. **Assumptions:** the `assumptions` values from the API, and the list in section 3.8 as static text
 6. **Footer:** "Data provided by Grid Status" linking to https://www.gridstatus.io/; Coin Metrics attribution with licence link
 
+Tooltips: these terms show a Mantine `Tooltip` with exactly this text, marked by a dotted underline: the three rule names in question 1 above the answer, the peak guard slider's label, the results table's strategy names and its transmission, hours off, price gain and 4CP gain headers, and "Breakeven estimate" in the chart legend. The text is static, defined once in `frontend/src/config.ts`, and not served by the API.
+
+| Term | Tooltip |
+| --- | --- |
+| Peak guard threshold | Switch off when grid demand reaches this share of the month’s highest demand so far (or last month’s, if higher), to dodge the 4CP peaks. |
+| Always on | Never switches off. The baseline. |
+| Strike price | Switches off when the last 15 minutes’ power price was above breakeven. |
+| Strike + peak guard | Strike price, plus switching off when grid demand nears the month’s peak. |
+| Transmission | Next year’s charge, set by power used during this summer’s four 4CP peak intervals. |
+| Hours off | Total time the fleet was switched off. |
+| Price gain | Saved by avoiding expensive power, minus mining revenue given up, compared with always on. |
+| 4CP gain | Transmission charges avoided compared with always on. |
+| Breakeven estimate | The power price where mining just pays for itself, using yesterday’s bitcoin price and rewards. |
+
 React + TypeScript + Vite, Mantine, TanStack Query, ECharts. Types come from `schema.ts`. States: loading, error (shows `detail`), success.
 
 Formatting: USD as `$1,234.56` (negative as `−$1,234.56`); hours to two decimals; sats with thousands separators; prices as `$12.34/MWh`. Formatting only; no rounding of values used in any calculation.

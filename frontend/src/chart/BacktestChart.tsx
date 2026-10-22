@@ -2,7 +2,6 @@ import { LineChart } from "echarts/charts";
 import {
   DataZoomComponent,
   GridComponent,
-  LegendComponent,
   MarkAreaComponent,
   MarkLineComponent,
   TooltipComponent,
@@ -21,7 +20,6 @@ registerChartModules([
   LineChart,
   GridComponent,
   TooltipComponent,
-  LegendComponent,
   DataZoomComponent,
   MarkAreaComponent,
   MarkLineComponent,
