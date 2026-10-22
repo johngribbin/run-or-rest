@@ -1,0 +1,45 @@
+import { Group, Slider, Stack, Text } from "@mantine/core";
+import type { Backtest } from "../api/backtest.ts";
+
+type Control = Backtest["controls"]["peak_guard_threshold"];
+
+function decimals(step: string): number {
+  return step.split(".")[1]?.length ?? 0;
+}
+
+export function ThresholdControl({
+  control,
+  value,
+  onChange,
+}: {
+  control: Control;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const places = decimals(control.step);
+  return (
+    <Stack gap={4}>
+      <Text fw={600} id="threshold-label">
+        Peak guard threshold
+      </Text>
+      <Group gap="md" wrap="nowrap">
+        <Slider
+          style={{ flex: 1 }}
+          aria-labelledby="threshold-label"
+          min={Number(control.min)}
+          max={Number(control.max)}
+          step={Number(control.step)}
+          precision={places}
+          value={Number(value)}
+          label={(current) => current.toFixed(places)}
+          onChange={(current) => {
+            onChange(current.toFixed(places));
+          }}
+        />
+        <Text ff="monospace" data-testid="threshold-value">
+          {value}
+        </Text>
+      </Group>
+    </Stack>
+  );
+}
