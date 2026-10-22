@@ -455,3 +455,4 @@ The Makefile works with GNU Make 3.81, the macOS default.
 | `make verify` | lint, format, types, source rules, tests |
 | `make verify-ci` | `verify` plus coverage, CRAP, generated types, frontend build |
 | `make types` | regenerates `schema.ts` from the API's OpenAPI document with `openapi-typescript` |
+
