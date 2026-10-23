@@ -39,7 +39,7 @@ describe("parseBacktest", () => {
     );
   });
 
-  it("rejects an unknown decision", () => {
+  it("rejects an unknown decision at a 4CP peak", () => {
     const body: unknown = JSON.parse(
       JSON.stringify(sampleBacktest).replace(
         '"always_on":"run"',
@@ -48,7 +48,33 @@ describe("parseBacktest", () => {
     );
 
     expect(() => parseBacktest(body)).toThrow(
-      "body.series[0].decisions.always_on is not one of run, off",
+      "body.fourcp.peaks[0].decisions.always_on is not one of run, off",
+    );
+  });
+
+  it("accepts a difficulty change ratio as a string", () => {
+    const body: unknown = JSON.parse(
+      JSON.stringify(sampleBacktest).replace(
+        '"change_ratio":null',
+        '"change_ratio":"0.1000"',
+      ),
+    );
+
+    expect(
+      parseBacktest(body).bitcoin.difficulty_adjustments[0]?.change_ratio,
+    ).toBe("0.1000");
+  });
+
+  it("rejects a numeric difficulty change ratio", () => {
+    const body: unknown = JSON.parse(
+      JSON.stringify(sampleBacktest).replace(
+        '"change_ratio":null',
+        '"change_ratio":0.1',
+      ),
+    );
+
+    expect(() => parseBacktest(body)).toThrow(
+      "body.bitcoin.difficulty_adjustments[0].change_ratio is not a string",
     );
   });
 

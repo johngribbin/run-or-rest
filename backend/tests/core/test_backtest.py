@@ -4,7 +4,7 @@ from decimal import Decimal
 
 from run_or_rest.core.backtest import BacktestResult
 from run_or_rest.core.models import Decision, HistoryInterval, StrategyId
-from run_or_rest.core.peaks import transmission_usd
+from run_or_rest.core.peaks import charge_per_peak_usd, transmission_usd
 from tests.core.builders import (
     ASSUMPTIONS,
     chicago,
@@ -86,7 +86,9 @@ def test_gain_split_adds_up_exactly_with_a_peak_avoided() -> None:
     always_on = strategy(result, StrategyId.ALWAYS_ON)
     strike = strategy(result, StrategyId.STRIKE_PRICE)
 
-    assert [(peak.start, peak.load_mw) for peak in result.fourcp_peaks] == [
+    assert [
+        (outcome.peak.start, outcome.peak.load_mw) for outcome in result.fourcp_peaks
+    ] == [
         (chicago(2026, 6, 1, 12, 30), Decimal(60_000)),
     ]
     assert always_on.transmission_usd == Decimal(50_000)
@@ -102,6 +104,24 @@ def test_gain_split_adds_up_exactly_with_a_peak_avoided() -> None:
     assert always_on.gain_vs_always_on.total_usd == Decimal(0)
 
 
+def test_peak_outcome_reports_price_decisions_and_peaks_run_in() -> None:
+    loads = [50_000] * 96
+    loads[50] = 60_000
+
+    result = worked_day(loads, transmission_rate=50_000)
+    outcome = result.fourcp_peaks[0]
+
+    assert outcome.peak.price_usd_per_mwh == Decimal(500)
+    assert outcome.decisions == {
+        StrategyId.ALWAYS_ON: Decision.RUN,
+        StrategyId.STRIKE_PRICE: Decision.OFF,
+        StrategyId.STRIKE_PEAK_GUARD: Decision.OFF,
+    }
+    assert strategy(result, StrategyId.ALWAYS_ON).peaks_running == 1
+    assert strategy(result, StrategyId.STRIKE_PRICE).peaks_running == 0
+    assert result.charge_per_peak_usd == Decimal(50_000)
+
+
 def test_fourcp_peak_tie_goes_to_the_earliest_interval() -> None:
     loads = [50_000] * 96
     loads[10] = 60_000
@@ -109,7 +129,7 @@ def test_fourcp_peak_tie_goes_to_the_earliest_interval() -> None:
 
     result = worked_day(loads)
 
-    assert [peak.start for peak in result.fourcp_peaks] == [
+    assert [outcome.peak.start for outcome in result.fourcp_peaks] == [
         chicago(2026, 6, 1, 2, 30),
     ]
 
@@ -204,3 +224,7 @@ def test_transmission_at_zero_one_and_four_of_four_peaks() -> None:
     assert transmission_usd(rate, Decimal(1), 0, 4) == Decimal(0)
     assert transmission_usd(rate, Decimal(1), 1, 4) == Decimal(12_500)
     assert transmission_usd(rate, Decimal(1), 4, 4) == Decimal(50_000)
+
+
+def test_charge_for_running_at_one_of_four_peaks() -> None:
+    assert charge_per_peak_usd(Decimal(50_000), Decimal(1), 4) == Decimal(12_500)

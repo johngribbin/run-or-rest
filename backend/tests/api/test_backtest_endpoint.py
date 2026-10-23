@@ -62,14 +62,54 @@ def test_backtest_series_peaks_and_data_quality(tmp_path: Path) -> None:
             {"always_on": "run", "strike_price": "run", "strike_peak_guard": "off"},
         ),
     ]
-    assert body["fourcp_peaks"] == [
-        {
-            "month": "2026-06",
-            "interval_start_utc": "2026-06-01T05:00:00Z",
-            "system_load_mw": "50000.0",
-        },
-    ]
+    assert body["fourcp"] == {
+        "charge_per_peak_usd": "50000.00",
+        "peaks": [
+            {
+                "month": "2026-06",
+                "interval_start_utc": "2026-06-01T05:00:00Z",
+                "system_load_mw": "50000.0",
+                "price_usd_per_mwh": "41.25",
+                "decisions": {
+                    "always_on": "run",
+                    "strike_price": "run",
+                    "strike_peak_guard": "off",
+                },
+            },
+        ],
+    }
     assert body["data_quality"] == {"expected_intervals": 3, "missing_intervals": 2}
+
+
+def test_backtest_reports_bitcoin_inputs_by_day_and_adjustments(
+    tmp_path: Path,
+) -> None:
+    body = client(tmp_path, PEAK_HAS_PRICE).get("/api/backtest").json()
+
+    assert body["bitcoin"] == {
+        "daily": [
+            {
+                "date_utc": "2026-06-01",
+                "btc_price_usd": "71328.73",
+                "difficulty": "1",
+                "reward_per_block_sats": "315153666",
+                "fees_share": "0.0084",
+                "hashprice_usd_per_ph_day": "4431663934875704.48",
+            },
+        ],
+        "difficulty_adjustments": [
+            {
+                "start_utc": "2026-06-01T05:00:00Z",
+                "difficulty": "1",
+                "change_ratio": None,
+            },
+            {
+                "start_utc": "2026-06-01T05:15:00Z",
+                "difficulty": "256",
+                "change_ratio": "255.0000",
+            },
+        ],
+    }
 
 
 def test_backtest_totals_are_rounded_strings_in_spec_order(tmp_path: Path) -> None:
@@ -81,6 +121,8 @@ def test_backtest_totals_are_rounded_strings_in_spec_order(tmp_path: Path) -> No
     assert strategies["always_on"].energy_cost_usd == "10.31"
     assert strategies["always_on"].transmission_usd == "50000.00"
     assert strategies["always_on"].hours_off == "0.00"
+    assert strategies["always_on"].peaks_running == 1
+    assert guard.peaks_running == 0
     assert guard.energy_cost_usd == "0.00"
     assert guard.transmission_usd == "0.00"
     assert guard.hours_off == "0.25"

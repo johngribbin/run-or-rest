@@ -60,15 +60,14 @@ export interface components {
         BacktestResponse: {
             /** @description The inputs this run used: the defaults in section 10 and the request's peak_guard_threshold */
             assumptions: components["schemas"]["Assumptions"];
+            /** @description The bitcoin inputs behind the breakeven line: one row per UTC day (section 3.10) and the difficulty adjustments (section 3.11) */
+            bitcoin: components["schemas"]["Bitcoin"];
             /** @description The allowed range, step and default of each request parameter; the UI builds its controls from these instead of copying the values */
             controls: components["schemas"]["Controls"];
             /** @description Window intervals expected and how many were skipped for missing data (section 6.5) */
             data_quality: components["schemas"]["DataQuality"];
-            /**
-             * Fourcp Peaks
-             * @description The 4CP peak intervals (section 5.1), one per peak month, with the system load at each
-             */
-            fourcp_peaks: components["schemas"]["FourCpPeak"][];
+            /** @description What running at one 4CP peak costs (section 5.2), and the 4CP peak intervals (section 5.1), one per peak month, with the system load, the price and each strategy's decision at each */
+            fourcp: components["schemas"]["FourCp"];
             /** @description The window's start and end in UTC (section 6.1) and the settlement point priced */
             period: components["schemas"]["Period"];
             /**
@@ -78,11 +77,57 @@ export interface components {
             series: components["schemas"]["SeriesPoint"][];
             /**
              * Strategies
-             * @description One entry per strategy, in the order always_on, strike_price, strike_peak_guard: the totals in section 5.3, and gain_vs_always_on split into price, 4CP and total (zero for always_on itself)
+             * @description One entry per strategy, in the order always_on, strike_price, strike_peak_guard: the totals in section 5.3, how many 4CP peak intervals it ran in (section 5.2), and gain_vs_always_on split into price, 4CP and total (zero for always_on itself)
              */
             strategies: components["schemas"]["Strategy"][];
             /** @description The strategy with the highest net profit (section 5.3) and how much more it made than always on */
             winner: components["schemas"]["Winner"];
+        };
+        /** Bitcoin */
+        Bitcoin: {
+            /**
+             * Daily
+             * @description One row per UTC day holding a window interval (section 3.10)
+             */
+            daily: components["schemas"]["BitcoinDay"][];
+            /**
+             * Difficulty Adjustments
+             * @description The difficulty at the window start, then each change (section 3.11)
+             */
+            difficulty_adjustments: components["schemas"]["DifficultyAdjustment"][];
+        };
+        /** BitcoinDay */
+        BitcoinDay: {
+            /**
+             * Btc Price Usd
+             * @description The UTC day's BTC price, USD
+             */
+            btc_price_usd: string;
+            /**
+             * Date Utc
+             * @description UTC date, YYYY-MM-DD
+             */
+            date_utc: string;
+            /**
+             * Difficulty
+             * @description Difficulty used by the day's first window interval
+             */
+            difficulty: string;
+            /**
+             * Fees Share
+             * @description The UTC day's fees as a share of subsidy plus fees
+             */
+            fees_share: string;
+            /**
+             * Hashprice Usd Per Ph Day
+             * @description What 1 PH/s earns in the day after the pool fee, USD (section 3.9)
+             */
+            hashprice_usd_per_ph_day: string;
+            /**
+             * Reward Per Block Sats
+             * @description The UTC day's subsidy plus fees per block, sats (section 3.4)
+             */
+            reward_per_block_sats: string;
         };
         /** Controls */
         Controls: {
@@ -116,6 +161,24 @@ export interface components {
             /** @description The strike_price strategy's decision */
             strike_price: components["schemas"]["Decision"];
         };
+        /** DifficultyAdjustment */
+        DifficultyAdjustment: {
+            /**
+             * Change Ratio
+             * @description Difficulty over the previous difficulty, minus 1; null for the first entry (section 3.11)
+             */
+            change_ratio: string | null;
+            /**
+             * Difficulty
+             * @description The difficulty
+             */
+            difficulty: string;
+            /**
+             * Start Utc
+             * @description Start of the first window interval using this difficulty
+             */
+            start_utc: string;
+        };
         /** ErrorResponse */
         ErrorResponse: {
             /**
@@ -124,8 +187,23 @@ export interface components {
              */
             detail: string;
         };
+        /** FourCp */
+        FourCp: {
+            /**
+             * Charge Per Peak Usd
+             * @description What running at one 4CP peak interval costs, USD (section 5.2)
+             */
+            charge_per_peak_usd: string;
+            /**
+             * Peaks
+             * @description The 4CP peak intervals (section 5.1), one per peak month
+             */
+            peaks: components["schemas"]["FourCpPeak"][];
+        };
         /** FourCpPeak */
         FourCpPeak: {
+            /** @description Each strategy's decision at the peak interval */
+            decisions: components["schemas"]["Decisions"];
             /**
              * Interval Start Utc
              * @description Start of the peak interval in UTC
@@ -136,6 +214,11 @@ export interface components {
              * @description Peak month, YYYY-MM
              */
             month: string;
+            /**
+             * Price Usd Per Mwh
+             * @description The peak interval's actual price
+             */
+            price_usd_per_mwh: string;
             /**
              * System Load Mw
              * @description ERCOT system load at the peak, MW
@@ -234,6 +317,11 @@ export interface components {
              * @description Revenue minus energy cost minus transmission, USD
              */
             net_profit_usd: string;
+            /**
+             * Peaks Running
+             * @description How many 4CP peak intervals the strategy ran in (section 5.2)
+             */
+            peaks_running: number;
             /**
              * Revenue Usd
              * @description Mining revenue, USD

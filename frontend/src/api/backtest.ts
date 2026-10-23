@@ -7,6 +7,9 @@ export type Strategy = Schemas["Strategy"];
 export type StrategyId = Schemas["StrategyId"];
 export type Decision = Schemas["Decision"];
 export type SeriesPoint = Schemas["SeriesPoint"];
+export type FourCp = Schemas["FourCp"];
+export type Bitcoin = Schemas["Bitcoin"];
+type Decisions = Schemas["Decisions"];
 
 export class BacktestRequestError extends Error {}
 
@@ -45,6 +48,10 @@ function text(value: object, key: string, path: string): string {
     throw shapeError(`${path}.${key}`, "is not a string");
   }
   return found;
+}
+
+function nullableText(value: object, key: string, path: string): string | null {
+  return field(value, key) === null ? null : text(value, key, path);
 }
 
 function integer(value: object, key: string, path: string): number {
@@ -96,6 +103,7 @@ function parseStrategy(value: object, path: string): Strategy {
     net_profit_usd: text(value, "net_profit_usd", path),
     mined_sats: integer(value, "mined_sats", path),
     hours_off: text(value, "hours_off", path),
+    peaks_running: integer(value, "peaks_running", path),
     gain_vs_always_on: {
       price_usd: text(gain, "price_usd", gainPath),
       fourcp_usd: text(gain, "fourcp_usd", gainPath),
@@ -104,9 +112,22 @@ function parseStrategy(value: object, path: string): Strategy {
   };
 }
 
-function parsePoint(value: object, path: string): SeriesPoint {
+function parseDecisions(value: object, path: string): Decisions {
   const decisions = child(value, "decisions", path);
   const decisionsPath = `${path}.decisions`;
+  return {
+    always_on: oneOf(DECISIONS, decisions, "always_on", decisionsPath),
+    strike_price: oneOf(DECISIONS, decisions, "strike_price", decisionsPath),
+    strike_peak_guard: oneOf(
+      DECISIONS,
+      decisions,
+      "strike_peak_guard",
+      decisionsPath,
+    ),
+  };
+}
+
+function parsePoint(value: object, path: string): SeriesPoint {
   return {
     interval_start_utc: text(value, "interval_start_utc", path),
     price_usd_per_mwh: text(value, "price_usd_per_mwh", path),
@@ -115,16 +136,53 @@ function parsePoint(value: object, path: string): SeriesPoint {
       "breakeven_estimate_usd_per_mwh",
       path,
     ),
-    decisions: {
-      always_on: oneOf(DECISIONS, decisions, "always_on", decisionsPath),
-      strike_price: oneOf(DECISIONS, decisions, "strike_price", decisionsPath),
-      strike_peak_guard: oneOf(
-        DECISIONS,
-        decisions,
-        "strike_peak_guard",
-        decisionsPath,
-      ),
-    },
+    decisions: parseDecisions(value, path),
+  };
+}
+
+function parseFourCp(body: object): FourCp {
+  const fourcp = child(body, "fourcp", "body");
+  return {
+    charge_per_peak_usd: text(fourcp, "charge_per_peak_usd", "body.fourcp"),
+    peaks: list(fourcp, "peaks", "body.fourcp").map((item, index) => {
+      const path = `body.fourcp.peaks[${String(index)}]`;
+      return {
+        month: text(item, "month", path),
+        interval_start_utc: text(item, "interval_start_utc", path),
+        system_load_mw: text(item, "system_load_mw", path),
+        price_usd_per_mwh: text(item, "price_usd_per_mwh", path),
+        decisions: parseDecisions(item, path),
+      };
+    }),
+  };
+}
+
+function parseBitcoin(body: object): Bitcoin {
+  const bitcoin = child(body, "bitcoin", "body");
+  return {
+    daily: list(bitcoin, "daily", "body.bitcoin").map((item, index) => {
+      const path = `body.bitcoin.daily[${String(index)}]`;
+      return {
+        date_utc: text(item, "date_utc", path),
+        btc_price_usd: text(item, "btc_price_usd", path),
+        difficulty: text(item, "difficulty", path),
+        reward_per_block_sats: text(item, "reward_per_block_sats", path),
+        fees_share: text(item, "fees_share", path),
+        hashprice_usd_per_ph_day: text(item, "hashprice_usd_per_ph_day", path),
+      };
+    }),
+    difficulty_adjustments: list(
+      bitcoin,
+      "difficulty_adjustments",
+      "body.bitcoin",
+    ).map((item, index) => {
+      const path = `body.bitcoin.difficulty_adjustments[${String(index)}]`;
+      return {
+        start_utc: text(item, "start_utc", path),
+        difficulty: text(item, "difficulty", path),
+        change_ratio: nullableText(item, "change_ratio", path),
+      };
+    }),
   };
 }
 
@@ -210,14 +268,8 @@ export function parseBacktest(value: unknown): Backtest {
       ),
     },
     strategies,
-    fourcp_peaks: list(body, "fourcp_peaks", "body").map((item, index) => {
-      const path = `body.fourcp_peaks[${String(index)}]`;
-      return {
-        month: text(item, "month", path),
-        interval_start_utc: text(item, "interval_start_utc", path),
-        system_load_mw: text(item, "system_load_mw", path),
-      };
-    }),
+    fourcp: parseFourCp(body),
+    bitcoin: parseBitcoin(body),
     series: list(body, "series", "body").map((item, index) =>
       parsePoint(item, `body.series[${String(index)}]`),
     ),

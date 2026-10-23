@@ -5,12 +5,14 @@ from run_or_rest.core.economics import (
     difficulty_from_bits,
     energy_cost_usd,
     expected_blocks,
+    fees_share,
+    hashprice_usd_per_ph_day,
     hashrate_hs,
     net_sats,
     revenue_usd,
     reward_per_block_sats,
 )
-from run_or_rest.core.models import DailyChain, Sats
+from run_or_rest.core.models import DailyChain, DayEconomics, Sats
 
 
 def test_one_mw_at_25_j_per_th_is_40000_th_per_second() -> None:
@@ -77,3 +79,30 @@ def test_exponent_below_three_scales_the_mantissa_down() -> None:
     assert difficulty_from_bits("02000100") == Decimal(
         "2.695953529101130949315647634E+67",
     )
+
+
+def test_hashprice_of_one_ph_per_second_for_a_day() -> None:
+    day = DayEconomics(
+        chain=DailyChain(
+            block_count=1,
+            subsidy_sats=Sats(320_000_000),
+            fees_sats=Sats(0),
+        ),
+        btc_price_usd=Decimal(80_000),
+    )
+
+    assert hashprice_usd_per_ph_day(
+        Decimal("0.02"),
+        Decimal(20_599_365_234_375),
+        day,
+    ) == Decimal("245.00")
+
+
+def test_fees_share_is_fees_over_subsidy_plus_fees() -> None:
+    chain = DailyChain(
+        block_count=144,
+        subsidy_sats=Sats(312_500_000),
+        fees_sats=Sats(2_500_000),
+    )
+
+    assert fees_share(chain) == Decimal("0.007936507936507936507936507937")

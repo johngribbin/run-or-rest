@@ -4,6 +4,12 @@ from datetime import datetime
 from decimal import Decimal
 
 from run_or_rest.config import INTERVAL_HOURS
+from run_or_rest.core.bitcoin import (
+    BitcoinDay,
+    DifficultyAdjustment,
+    bitcoin_days,
+    difficulty_adjustments,
+)
 from run_or_rest.core.context import SettledInterval, settled_intervals
 from run_or_rest.core.economics import (
     energy_cost_usd,
@@ -20,7 +26,12 @@ from run_or_rest.core.models import (
     StrategyId,
     WindowInterval,
 )
-from run_or_rest.core.peaks import FourCpPeak, fourcp_peaks, transmission_usd
+from run_or_rest.core.peaks import (
+    FourCpPeak,
+    charge_per_peak_usd,
+    fourcp_peaks,
+    transmission_usd,
+)
 from run_or_rest.core.strategies import STRATEGIES, Strategy
 from run_or_rest.core.timestamps import interval_starts
 
@@ -42,6 +53,7 @@ class StrategyResult:
     net_profit_usd: Decimal
     mined_sats: Sats
     hours_off: Decimal
+    peaks_running: int
     gain_vs_always_on: Gain
 
 
@@ -54,6 +66,12 @@ class SeriesPoint:
 
 
 @dataclass(frozen=True)
+class PeakOutcome:
+    peak: FourCpPeak
+    decisions: Mapping[StrategyId, Decision]
+
+
+@dataclass(frozen=True)
 class BacktestResult:
     window_start: datetime
     window_end: datetime
@@ -61,8 +79,11 @@ class BacktestResult:
     strategies: tuple[StrategyResult, ...]
     winner: StrategyId
     winner_advantage_usd: Decimal
-    fourcp_peaks: tuple[FourCpPeak, ...]
+    charge_per_peak_usd: Decimal
+    fourcp_peaks: tuple[PeakOutcome, ...]
     series: tuple[SeriesPoint, ...]
+    bitcoin_days: tuple[BitcoinDay, ...]
+    difficulty_adjustments: tuple[DifficultyAdjustment, ...]
     expected_intervals: int
     missing_intervals: int
 
@@ -76,6 +97,7 @@ class _Totals:
     net_profit_usd: Decimal
     mined_sats: Sats
     hours_off: Decimal
+    peaks_running: int
 
 
 @dataclass(frozen=True)
@@ -160,10 +182,13 @@ def _totals(
     running, intervals_off = _split_by_decision(strategy.id, settlements)
     revenue = sum((settlement.revenue_usd for settlement in running), Decimal(0))
     cost = sum((settlement.energy_cost_usd for settlement in running), Decimal(0))
+    peaks_running = sum(
+        1 for settlement in running if settlement.point.start in peak_starts
+    )
     transmission = transmission_usd(
         assumptions.transmission_rate_usd_per_mw_year,
         assumptions.fleet_mw,
-        sum(1 for settlement in running if settlement.point.start in peak_starts),
+        peaks_running,
         len(peak_starts),
     )
     return _Totals(
@@ -174,6 +199,7 @@ def _totals(
         net_profit_usd=revenue - cost - transmission,
         mined_sats=Sats(sum(settlement.sats for settlement in running)),
         hours_off=intervals_off * INTERVAL_HOURS,
+        peaks_running=peaks_running,
     )
 
 
@@ -193,8 +219,17 @@ def _result(totals: _Totals, baseline: _Totals) -> StrategyResult:
         net_profit_usd=totals.net_profit_usd,
         mined_sats=totals.mined_sats,
         hours_off=totals.hours_off,
+        peaks_running=totals.peaks_running,
         gain_vs_always_on=gain,
     )
+
+
+def _peak_outcomes(
+    peaks: Sequence[FourCpPeak],
+    series: Sequence[SeriesPoint],
+) -> tuple[PeakOutcome, ...]:
+    decisions = {point.start: point.decisions for point in series}
+    return tuple(PeakOutcome(peak, decisions[peak.start]) for peak in peaks)
 
 
 def _winner(results: Sequence[StrategyResult]) -> StrategyResult:
@@ -225,6 +260,7 @@ def run_backtest(
         strategy.id: _totals(strategy, settlements, peak_starts, assumptions)
         for strategy in STRATEGIES
     }
+    series = tuple(settlement.point for settlement in settlements)
     baseline = totals[StrategyId.ALWAYS_ON]
     results = tuple(_result(each, baseline) for each in totals.values())
     winner = _winner(results)
@@ -235,8 +271,15 @@ def run_backtest(
         strategies=results,
         winner=winner.id,
         winner_advantage_usd=winner.gain_vs_always_on.total_usd,
-        fourcp_peaks=tuple(peaks),
-        series=tuple(settlement.point for settlement in settlements),
+        charge_per_peak_usd=charge_per_peak_usd(
+            assumptions.transmission_rate_usd_per_mw_year,
+            assumptions.fleet_mw,
+            len(peaks),
+        ),
+        fourcp_peaks=_peak_outcomes(peaks, series),
+        series=series,
+        bitcoin_days=tuple(bitcoin_days(window, assumptions.pool_fee_rate)),
+        difficulty_adjustments=tuple(difficulty_adjustments(window)),
         expected_intervals=expected,
         missing_intervals=len(window) - len(settled),
     )

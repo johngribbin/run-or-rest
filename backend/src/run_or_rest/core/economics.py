@@ -2,11 +2,13 @@ from decimal import ROUND_FLOOR, Decimal
 
 from run_or_rest.config import (
     HASHES_PER_DIFFICULTY,
+    HASHES_PER_PETAHASH,
     HASHES_PER_TERAHASH,
     INTERVAL_HOURS,
     INTERVAL_SECONDS,
     MAX_TARGET,
     SATS_PER_BTC,
+    SECONDS_PER_DAY,
     WATTS_PER_MW,
 )
 from run_or_rest.core.models import DailyChain, DayEconomics, Sats
@@ -65,3 +67,17 @@ def interval_net_sats(
     blocks = expected_blocks(hashrate, INTERVAL_SECONDS, difficulty)
     reward = reward_per_block_sats(day.chain)
     return net_sats(blocks, reward, pool_fee_rate)
+
+
+def fees_share(chain: DailyChain) -> Decimal:
+    return Decimal(chain.fees_sats) / (chain.subsidy_sats + chain.fees_sats)
+
+
+def hashprice_usd_per_ph_day(
+    pool_fee_rate: Decimal,
+    difficulty: Decimal,
+    day: DayEconomics,
+) -> Decimal:
+    blocks = expected_blocks(HASHES_PER_PETAHASH, SECONDS_PER_DAY, difficulty)
+    sats = net_sats(blocks, reward_per_block_sats(day.chain), pool_fee_rate)
+    return revenue_usd(sats, day.btc_price_usd)

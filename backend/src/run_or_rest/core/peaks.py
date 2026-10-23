@@ -13,6 +13,7 @@ class FourCpPeak:
     month: MonthKey
     start: datetime
     load_mw: Decimal
+    price_usd_per_mwh: Decimal
 
 
 @dataclass(frozen=True)
@@ -50,7 +51,12 @@ def _peak(month: MonthKey, candidate: _Candidate | None) -> FourCpPeak:
     if candidate.price_usd_per_mwh is None:
         msg = f"4CP peak interval {utc_text(candidate.start)} has no price"
         raise BacktestError(msg)
-    return FourCpPeak(month, candidate.start, candidate.load_mw)
+    return FourCpPeak(
+        month,
+        candidate.start,
+        candidate.load_mw,
+        candidate.price_usd_per_mwh,
+    )
 
 
 def fourcp_peaks(window: Sequence[WindowInterval]) -> list[FourCpPeak]:
@@ -65,3 +71,11 @@ def transmission_usd(
     peak_months: int,
 ) -> Decimal:
     return rate_usd_per_mw_year * fleet_mw * peaks_running / peak_months
+
+
+def charge_per_peak_usd(
+    rate_usd_per_mw_year: Decimal,
+    fleet_mw: Decimal,
+    peak_months: int,
+) -> Decimal:
+    return rate_usd_per_mw_year * fleet_mw / peak_months
