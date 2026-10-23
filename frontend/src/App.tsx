@@ -15,6 +15,7 @@ import { REFETCH_DEBOUNCE_MS, STALE_OPACITY, UPDATING_TEXT } from "./config.ts";
 import { AssumptionsSection } from "./sections/AssumptionsSection.tsx";
 import { ChartSection } from "./sections/ChartSection.tsx";
 import { Footer } from "./sections/Footer.tsx";
+import { FourCpExplainer } from "./sections/FourCpExplainer.tsx";
 import { Header } from "./sections/Header.tsx";
 import { Hero } from "./sections/Hero.tsx";
 import { ResultsTable } from "./sections/ResultsTable.tsx";
@@ -52,6 +53,7 @@ function Results({
       ) : null}
       <Stack gap="lg" style={shown} aria-busy={stale}>
         <StrategyCards backtest={backtest} />
+        <FourCpExplainer backtest={backtest} />
         <ResultsTable backtest={backtest} />
         <ChartSection backtest={backtest} />
         <AssumptionsSection backtest={backtest} />
