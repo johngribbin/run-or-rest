@@ -2,6 +2,7 @@ import { LineChart } from "echarts/charts";
 import {
   DataZoomComponent,
   GridComponent,
+  MarkAreaComponent,
   MarkLineComponent,
   TooltipComponent,
 } from "echarts/components";
@@ -21,36 +22,25 @@ registerChartModules([
   GridComponent,
   TooltipComponent,
   DataZoomComponent,
+  MarkAreaComponent,
   MarkLineComponent,
   SVGRenderer,
 ]);
-
-function ignoreZoom(): undefined {
-  return undefined;
-}
 
 export function EChart({
   option,
   label,
   height,
   zoom,
-  onZoom = ignoreZoom,
 }: {
   option: EChartsCoreOption;
   label: string;
   height: number;
   zoom?: ZoomWindow;
-  onZoom?: (zoom: ZoomWindow) => void;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const chart = useRef<EChartsType | null>(null);
   const shown = useRef<ZoomWindow>(FULL_ZOOM);
-  const report = useRef(onZoom);
-
-  useEffect(() => {
-    report.current = onZoom;
-  }, [onZoom]);
-
   useEffect(() => {
     const element = container.current;
     if (element === null) {
@@ -62,7 +52,6 @@ export function EChart({
       const next = zoomFromEvent(event);
       if (next !== null) {
         shown.current = next;
-        report.current(next);
       }
     });
     const observer = new ResizeObserver(() => {

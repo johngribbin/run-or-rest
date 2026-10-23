@@ -216,23 +216,45 @@ describe("App", () => {
     });
   });
 
-  it("lists every rule's switched-off hours under the chart", async () => {
+  it("shades the winner's off periods and lets you pick the other rule", async () => {
     respondWith(200, sampleBacktest);
+    const user = userEvent.setup();
 
     renderApp();
-    const lanes = await screen.findByRole("list", {
-      name: "When each rule was switched off",
+    const picker = await screen.findByRole("radiogroup", {
+      name: "Show when the miners were off under",
+    });
+    const radios = within(picker).getAllByRole("radio");
+
+    expect(radios.map((radio) => radio.getAttribute("value"))).toEqual([
+      "strike_price",
+      "strike_peak_guard",
+    ]);
+    expect(
+      within(picker).getByRole("radio", { name: "Strike + peak guard" }),
+    ).toBeChecked();
+    await user.click(
+      within(picker).getByRole("radio", { name: "Strike price" }),
+    );
+    expect(
+      within(picker).getByRole("radio", { name: "Strike price" }),
+    ).toBeChecked();
+  });
+
+  it("shades the first curtailing rule when always on wins", async () => {
+    respondWith(200, {
+      ...sampleBacktest,
+      winner: { id: "always_on", advantage_over_always_on_usd: "0.00" },
+    });
+
+    renderApp();
+    const picker = await screen.findByRole("radiogroup", {
+      name: "Show when the miners were off under",
     });
 
     expect(
-      within(lanes)
-        .getAllByRole("listitem")
-        .map((lane) => lane.getAttribute("aria-label")),
-    ).toEqual([
-      "Always on: 0.0 h",
-      "Strike price: 12.2 h",
-      "Strike + peak guard: 421.5 h",
-    ]);
+      within(picker).getByRole("radio", { name: "Strike price" }),
+    ).toBeChecked();
   });
 
   it("offers the whole season and each month as chart ranges", async () => {

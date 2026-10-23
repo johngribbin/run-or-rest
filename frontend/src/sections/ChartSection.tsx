@@ -1,26 +1,39 @@
 import { Group, SegmentedControl, Stack, Text, Title } from "@mantine/core";
 import { useMemo, useState } from "react";
-import type { Backtest } from "../api/backtest.ts";
+import {
+  BASELINE_STRATEGY_ID,
+  type Backtest,
+  type StrategyId,
+  strategyById,
+} from "../api/backtest.ts";
 import { EChart } from "../chart/EChart.tsx";
 import {
   FULL_ZOOM,
   type ZoomWindow,
   chartExtent,
   chartOption,
-  visibleExtent,
   zoomFor,
 } from "../chart/option.ts";
 import { centralMonths } from "../chart/time.ts";
 import { CHART_COPY, CHART_HEIGHT_PX } from "../config.ts";
 import { ChartLegend } from "./ChartLegend.tsx";
-import { OffLanes } from "./OffLanes.tsx";
 import { Panel } from "./ui.tsx";
 
 export function ChartSection({ backtest }: { backtest: Backtest }) {
   const [range, setRange] = useState(CHART_COPY.season);
   const [requested, setRequested] = useState<ZoomWindow>(FULL_ZOOM);
-  const [shown, setShown] = useState<ZoomWindow>(FULL_ZOOM);
-  const option = useMemo(() => chartOption(backtest), [backtest]);
+  const curtailing = backtest.strategies.filter(
+    (strategy) => strategy.id !== BASELINE_STRATEGY_ID,
+  );
+  const [picked, setPicked] = useState<StrategyId>(
+    backtest.winner.id === BASELINE_STRATEGY_ID
+      ? (curtailing[0]?.id ?? BASELINE_STRATEGY_ID)
+      : backtest.winner.id,
+  );
+  const option = useMemo(
+    () => chartOption(backtest, strategyById(backtest, picked)),
+    [backtest, picked],
+  );
   const extent = chartExtent(backtest);
   const ranges = [
     { label: CHART_COPY.season, zoom: FULL_ZOOM },
@@ -57,15 +70,35 @@ export function ChartSection({ backtest }: { backtest: Backtest }) {
             }}
           />
         </Group>
-        <ChartLegend />
+        <Group justify="space-between" gap="md">
+          <ChartLegend />
+          <Group gap="xs">
+            <Text size="xs" c="dimmed" id="off-picker-label">
+              {CHART_COPY.offPicker}
+            </Text>
+            <SegmentedControl
+              aria-labelledby="off-picker-label"
+              size="xs"
+              value={picked}
+              data={curtailing.map((strategy) => ({
+                label: strategy.label,
+                value: strategy.id,
+              }))}
+              onChange={(value) => {
+                const match = curtailing.find((item) => item.id === value);
+                if (match !== undefined) {
+                  setPicked(match.id);
+                }
+              }}
+            />
+          </Group>
+        </Group>
         <EChart
           option={option}
           label={CHART_COPY.chartLabel}
           height={CHART_HEIGHT_PX}
           zoom={requested}
-          onZoom={setShown}
         />
-        <OffLanes backtest={backtest} visible={visibleExtent(extent, shown)} />
       </Stack>
     </Panel>
   );

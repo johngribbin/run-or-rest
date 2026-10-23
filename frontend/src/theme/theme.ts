@@ -42,6 +42,7 @@ const colorVariables: Record<string, string> = {
   "--ror-price": COLORS.price,
   "--ror-peak": COLORS.peak,
   "--ror-lane": COLORS.lane,
+  "--ror-off-band": COLORS.offBand,
 };
 
 export const cssVariablesResolver: CSSVariablesResolver = () => ({

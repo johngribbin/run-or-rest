@@ -24,9 +24,11 @@ export const COLORS = {
   accentSoft: "rgba(247, 147, 26, 0.12)",
   good: "#3FB97A",
   bad: "#F06A5B",
-  price: "#4C8DF6",
+  price: "#7DB3FF",
   peak: "#9085E9",
   lane: "#5B6370",
+  offBand: "rgba(247, 147, 26, 0.38)",
+  zoomFill: "rgba(247, 147, 26, 0.3)",
 };
 
 export const REFETCH_DEBOUNCE_MS = 300;
@@ -127,7 +129,6 @@ export const THOUSANDS_SEPARATOR = ",";
 export const CHART_HEIGHT_PX = 360;
 export const SMALL_CHART_HEIGHT_PX = 120;
 export const CHART_GRID_PX = { left: 56, right: 24, top: 40, bottom: 56 };
-export const CHART_LANE_HEIGHT_PX = 10;
 export const CHART_COPY = {
   heading: "Power price vs. mining breakeven",
   subtitleTail:
@@ -137,8 +138,10 @@ export const CHART_COPY = {
   peakMarker: "4CP",
   rangeLabel: "Time range",
   season: "Season",
-  lanesTitle: "When each rule was switched off",
-  hoursUnit: "h",
+  offLegend: "Miners off",
+  offPicker: "Show when the miners were off under",
+  off: "off",
+  running: "running",
   chartLabel: "Power price and breakeven over time, with the 4CP peaks marked",
 };
 export const DISPLAY_TIME_ZONE = "America/Chicago";

@@ -5,7 +5,12 @@ import type {
   TooltipComponentOption,
 } from "echarts/components";
 import type { ComposeOption } from "echarts/core";
-import type { Backtest, SeriesPoint, StrategyId } from "../api/backtest.ts";
+import type {
+  Backtest,
+  SeriesPoint,
+  Strategy,
+  StrategyId,
+} from "../api/backtest.ts";
 import {
   CHART_COPY,
   CHART_GRID_PX,
@@ -37,13 +42,7 @@ export interface Extent {
   max: number;
 }
 
-export interface LaneRect {
-  x: number;
-  width: number;
-}
-
 export const FULL_ZOOM: ZoomWindow = { start: 0, end: 100 };
-export const LANE_UNITS = 1000;
 
 export function intervalMs(backtest: Backtest): number {
   const span =
@@ -88,40 +87,12 @@ export function offBands(
   return bands;
 }
 
-export function visibleExtent(extent: Extent, zoom: ZoomWindow): Extent {
-  const span = extent.max - extent.min;
-  return {
-    min: extent.min + (span * zoom.start) / 100,
-    max: extent.min + (span * zoom.end) / 100,
-  };
-}
-
 export function zoomFor(extent: Extent, range: Extent): ZoomWindow {
   const span = extent.max - extent.min;
   return {
     start: ((range.min - extent.min) / span) * 100,
     end: ((range.max - extent.min) / span) * 100,
   };
-}
-
-export function laneRects(
-  bands: readonly OffBand[],
-  visible: Extent,
-): LaneRect[] {
-  const span = visible.max - visible.min;
-  return bands.flatMap((band) => {
-    const from = Math.max(chartTime(band.start), visible.min);
-    const to = Math.min(chartTime(band.end), visible.max);
-    if (to <= from) {
-      return [];
-    }
-    return [
-      {
-        x: ((from - visible.min) / span) * LANE_UNITS,
-        width: ((to - from) / span) * LANE_UNITS,
-      },
-    ];
-  });
 }
 
 function numberField(value: object, key: string): number | null {
@@ -147,12 +118,30 @@ export function priceTick(value: number): string {
   return formatDecimal(String(value));
 }
 
-export function tooltipText(point: SeriesPoint): string {
+export function tooltipText(point: SeriesPoint, strategy: Strategy): string {
+  const state =
+    point.decisions[strategy.id] === "off"
+      ? CHART_COPY.off
+      : CHART_COPY.running;
   return [
     formatCentralTime(point.interval_start_utc),
     `${CHART_SERIES_NAMES.price}: ${formatPrice(point.price_usd_per_mwh)}`,
     `${CHART_SERIES_NAMES.breakeven}: ${formatPrice(point.breakeven_estimate_usd_per_mwh)}`,
+    `${strategy.label}: ${state}`,
   ].join("<br/>");
+}
+
+function offShading(backtest: Backtest, strategy: StrategyId) {
+  return {
+    silent: true,
+    itemStyle: { color: COLORS.offBand },
+    data: offBands(backtest.series, strategy, intervalMs(backtest)).map(
+      (band): [{ xAxis: number }, { xAxis: number }] => [
+        { xAxis: chartTime(band.start) },
+        { xAxis: chartTime(band.end) },
+      ],
+    ),
+  };
 }
 
 function line(
@@ -166,7 +155,7 @@ function line(
     type: "line",
     showSymbol: false,
     lineStyle: {
-      width: dashed ? 1.5 : 1,
+      width: dashed ? 1.5 : 1.25,
       color,
       type: dashed ? "dashed" : "solid",
     },
@@ -187,7 +176,7 @@ function peakMarkers(backtest: Backtest) {
   return {
     silent: true,
     symbol: "none",
-    lineStyle: { color: COLORS.peak, type: "solid" as const, width: 1 },
+    lineStyle: { color: COLORS.peak, type: "solid" as const, width: 1.5 },
     label: {
       formatter: "{b}",
       position: "end" as const,
@@ -213,17 +202,25 @@ function zoomControls(): DataZoomComponentOption[] {
       height: 20,
       bottom: 8,
       showDataShadow: false,
-      borderColor: COLORS.line,
+      borderColor: COLORS.textMuted,
       backgroundColor: COLORS.surfaceRaised,
-      fillerColor: COLORS.accentSoft,
-      textStyle: { color: COLORS.textMuted },
-      handleStyle: { color: COLORS.surface, borderColor: COLORS.textMuted },
-      moveHandleStyle: { color: COLORS.line },
+      fillerColor: COLORS.zoomFill,
+      textStyle: { color: COLORS.textSecondary },
+      handleSize: "120%",
+      handleStyle: { color: COLORS.accent, borderColor: COLORS.accent },
+      moveHandleStyle: { color: COLORS.accent, opacity: 0.6 },
+      emphasis: {
+        handleStyle: { color: COLORS.accent, borderColor: COLORS.text },
+        moveHandleStyle: { color: COLORS.accent, opacity: 1 },
+      },
     },
   ];
 }
 
-export function chartOption(backtest: Backtest): ChartOption {
+export function chartOption(
+  backtest: Backtest,
+  strategy: Strategy,
+): ChartOption {
   const at = (point: SeriesPoint) => chartTime(point.interval_start_utc);
   const price = line(
     CHART_SERIES_NAMES.price,
@@ -244,6 +241,7 @@ export function chartOption(backtest: Backtest): ChartOption {
     true,
   );
   price.markLine = peakMarkers(backtest);
+  price.markArea = offShading(backtest, strategy.id);
   const extent = chartExtent(backtest);
   return {
     animation: false,
@@ -256,7 +254,7 @@ export function chartOption(backtest: Backtest): ChartOption {
       formatter: (params) => {
         const first = Array.isArray(params) ? params[0] : params;
         const point = backtest.series[first?.dataIndex ?? -1];
-        return point === undefined ? "" : tooltipText(point);
+        return point === undefined ? "" : tooltipText(point, strategy);
       },
     },
     grid: CHART_GRID_PX,
