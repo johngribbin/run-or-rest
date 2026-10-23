@@ -1,6 +1,7 @@
 import { Group, Slider, Stack, Text } from "@mantine/core";
 import type { Backtest } from "../api/backtest.ts";
 import { TOOLTIPS } from "../config.ts";
+import { formatPercent } from "../format.ts";
 import { Term } from "./Term.tsx";
 
 type Control = Backtest["controls"]["peak_guard_threshold"];
@@ -33,13 +34,13 @@ export function ThresholdControl({
           step={Number(control.step)}
           precision={places}
           value={Number(value)}
-          label={(current) => current.toFixed(places)}
+          label={(current) => formatPercent(current.toFixed(places))}
           onChange={(current) => {
             onChange(current.toFixed(places));
           }}
         />
         <Text ff="monospace" data-testid="threshold-value">
-          {value}
+          {formatPercent(value)}
         </Text>
       </Group>
     </Stack>

@@ -1,7 +1,7 @@
-import { CHART_TIME_ZONE } from "../config.ts";
+import { DISPLAY_TIME_ZONE, DISPLAY_TIME_ZONE_LABEL } from "../config.ts";
 
 const wallClock = new Intl.DateTimeFormat("en-US", {
-  timeZone: CHART_TIME_ZONE,
+  timeZone: DISPLAY_TIME_ZONE,
   hourCycle: "h23",
   year: "numeric",
   month: "numeric",
@@ -11,13 +11,27 @@ const wallClock = new Intl.DateTimeFormat("en-US", {
   second: "numeric",
 });
 
+const shownTime = new Intl.DateTimeFormat("en-US", {
+  timeZone: DISPLAY_TIME_ZONE,
+  hourCycle: "h23",
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+export function formatCentralTime(utc: string): string {
+  return `${shownTime.format(new Date(utc))} ${DISPLAY_TIME_ZONE_LABEL}`;
+}
+
 function part(
   parts: Intl.DateTimeFormatPart[],
   type: Intl.DateTimeFormatPartTypes,
 ): number {
   const found = parts.find((item) => item.type === type);
   if (found === undefined) {
-    throw new Error(`No ${type} in ${CHART_TIME_ZONE} time`);
+    throw new Error(`No ${type} in ${DISPLAY_TIME_ZONE} time`);
   }
   return Number(found.value);
 }

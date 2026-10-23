@@ -16,6 +16,7 @@ from run_or_rest.core.models import (
     WindowInterval,
 )
 from run_or_rest.core.months import MonthKey, month_of, previous_month
+from run_or_rest.core.timestamps import utc_text
 
 
 @dataclass(frozen=True)
@@ -53,7 +54,7 @@ class _Observed:
 
 def _require(value: Decimal | None, missing: str, start: datetime) -> Decimal:
     if value is None:
-        msg = f"No {missing} before the interval starting {start.isoformat()}"
+        msg = f"No {missing} before the interval starting {utc_text(start)}"
         raise BacktestError(msg)
     return value
 

@@ -1,4 +1,3 @@
-from datetime import UTC, datetime
 from decimal import ROUND_HALF_EVEN, Decimal
 
 from run_or_rest.api import schemas
@@ -16,6 +15,7 @@ from run_or_rest.config import (
 )
 from run_or_rest.core.backtest import BacktestResult, SeriesPoint, StrategyResult
 from run_or_rest.core.peaks import FourCpPeak
+from run_or_rest.core.timestamps import utc_text
 
 
 def rounded(value: Decimal, places: int) -> str:
@@ -23,12 +23,12 @@ def rounded(value: Decimal, places: int) -> str:
     return str(quantized.copy_abs() if quantized.is_zero() else quantized)
 
 
+def unrounded(value: Decimal) -> str:
+    return f"{value:f}"
+
+
 def usd(value: Decimal) -> str:
     return rounded(value, USD_DECIMAL_PLACES)
-
-
-def utc(moment: datetime) -> str:
-    return moment.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _controls() -> schemas.Controls:
@@ -67,14 +67,14 @@ def _strategy(result: StrategyResult) -> schemas.Strategy:
 def _peak(peak: FourCpPeak) -> schemas.FourCpPeak:
     return schemas.FourCpPeak(
         month=f"{peak.month.year:04d}-{peak.month.month:02d}",
-        interval_start_utc=utc(peak.start),
+        interval_start_utc=utc_text(peak.start),
         system_load_mw=rounded(peak.load_mw, LOAD_DECIMAL_PLACES),
     )
 
 
 def _point(point: SeriesPoint) -> schemas.SeriesPoint:
     return schemas.SeriesPoint(
-        interval_start_utc=utc(point.start),
+        interval_start_utc=utc_text(point.start),
         price_usd_per_mwh=rounded(point.price_usd_per_mwh, PRICE_DECIMAL_PLACES),
         breakeven_estimate_usd_per_mwh=rounded(
             point.breakeven_estimate_usd_per_mwh,
@@ -93,19 +93,19 @@ def to_response(result: BacktestResult) -> schemas.BacktestResponse:
     assumptions = result.assumptions
     return schemas.BacktestResponse(
         period=schemas.Period(
-            start_utc=utc(result.window_start),
-            end_utc=utc(result.window_end),
+            start_utc=utc_text(result.window_start),
+            end_utc=utc_text(result.window_end),
             settlement_point=SETTLEMENT_POINT,
         ),
         controls=_controls(),
         assumptions=schemas.Assumptions(
-            fleet_mw=str(assumptions.fleet_mw),
-            efficiency_j_per_th=str(assumptions.efficiency_j_per_th),
-            pool_fee_rate=str(assumptions.pool_fee_rate),
-            transmission_rate_usd_per_mw_year=str(
+            fleet_mw=unrounded(assumptions.fleet_mw),
+            efficiency_j_per_th=unrounded(assumptions.efficiency_j_per_th),
+            pool_fee_rate=unrounded(assumptions.pool_fee_rate),
+            transmission_rate_usd_per_mw_year=unrounded(
                 assumptions.transmission_rate_usd_per_mw_year,
             ),
-            peak_guard_threshold=str(assumptions.peak_guard_threshold),
+            peak_guard_threshold=unrounded(assumptions.peak_guard_threshold),
         ),
         winner=schemas.Winner(
             id=result.winner,

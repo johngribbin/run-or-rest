@@ -86,7 +86,7 @@ def test_window_interval_before_any_difficulty_row_fails_loading(
 
     with pytest.raises(
         DataError,
-        match=r"difficulty_epochs\.csv has no row at or before 2026-06-01T05:00:00",
+        match=r"difficulty_epochs\.csv has no row at or before 2026-06-01T05:00:00Z",
     ):
         load(tmp_path, edits)
 

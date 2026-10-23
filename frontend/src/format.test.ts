@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  formatDecimal,
   formatHours,
-  formatPrice,
   formatInteger,
+  formatPercent,
+  formatPrice,
   formatUsd,
 } from "./format.ts";
 
@@ -13,7 +15,8 @@ describe("formatUsd", () => {
     ["999.99", "$999.99"],
     ["1234567.89", "$1,234,567.89"],
     ["-1234.56", "−$1,234.56"],
-    ["50000", "$50,000"],
+    ["50000", "$50,000.00"],
+    ["0.5", "$0.50"],
   ])("formats %s as %s", (value, expected) => {
     expect(formatUsd(value)).toBe(expected);
   });
@@ -40,6 +43,30 @@ describe("formatHours", () => {
 
   it("groups thousands", () => {
     expect(formatHours("2928.00")).toBe("2,928.00");
+  });
+});
+
+describe("formatDecimal", () => {
+  it("groups thousands and keeps every digit", () => {
+    expect(formatDecimal("82712.7")).toBe("82,712.7");
+  });
+
+  it("writes a negative value with a minus sign", () => {
+    expect(formatDecimal("-100")).toBe("−100");
+  });
+});
+
+describe("formatPercent", () => {
+  it.each([
+    ["0.02", "2%"],
+    ["0.95", "95%"],
+    ["0.80", "80%"],
+    ["1.00", "100%"],
+    ["1", "100%"],
+    ["0.955", "95.5%"],
+    ["0", "0%"],
+  ])("formats the share %s as %s", (value, expected) => {
+    expect(formatPercent(value)).toBe(expected);
   });
 });
 

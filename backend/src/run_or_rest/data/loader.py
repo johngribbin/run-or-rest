@@ -19,6 +19,7 @@ from run_or_rest.core.models import (
     HistoryInterval,
     WindowInterval,
 )
+from run_or_rest.core.timestamps import utc_text
 from run_or_rest.data.files import (
     DataError,
     DifficultyEpoch,
@@ -71,7 +72,7 @@ def _day(daily: _DailyData, day: date, start: datetime) -> DayEconomics:
     price = daily.btc_price.get(day)
     if chain is None or price is None:
         path = daily.paths.chain_daily if chain is None else daily.paths.btc_price_daily
-        msg = f"{path.name} has no row for {day}, needed by {start.isoformat()}"
+        msg = f"{path.name} has no row for {day}, needed by {utc_text(start)}"
         raise DataError(msg)
     return DayEconomics(chain=chain, btc_price_usd=price)
 
@@ -80,7 +81,7 @@ def _difficulty(daily: _DailyData, start: datetime) -> Decimal:
     index = bisect_right([epoch.start for epoch in daily.epochs], start)
     if index == 0:
         name = daily.paths.difficulty_epochs.name
-        msg = f"{name} has no row at or before {start.isoformat()}"
+        msg = f"{name} has no row at or before {utc_text(start)}"
         raise DataError(msg)
     return daily.epochs[index - 1].difficulty
 

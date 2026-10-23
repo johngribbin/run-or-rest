@@ -1,19 +1,24 @@
 import { List, Stack, Table, Title } from "@mantine/core";
 import type { Backtest } from "../api/backtest.ts";
 import { MODEL_ASSUMPTIONS } from "../config.ts";
-import { formatUsd } from "../format.ts";
+import { formatCentralTime } from "../chart/time.ts";
+import { formatPercent, formatUsd } from "../format.ts";
 
 export function AssumptionsSection({ backtest }: { backtest: Backtest }) {
   const values = backtest.assumptions;
   const rows: [string, string][] = [
     ["Fleet size", `${values.fleet_mw} MW`],
     ["Efficiency", `${values.efficiency_j_per_th} J/TH`],
-    ["Pool fee rate", values.pool_fee_rate],
+    ["Pool fee rate", formatPercent(values.pool_fee_rate)],
     [
       "Transmission rate",
       `${formatUsd(values.transmission_rate_usd_per_mw_year)} per MW-year`,
     ],
-    ["Peak guard threshold", values.peak_guard_threshold],
+    ["Peak guard threshold", formatPercent(values.peak_guard_threshold)],
+    [
+      "Period",
+      `${formatCentralTime(backtest.period.start_utc)} to ${formatCentralTime(backtest.period.end_utc)}`,
+    ],
     ["Settlement point", backtest.period.settlement_point],
   ];
   return (
