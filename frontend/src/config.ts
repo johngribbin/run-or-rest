@@ -117,6 +117,7 @@ export const BITCOIN_COPY = {
     hashprice: "Hashprice",
     feesShare: "Fees share of reward",
   },
+  adjustmentsList: "Difficulty adjustments in this window",
   hashpriceCaption: "USD per PH/s per day, after the pool fee",
   feesCaption: "Transaction fees as a share of subsidy plus fees",
   charts: {
@@ -132,6 +133,7 @@ export const BREAKDOWN_COPY = {
   noGain: "—",
 };
 export const ASSUMPTIONS_HEADING = "Model and assumptions";
+export const STRATEGIES_HEADING = "All three rules";
 export const BEST_BADGE = "Best";
 export const BASELINE_DELTA = "Baseline";
 export const KPI_LABELS = {

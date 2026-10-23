@@ -1,4 +1,4 @@
-import { Group, SimpleGrid, Stack, Text, Title } from "@mantine/core";
+import { Group, SimpleGrid, Stack, Text } from "@mantine/core";
 import {
   BASELINE_STRATEGY_ID,
   type Backtest,
@@ -62,9 +62,11 @@ function Answer({
   const peaks = backtest.fourcp.peaks.length;
   return (
     <Stack gap="lg">
-      <Eyebrow>{ANSWER_LABEL}</Eyebrow>
+      <Eyebrow heading>{ANSWER_LABEL}</Eyebrow>
       <Stack gap="xs">
-        <Title order={2}>{winner.label}</Title>
+        <Text size="xl" fw={600} lh={1.25}>
+          {winner.label}
+        </Text>
         {baselineWins ? (
           <Text c="var(--ror-text-secondary)">
             {winner.label} made the most money; neither curtailment rule beat

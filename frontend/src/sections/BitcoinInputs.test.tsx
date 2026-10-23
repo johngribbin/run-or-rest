@@ -81,6 +81,25 @@ describe("BitcoinInputs", () => {
     expect(tile("Fees share of reward")).toHaveTextContent("0.8% → 1.0%");
   });
 
+  it("lists every difficulty adjustment for screen readers", async () => {
+    respondWith(200, twoDays);
+
+    renderApp();
+    const list = await screen.findByRole("list", {
+      name: "Difficulty adjustments in this window",
+    });
+
+    expect(
+      within(list)
+        .getAllByRole("listitem")
+        .map((item) => item.textContent),
+    ).toEqual([
+      "Jun 1, 2026, 00:00 CT: 139.0 T",
+      "Jun 13, 2026, 19:30 CT: 124.9 T, −10.1%",
+      "Sep 19, 2026, 02:15 CT: 132.8 T, +6.3%",
+    ]);
+  });
+
   it("names each chart's source", async () => {
     respondWith(200, sampleBacktest);
 

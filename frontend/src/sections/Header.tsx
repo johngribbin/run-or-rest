@@ -51,7 +51,7 @@ function ColorSchemeToggle() {
   return (
     <ActionIcon
       variant="default"
-      size="lg"
+      size={44}
       aria-label={COLOR_SCHEME_TOGGLE_LABELS[scheme]}
       onClick={() => {
         setColorScheme(scheme === "dark" ? "light" : "dark");

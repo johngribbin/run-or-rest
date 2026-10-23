@@ -1,4 +1,4 @@
-import { Group, Slider, Stack, Text } from "@mantine/core";
+import { Group, Slider, Stack, Text, Title } from "@mantine/core";
 import type { Backtest } from "../api/backtest.ts";
 import {
   THRESHOLD_END_LABELS,
@@ -29,9 +29,9 @@ export function ThresholdControl({
       <Group gap="xl" align="center" wrap="wrap">
         <Stack gap={2} style={{ flex: "1 1 240px" }}>
           <Group justify="space-between" align="baseline">
-            <Text fw={600} size="lg" id="threshold-label">
+            <Title order={3} component="h2" id="threshold-label">
               {THRESHOLD_LABEL}
-            </Text>
+            </Title>
             <Text size="xl" fw={600} data-testid="threshold-value">
               {formatPercent(value)}
             </Text>
@@ -42,6 +42,8 @@ export function ThresholdControl({
         </Stack>
         <Stack gap={6} style={{ flex: "2 1 320px" }}>
           <Slider
+            color="var(--ror-accent)"
+            thumbSize={24}
             aria-labelledby="threshold-label"
             thumbProps={{
               "aria-labelledby": "threshold-label",

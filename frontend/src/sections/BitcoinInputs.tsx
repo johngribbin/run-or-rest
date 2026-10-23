@@ -6,6 +6,7 @@ import {
   Text,
   Title,
   useComputedColorScheme,
+  VisuallyHidden,
 } from "@mantine/core";
 import { type ReactNode, useMemo } from "react";
 import type { Backtest } from "../api/backtest.ts";
@@ -15,7 +16,7 @@ import {
   hashpriceOption,
 } from "../chart/bitcoinOptions.ts";
 import { EChart } from "../chart/EChart.tsx";
-import { formatUtcDay } from "../chart/time.ts";
+import { formatCentralTime, formatUtcDay } from "../chart/time.ts";
 import {
   BITCOIN_COPY,
   COLOR_TOKENS,
@@ -27,6 +28,7 @@ import {
   formatDifficulty,
   formatInteger,
   formatRatioPercent,
+  formatSignedRatioPercent,
   formatUsd,
   formatUsdWhole,
 } from "../format.ts";
@@ -177,9 +179,11 @@ function Tiles({ backtest }: { backtest: Backtest }) {
 function SmallChart({
   title,
   option,
+  children,
 }: {
   title: string;
   option: ReturnType<typeof btcPriceOption>;
+  children?: ReactNode;
 }) {
   return (
     <Stack gap={4}>
@@ -187,7 +191,24 @@ function SmallChart({
         {title}
       </Text>
       <EChart option={option} label={title} height={SMALL_CHART_HEIGHT_PX} />
+      {children}
     </Stack>
+  );
+}
+
+function AdjustmentList({ backtest }: { backtest: Backtest }) {
+  return (
+    <VisuallyHidden component="ol" aria-label={BITCOIN_COPY.adjustmentsList}>
+      {backtest.bitcoin.difficulty_adjustments.map((adjustment) => (
+        <li key={adjustment.start_utc}>
+          {formatCentralTime(adjustment.start_utc)}:{" "}
+          {formatDifficulty(adjustment.difficulty)}
+          {adjustment.change_ratio === null
+            ? ""
+            : `, ${formatSignedRatioPercent(adjustment.change_ratio)}`}
+        </li>
+      ))}
+    </VisuallyHidden>
   );
 }
 
@@ -220,7 +241,9 @@ export function BitcoinInputs({ backtest }: { backtest: Backtest }) {
           <SmallChart
             title={BITCOIN_COPY.charts.difficulty}
             option={options.difficulty}
-          />
+          >
+            <AdjustmentList backtest={backtest} />
+          </SmallChart>
           <SmallChart
             title={BITCOIN_COPY.charts.hashprice}
             option={options.hashprice}

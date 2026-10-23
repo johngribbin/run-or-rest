@@ -22,9 +22,17 @@ export function Panel({
   );
 }
 
-export function Eyebrow({ children }: { children: ReactNode }) {
+export function Eyebrow({
+  children,
+  heading = false,
+}: {
+  children: ReactNode;
+  heading?: boolean;
+}) {
   return (
     <Text
+      component={heading ? "h2" : "p"}
+      m={0}
       size="xs"
       fw={500}
       tt="uppercase"
