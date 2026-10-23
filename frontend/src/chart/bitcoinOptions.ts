@@ -1,6 +1,6 @@
 import type { LineSeriesOption } from "echarts/charts";
 import type { Backtest } from "../api/backtest.ts";
-import { CHART_GRID_PX, type ColorTokens } from "../config.ts";
+import { CHART_GRID_PX, COLORS } from "../config.ts";
 import {
   formatDifficulty,
   formatHashprice,
@@ -43,7 +43,6 @@ function dataIndexOf(params: unknown): number {
 
 function smallOption(
   extent: Extent,
-  colors: ColorTokens,
   series: LineSeriesOption,
   tick: (value: number) => string,
   tooltip: (index: number) => string,
@@ -54,25 +53,25 @@ function smallOption(
     grid: SMALL_GRID,
     tooltip: {
       trigger: "axis",
-      backgroundColor: colors.surface,
-      borderColor: colors.line,
-      textStyle: { color: colors.text },
+      backgroundColor: COLORS.surface,
+      borderColor: COLORS.line,
+      textStyle: { color: COLORS.text },
       formatter: (params) => tooltip(dataIndexOf(params)),
     },
     xAxis: {
       type: "time",
       min: extent.min,
       max: extent.max,
-      axisLine: { lineStyle: { color: colors.line } },
-      axisLabel: { hideOverlap: true, color: colors.textMuted },
+      axisLine: { lineStyle: { color: COLORS.line } },
+      axisLabel: { hideOverlap: true, color: COLORS.textMuted },
       splitLine: { show: false },
     },
     yAxis: {
       type: "value",
       scale: true,
       splitNumber: 2,
-      axisLabel: { formatter: tick, color: colors.textMuted },
-      splitLine: { lineStyle: { color: colors.line } },
+      axisLabel: { formatter: tick, color: COLORS.textMuted },
+      splitLine: { lineStyle: { color: COLORS.line } },
     },
     dataZoom: [
       {
@@ -109,35 +108,27 @@ function dayTooltip(daily: readonly Day[], value: (day: Day) => string) {
   };
 }
 
-export function btcPriceOption(
-  backtest: Backtest,
-  colors: ColorTokens,
-): ChartOption {
+export function btcPriceOption(backtest: Backtest): ChartOption {
   const daily = backtest.bitcoin.daily;
   return smallOption(
     chartExtent(backtest),
-    colors,
-    dailyLine(daily, colors.accent, (day) => day.btc_price_usd),
+    dailyLine(daily, COLORS.accent, (day) => day.btc_price_usd),
     tickLabel(THOUSAND, "$", "k"),
     dayTooltip(daily, (day) => formatUsdWhole(day.btc_price_usd)),
   );
 }
 
-export function hashpriceOption(
-  backtest: Backtest,
-  colors: ColorTokens,
-): ChartOption {
+export function hashpriceOption(backtest: Backtest): ChartOption {
   const daily = backtest.bitcoin.daily;
   return smallOption(
     chartExtent(backtest),
-    colors,
-    dailyLine(daily, colors.text, (day) => day.hashprice_usd_per_ph_day),
+    dailyLine(daily, COLORS.text, (day) => day.hashprice_usd_per_ph_day),
     tickLabel(1, "$", ""),
     dayTooltip(daily, (day) => formatHashprice(day.hashprice_usd_per_ph_day)),
   );
 }
 
-function adjustmentPoint(adjustment: Adjustment, colors: ColorTokens) {
+function adjustmentPoint(adjustment: Adjustment) {
   const ratio = adjustment.change_ratio;
   return {
     value: [chartTime(adjustment.start_utc), Number(adjustment.difficulty)],
@@ -148,16 +139,13 @@ function adjustmentPoint(adjustment: Adjustment, colors: ColorTokens) {
         : {
             show: true,
             position: "top" as const,
-            color: ratio.startsWith("-") ? colors.bad : colors.good,
+            color: ratio.startsWith("-") ? COLORS.bad : COLORS.good,
             formatter: formatSignedRatioPercent(ratio),
           },
   };
 }
 
-export function difficultyOption(
-  backtest: Backtest,
-  colors: ColorTokens,
-): ChartOption {
+export function difficultyOption(backtest: Backtest): ChartOption {
   const adjustments = backtest.bitcoin.difficulty_adjustments;
   const extent = chartExtent(backtest);
   const last = adjustments.at(-1);
@@ -173,16 +161,15 @@ export function difficultyOption(
         ];
   return smallOption(
     extent,
-    colors,
     {
       type: "line",
       step: "end",
       showSymbol: true,
       symbolSize: 5,
-      lineStyle: { width: 2, color: colors.text },
-      itemStyle: { color: colors.text },
+      lineStyle: { width: 2, color: COLORS.text },
+      itemStyle: { color: COLORS.text },
       data: [
-        ...adjustments.map((adjustment) => adjustmentPoint(adjustment, colors)),
+        ...adjustments.map((adjustment) => adjustmentPoint(adjustment)),
         ...hold,
       ],
     },

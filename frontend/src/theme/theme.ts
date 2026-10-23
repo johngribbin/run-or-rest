@@ -1,11 +1,5 @@
 import { type CSSVariablesResolver, createTheme, rem } from "@mantine/core";
-import {
-  COLOR_TOKENS,
-  type ColorTokens,
-  FONT_FAMILY,
-  FONT_SIZES_PX,
-  RADIUS_PX,
-} from "../config.ts";
+import { COLORS, FONT_FAMILY, FONT_SIZES_PX, RADIUS_PX } from "../config.ts";
 
 export const theme = createTheme({
   fontFamily: FONT_FAMILY,
@@ -29,33 +23,31 @@ export const theme = createTheme({
   defaultRadius: rem(RADIUS_PX),
 });
 
-function tokenVariables(tokens: ColorTokens): Record<string, string> {
-  return {
-    "--mantine-color-body": tokens.background,
-    "--mantine-color-text": tokens.text,
-    "--mantine-color-dimmed": tokens.textMuted,
-    "--mantine-color-default-border": tokens.line,
-    "--ror-background": tokens.background,
-    "--ror-surface": tokens.surface,
-    "--ror-surface-raised": tokens.surfaceRaised,
-    "--ror-line": tokens.line,
-    "--ror-text": tokens.text,
-    "--ror-text-secondary": tokens.textSecondary,
-    "--ror-text-muted": tokens.textMuted,
-    "--ror-accent": tokens.accent,
-    "--ror-accent-soft": tokens.accentSoft,
-    "--ror-good": tokens.good,
-    "--ror-bad": tokens.bad,
-    "--ror-price": tokens.price,
-    "--ror-peak": tokens.peak,
-    "--ror-lane": tokens.lane,
-  };
-}
+const colorVariables: Record<string, string> = {
+  "--mantine-color-body": COLORS.background,
+  "--mantine-color-text": COLORS.text,
+  "--mantine-color-dimmed": COLORS.textMuted,
+  "--mantine-color-default-border": COLORS.line,
+  "--ror-background": COLORS.background,
+  "--ror-surface": COLORS.surface,
+  "--ror-surface-raised": COLORS.surfaceRaised,
+  "--ror-line": COLORS.line,
+  "--ror-text": COLORS.text,
+  "--ror-text-secondary": COLORS.textSecondary,
+  "--ror-text-muted": COLORS.textMuted,
+  "--ror-accent": COLORS.accent,
+  "--ror-accent-soft": COLORS.accentSoft,
+  "--ror-good": COLORS.good,
+  "--ror-bad": COLORS.bad,
+  "--ror-price": COLORS.price,
+  "--ror-peak": COLORS.peak,
+  "--ror-lane": COLORS.lane,
+};
 
 export const cssVariablesResolver: CSSVariablesResolver = () => ({
   variables: {
     "--ror-font-size-hero": rem(FONT_SIZES_PX.hero),
   },
-  light: tokenVariables(COLOR_TOKENS.light),
-  dark: tokenVariables(COLOR_TOKENS.dark),
+  light: {},
+  dark: colorVariables,
 });

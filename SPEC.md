@@ -415,7 +415,7 @@ Errors: `422` for an out-of-range or off-step parameter; `503` with `{"detail": 
 
 The audience knows bitcoin mining (hashrate, difficulty, hashprice, pools) but not the Texas grid. The page explains the grid side in plain words and shows the bitcoin inputs behind every result.
 
-**Header:** title "Run or Rest", subtitle "ERCOT curtailment backtest for bitcoin miners"; chips for the period, the settlement point, and the fleet (`fleet_mw`, `efficiency_j_per_th`, `pool_fee_rate`); a colour-scheme toggle. The default scheme is dark; the toggle switches to light.
+**Header:** title "Run or Rest", subtitle "ERCOT curtailment backtest for bitcoin miners"; chips for the period, the settlement point, and the fleet (`fleet_mw`, `efficiency_j_per_th`, `pool_fee_rate`). The page has one colour scheme, dark; there is no light scheme or toggle.
 
 One page, top to bottom:
 
@@ -452,7 +452,7 @@ Tooltips: these terms show a Mantine `Tooltip` with exactly this text, marked by
 
 React + TypeScript + Vite, Mantine, TanStack Query, ECharts. Types come from `schema.ts`. States: loading, error (shows `detail`), success.
 
-Look: one type scale of five sizes (40, 24, 16, 14 and 12 px), the system font stack with tabular figures, three text colours (primary, secondary, muted), and colour tokens defined once for both schemes. Gains and losses show a sign as well as a colour. Text meets WCAG AA contrast in both schemes. The page works at 390 px wide with no horizontal page scroll; the breakdown table scrolls inside its box.
+Look: one type scale of five sizes (40, 24, 16, 14 and 12 px), the system font stack with tabular figures, three text colours (primary, secondary, muted), and colour tokens defined once. Gains and losses show a sign as well as a colour. Text meets WCAG AA contrast. The page works at 390 px wide with no horizontal page scroll; the breakdown table scrolls inside its box.
 
 Formatting: in the breakdown table, USD as `$1,234.56`; elsewhere, USD rounded with ROUND_HALF_EVEN to whole dollars as `$1,235`; negatives as `−$1,234.56`, and gains with an explicit sign (`+$1,235`); hours to one decimal outside the table and two in it; BTC as sats ÷ 100,000,000 to 4 places; sats with thousands separators; prices as `$12.34/MWh`; difficulty in T (÷ 10^12) to one decimal; ratios as percents to one decimal. Formatting only; no rounding of values used in any calculation.
 

@@ -10,7 +10,7 @@ import {
   CHART_COPY,
   CHART_GRID_PX,
   CHART_SERIES_NAMES,
-  type ColorTokens,
+  COLORS,
 } from "../config.ts";
 import { formatDecimal, formatPrice } from "../format.ts";
 import { chartTime, formatCentralTime, formatPeakDay } from "./time.ts";
@@ -175,23 +175,23 @@ function line(
   };
 }
 
-function axisColors(colors: ColorTokens) {
+function axisColors() {
   return {
-    nameTextStyle: { color: colors.textMuted },
-    axisLine: { lineStyle: { color: colors.line } },
-    splitLine: { lineStyle: { color: colors.line } },
+    nameTextStyle: { color: COLORS.textMuted },
+    axisLine: { lineStyle: { color: COLORS.line } },
+    splitLine: { lineStyle: { color: COLORS.line } },
   };
 }
 
-function peakMarkers(backtest: Backtest, colors: ColorTokens) {
+function peakMarkers(backtest: Backtest) {
   return {
     silent: true,
     symbol: "none",
-    lineStyle: { color: colors.peak, type: "solid" as const, width: 1 },
+    lineStyle: { color: COLORS.peak, type: "solid" as const, width: 1 },
     label: {
       formatter: "{b}",
       position: "end" as const,
-      color: colors.textSecondary,
+      color: COLORS.textSecondary,
     },
     data: backtest.fourcp.peaks.map((peak) => ({
       name: `${CHART_COPY.peakMarker} · ${formatPeakDay(peak.interval_start_utc)}`,
@@ -200,7 +200,7 @@ function peakMarkers(backtest: Backtest, colors: ColorTokens) {
   };
 }
 
-function zoomControls(colors: ColorTokens): DataZoomComponentOption[] {
+function zoomControls(): DataZoomComponentOption[] {
   return [
     {
       type: "inside",
@@ -213,24 +213,21 @@ function zoomControls(colors: ColorTokens): DataZoomComponentOption[] {
       height: 20,
       bottom: 8,
       showDataShadow: false,
-      borderColor: colors.line,
-      backgroundColor: colors.surfaceRaised,
-      fillerColor: colors.accentSoft,
-      textStyle: { color: colors.textMuted },
-      handleStyle: { color: colors.surface, borderColor: colors.textMuted },
-      moveHandleStyle: { color: colors.line },
+      borderColor: COLORS.line,
+      backgroundColor: COLORS.surfaceRaised,
+      fillerColor: COLORS.accentSoft,
+      textStyle: { color: COLORS.textMuted },
+      handleStyle: { color: COLORS.surface, borderColor: COLORS.textMuted },
+      moveHandleStyle: { color: COLORS.line },
     },
   ];
 }
 
-export function chartOption(
-  backtest: Backtest,
-  colors: ColorTokens,
-): ChartOption {
+export function chartOption(backtest: Backtest): ChartOption {
   const at = (point: SeriesPoint) => chartTime(point.interval_start_utc);
   const price = line(
     CHART_SERIES_NAMES.price,
-    colors.price,
+    COLORS.price,
     backtest.series.map((point) => [
       at(point),
       Number(point.price_usd_per_mwh),
@@ -239,23 +236,23 @@ export function chartOption(
   );
   const breakeven = line(
     CHART_SERIES_NAMES.breakeven,
-    colors.text,
+    COLORS.text,
     backtest.series.map((point) => [
       at(point),
       Number(point.breakeven_estimate_usd_per_mwh),
     ]),
     true,
   );
-  price.markLine = peakMarkers(backtest, colors);
+  price.markLine = peakMarkers(backtest);
   const extent = chartExtent(backtest);
   return {
     animation: false,
     useUTC: true,
     tooltip: {
       trigger: "axis",
-      backgroundColor: colors.surface,
-      borderColor: colors.line,
-      textStyle: { color: colors.text },
+      backgroundColor: COLORS.surface,
+      borderColor: COLORS.line,
+      textStyle: { color: COLORS.text },
       formatter: (params) => {
         const first = Array.isArray(params) ? params[0] : params;
         const point = backtest.series[first?.dataIndex ?? -1];
@@ -264,20 +261,20 @@ export function chartOption(
     },
     grid: CHART_GRID_PX,
     xAxis: {
-      ...axisColors(colors),
+      ...axisColors(),
       type: "time",
       min: extent.min,
       max: extent.max,
       splitLine: { show: false },
-      axisLabel: { hideOverlap: true, color: colors.textMuted },
+      axisLabel: { hideOverlap: true, color: COLORS.textMuted },
     },
     yAxis: {
-      ...axisColors(colors),
+      ...axisColors(),
       type: "value",
       name: CHART_COPY.priceAxis,
-      axisLabel: { formatter: priceTick, color: colors.textMuted },
+      axisLabel: { formatter: priceTick, color: COLORS.textMuted },
     },
-    dataZoom: zoomControls(colors),
+    dataZoom: zoomControls(),
     series: [price, breakeven],
   };
 }
