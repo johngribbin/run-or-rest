@@ -93,3 +93,7 @@ uv run python -m scripts.fetch_price
 BITCOIN_RPC_URL=… BITCOIN_RPC_USER=… BITCOIN_RPC_PASSWORD=… \
   uv run python -m scripts.fetch_chain
 ```
+
+## Roadmap
+
+Planned improvements and known issues are tracked as [GitHub issues](https://github.com/johngribbin/run-or-rest/issues). Ideas for later carry the [`later`](https://github.com/johngribbin/run-or-rest/labels/later) label; known bugs carry [`bug`](https://github.com/johngribbin/run-or-rest/labels/bug).
