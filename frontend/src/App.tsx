@@ -13,6 +13,7 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { type Backtest, fetchBacktest } from "./api/backtest.ts";
 import {
+  COLORS,
   LOADING_TEXT,
   REFETCH_DEBOUNCE_MS,
   STALE_OPACITY,
@@ -112,7 +113,7 @@ export function App() {
       <Container size="lg" py="xl">
         <Stack gap="xl">
           {query.isError ? (
-            <Alert color="red" title="The backtest could not be loaded">
+            <Alert color={COLORS.bad} title="The backtest could not be loaded">
               {query.error.message}
             </Alert>
           ) : null}

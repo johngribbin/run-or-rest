@@ -1,6 +1,6 @@
 import type { LineSeriesOption } from "echarts/charts";
 import type { Backtest } from "../api/backtest.ts";
-import { CHART_GRID_PX, COLORS } from "../config.ts";
+import { CHART_GRID_PX, COLORS, DIFFICULTY_UNIT } from "../config.ts";
 import {
   formatDifficulty,
   formatHashprice,
@@ -21,7 +21,6 @@ const SMALL_GRID = {
 };
 const MIDDAY_UTC = "T12:00:00Z";
 const THOUSAND = 1000;
-const TERA = 1e12;
 
 export function dayTime(day: Day): number {
   return chartTime(`${day.date_utc}${MIDDAY_UTC}`);
@@ -138,7 +137,9 @@ export function hashpriceOption(backtest: Backtest): ChartOption {
   );
 }
 
-function adjustmentPoint(adjustment: Adjustment) {
+type LinePoint = NonNullable<LineSeriesOption["data"]>[number];
+
+function adjustmentPoint(adjustment: Adjustment): LinePoint {
   const ratio = adjustment.change_ratio;
   return {
     value: [chartTime(adjustment.start_utc), Number(adjustment.difficulty)],
@@ -148,7 +149,7 @@ function adjustmentPoint(adjustment: Adjustment) {
         ? { show: false }
         : {
             show: true,
-            position: "top" as const,
+            position: "top",
             color: ratio.startsWith("-") ? COLORS.bad : COLORS.good,
             formatter: formatSignedRatioPercent(ratio),
           },
@@ -183,7 +184,7 @@ export function difficultyOption(backtest: Backtest): ChartOption {
         ...hold,
       ],
     },
-    tickLabel(TERA, "", " T"),
+    tickLabel(10 ** DIFFICULTY_UNIT.power, "", ` ${DIFFICULTY_UNIT.suffix}`),
     (params) => {
       const time = firstField(params, "axisValue");
       const adjustment =

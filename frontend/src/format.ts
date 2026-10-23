@@ -119,7 +119,10 @@ function shiftedPoint(value: string, power: number): string {
 }
 
 export function formatRatioPercent(value: string): string {
-  const percent = roundedHalfEven(shiftedPoint(value, 2), RATIO_PERCENT_PLACES);
+  const percent = roundedHalfEven(
+    shiftedPoint(value, PERCENT_SHIFT),
+    RATIO_PERCENT_PLACES,
+  );
   return `${formatDecimal(percent)}%`;
 }
 

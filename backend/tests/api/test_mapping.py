@@ -3,6 +3,7 @@ from decimal import Decimal
 import pytest
 
 from run_or_rest.api.mapping import rounded, unrounded
+from run_or_rest.config import RATIO_DECIMAL_PLACES
 
 
 @pytest.mark.parametrize(
@@ -32,3 +33,14 @@ def test_a_value_rounding_to_zero_has_no_minus_sign() -> None:
 def test_unrounded_values_keep_their_digits_in_fixed_point() -> None:
     assert unrounded(Decimal("5E+4")) == "50000"
     assert unrounded(Decimal("0.950")) == "0.950"
+
+
+def test_fees_share_example_is_sent_to_four_places() -> None:
+    assert (
+        rounded(Decimal("0.007936507936507936507936507937"), RATIO_DECIMAL_PLACES)
+        == "0.0079"
+    )
+
+
+def test_difficulty_change_example_is_sent_to_four_places() -> None:
+    assert rounded(Decimal("0.1"), RATIO_DECIMAL_PLACES) == "0.1000"

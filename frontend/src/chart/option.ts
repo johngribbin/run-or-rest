@@ -229,14 +229,14 @@ function axisColors() {
   };
 }
 
-function peakMarkers(backtest: Backtest) {
+function peakMarkers(backtest: Backtest): LineSeriesOption["markLine"] {
   return {
     silent: true,
     symbol: "none",
-    lineStyle: { color: COLORS.bad, type: "solid" as const, width: 2 },
+    lineStyle: { color: COLORS.bad, type: "solid", width: 2 },
     label: {
       formatter: "{b}",
-      position: "end" as const,
+      position: "end",
       color: COLORS.textSecondary,
     },
     data: backtest.fourcp.peaks.map((peak) => ({
