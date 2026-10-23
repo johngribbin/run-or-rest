@@ -18,6 +18,7 @@ import { Footer } from "./sections/Footer.tsx";
 import { Header } from "./sections/Header.tsx";
 import { Hero } from "./sections/Hero.tsx";
 import { ResultsTable } from "./sections/ResultsTable.tsx";
+import { StrategyCards } from "./sections/StrategyCards.tsx";
 import { ThresholdControl } from "./sections/ThresholdControl.tsx";
 
 function Results({
@@ -34,8 +35,8 @@ function Results({
   const control = backtest.controls.peak_guard_threshold;
   const shown = { opacity: stale ? STALE_OPACITY : 1 };
   return (
-    <Stack gap="xl">
-      <Stack gap="xl" style={shown} aria-busy={stale}>
+    <Stack gap="lg">
+      <Stack gap="lg" style={shown} aria-busy={stale}>
         <Hero backtest={backtest} />
       </Stack>
       <ThresholdControl
@@ -49,7 +50,8 @@ function Results({
           <Text size="sm">{UPDATING_TEXT}</Text>
         </Group>
       ) : null}
-      <Stack gap="xl" style={shown} aria-busy={stale}>
+      <Stack gap="lg" style={shown} aria-busy={stale}>
+        <StrategyCards backtest={backtest} />
         <ResultsTable backtest={backtest} />
         <ChartSection backtest={backtest} />
         <AssumptionsSection backtest={backtest} />

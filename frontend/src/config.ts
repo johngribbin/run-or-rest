@@ -77,6 +77,16 @@ export const THRESHOLD_PARAM = "peak_guard_threshold";
 export const ANSWER_LABEL = "Which rule made the most money this summer?";
 export const BRIDGE_TITLE = "Where the extra profit came from";
 export const GAIN_LABELS = { price: "Price gain", fourcp: "4CP gain" };
+export const STRATEGY_DESCRIPTIONS = {
+  always_on:
+    "Never switches off. The baseline every other rule is measured against.",
+  strike_price:
+    "Switches off when the last 15 minutes’ power price was above breakeven.",
+  strike_peak_guard:
+    "Strike price, plus switching off when grid demand nears the month’s peak.",
+};
+export const BEST_BADGE = "Best";
+export const BASELINE_DELTA = "Baseline";
 export const KPI_LABELS = {
   netProfit: "Net profit",
   btcMined: "BTC mined",
@@ -108,8 +118,14 @@ export const CHART_HEIGHT_PX = 420;
 export const DISPLAY_TIME_ZONE = "America/Chicago";
 export const DISPLAY_TIME_ZONE_LABEL = "CT";
 export const CHART_TIME_AXIS_NAME = "Central time";
-export const THRESHOLD_LABEL = "Peak guard threshold";
-export const UPDATING_TEXT = "Updating for the new threshold…";
+export const THRESHOLD_LABEL = "Peak guard trigger";
+export const THRESHOLD_HELP =
+  "Switch off when ERCOT demand reaches this share of the month's peak so far.";
+export const THRESHOLD_END_LABELS = {
+  min: "off more often",
+  max: "off less",
+};
+export const UPDATING_TEXT = "Updating…";
 export const STALE_OPACITY = 0.5;
 
 export const CHART_SERIES_NAMES = {
@@ -124,8 +140,6 @@ export const CHART_COLORS = {
 };
 
 export const TOOLTIPS = {
-  peakGuardThreshold:
-    "Switch off when grid demand reaches this share of the month’s highest demand so far (or last month’s, if higher), to dodge the 4CP peaks.",
   strategies: {
     always_on: "Never switches off. The baseline.",
     strike_price:

@@ -94,7 +94,7 @@ function Answer({
         )}
       </Stack>
       <SimpleGrid
-        cols={{ base: 2, sm: 4 }}
+        cols={2}
         spacing="lg"
         pt="md"
         style={{ borderTop: "1px solid var(--ror-line)" }}
