@@ -146,9 +146,9 @@ describe("chartOption", () => {
     });
   });
 
-  it("zooms with a drag or ctrl-wheel, and a slider", () => {
+  it("zooms with the mouse wheel, pans with a drag, and has a slider", () => {
     expect(option.dataZoom).toMatchObject([
-      { type: "inside", zoomOnMouseWheel: "ctrl", moveOnMouseMove: true },
+      { type: "inside", zoomOnMouseWheel: true, moveOnMouseMove: true },
       { type: "slider" },
     ]);
   });

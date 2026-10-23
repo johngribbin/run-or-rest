@@ -204,7 +204,7 @@ function zoomControls(colors: ColorTokens): DataZoomComponentOption[] {
   return [
     {
       type: "inside",
-      zoomOnMouseWheel: "ctrl",
+      zoomOnMouseWheel: true,
       moveOnMouseWheel: false,
       moveOnMouseMove: true,
     },
