@@ -21,7 +21,7 @@ setup:
 	$(FRONTEND) npm ci
 
 fetch:
-	$(BACKEND) uv run python scripts/fetch_grid.py
+	$(BACKEND) uv run python -m scripts.fetch_grid
 
 dev:
 	$(FRONTEND) npx concurrently --kill-others --names api,web "cd ../backend && uv run uvicorn --factory run_or_rest.api.app:create_app --reload --port 8000" "npx vite"
