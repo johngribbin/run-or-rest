@@ -4,6 +4,8 @@ Backtests curtailment rules for a bitcoin mining fleet on ERCOT West (LZ_WEST) r
 
 ![The 4CP explainer and the three strategies, with Strike + peak guard marked best](docs/images/overview.png)
 
+Power price and load data provided by [Grid Status](https://www.gridstatus.io/).
+
 ## Get started
 
 Needs uv 0.13.4, Node 26 and GNU Make.
@@ -38,17 +40,23 @@ The page also shows where the breakeven line comes from: BTC price, difficulty a
 
 BTC price data from [Coin Metrics](https://coinmetrics.io/), licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).
 
-## The backend
+## Where the logic lives
 
-All the logic lives in `backend/src/run_or_rest/core/`, which is pure Python with no I/O. Money, prices, load and difficulty are `Decimal`, never floats.
+The backend is a [functional core, imperative shell](https://www.destroyallsoftware.com/screencasts/catalog/functional-core-imperative-shell). Every calculation and decision is a pure function in [`core/`](backend/src/run_or_rest/core/), with no I/O, no clock and no HTTP; [`data/`](backend/src/run_or_rest/data/) and [`api/`](backend/src/run_or_rest/api/) are the shell that reads the files and serves the results. The frontend is a thin client: no math, no policy, just rendering. Money, prices, load and difficulty are `Decimal`, never floats.
 
-- `economics.py`: hashrate, expected blocks, mining revenue, energy cost, breakeven price, hashprice, and difficulty from a block's `bits`.
-- `context.py`: builds what the miner knew at the start of each 15-minute interval: the last price, the last load, and a breakeven estimate from the previous day's BTC price and block rewards. Strategies only ever see this, so a backtest can't peek at the price it is deciding on.
-- `strategies.py`: the three rules, as plain functions that return run or off.
-- `peaks.py`: finds each month's 4CP peak and prices the transmission charge.
-- `backtest.py`: settles every interval, totals each rule, splits each gain into price and 4CP, and picks the winner.
+The core, in reading order:
 
-`data/` reads the files with Polars and rejects any malformed row by file and row number. `api/` validates the threshold, calls core and rounds the results; it calculates nothing. The frontend formats and draws what the API returns.
+- [`backtest.py`](backend/src/run_or_rest/core/backtest.py): settles every interval, totals each rule, splits each gain into price and 4CP, and picks the winner.
+- [`context.py`](backend/src/run_or_rest/core/context.py): builds what the miner knew at the start of each 15-minute interval: the last price, the last load, and a breakeven estimate from the previous day's BTC price and block rewards. Strategies only ever see this, so a backtest can't peek at the price it is deciding on.
+- [`strategies.py`](backend/src/run_or_rest/core/strategies.py): the three rules, as plain functions that return run or off.
+- [`peaks.py`](backend/src/run_or_rest/core/peaks.py): finds each month's 4CP peak and prices the transmission charge.
+- [`economics.py`](backend/src/run_or_rest/core/economics.py): hashrate, expected blocks, mining revenue, energy cost, breakeven price, hashprice, and difficulty from a block's `bits`.
+
+The shell and the client:
+
+- [`data/files.py`](backend/src/run_or_rest/data/files.py) reads the files with Polars and rejects any malformed row by file and row number.
+- [`api/mapping.py`](backend/src/run_or_rest/api/mapping.py) maps core's results to the response and rounds them; it calculates nothing.
+- [`frontend/src/format.ts`](frontend/src/format.ts) formats the API's decimal strings for display without turning them into floats.
 
 ## Tech stack
 
