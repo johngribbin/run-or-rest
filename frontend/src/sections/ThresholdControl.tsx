@@ -37,7 +37,7 @@ export function ThresholdControl({
             </Text>
           </Group>
           <Text c="var(--ror-text-secondary)" id="threshold-help">
-            {THRESHOLD_HELP}
+            {THRESHOLD_HELP(formatPercent(value))}
           </Text>
         </Stack>
         <Stack gap={6} style={{ flex: "2 1 320px" }}>

@@ -350,9 +350,23 @@ describe("Peak guard trigger", () => {
     });
 
     expect(within(control).getByRole("slider")).toHaveAccessibleDescription(
-      "Switch off when ERCOT demand reaches this share of the month's peak so far.",
+      "Switch off when ERCOT demand reaches 95% of the month's peak so far.",
     );
     expect(within(control).getByText("80% · off more")).toBeInTheDocument();
     expect(within(control).getByText("100% · off less")).toBeInTheDocument();
+  });
+
+  it("names the chosen percentage in its explanation as the slider moves", async () => {
+    respondWith(200, sampleBacktest);
+    const user = userEvent.setup();
+
+    renderApp();
+    const slider = await screen.findByRole("slider");
+    await user.click(slider);
+    await user.keyboard("{ArrowRight}");
+
+    expect(slider).toHaveAccessibleDescription(
+      "Switch off when ERCOT demand reaches 96% of the month's peak so far.",
+    );
   });
 });
