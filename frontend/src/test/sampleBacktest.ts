@@ -74,6 +74,8 @@ export const sampleBacktest: Backtest = {
   ],
   fourcp: {
     charge_per_peak_usd: "50000.00",
+    lowest_peak_price_usd_per_mwh: "500.00",
+    highest_peak_price_usd_per_mwh: "500.00",
     peaks: [
       {
         month: "2026-06",
@@ -106,6 +108,7 @@ export const sampleBacktest: Backtest = {
         change_ratio: null,
       },
     ],
+    adjustment_count: 0,
   },
   series: [
     {

@@ -1,7 +1,11 @@
 from dataclasses import replace
 from decimal import Decimal
 
-from run_or_rest.core.bitcoin import bitcoin_days, difficulty_adjustments
+from run_or_rest.core.bitcoin import (
+    adjustment_count,
+    bitcoin_days,
+    difficulty_adjustments,
+)
 from run_or_rest.core.models import DailyChain, DayEconomics, Sats, WindowInterval
 from tests.core.builders import chicago, window
 
@@ -33,6 +37,18 @@ def test_first_adjustment_has_no_ratio_and_changes_have_one() -> None:
         (chicago(2026, 5, 31, 18, 45), Decimal(100), None),
         (chicago(2026, 5, 31, 19, 15), Decimal(110), Decimal("0.1")),
     ]
+
+
+def test_adjustment_count_counts_each_change_of_difficulty() -> None:
+    adjustments = difficulty_adjustments(with_difficulties([100, 100, 110, 110]))
+
+    assert adjustment_count(adjustments) == 1
+
+
+def test_adjustment_count_is_zero_when_difficulty_never_changes() -> None:
+    adjustments = difficulty_adjustments(with_difficulties([100, 100, 100]))
+
+    assert adjustment_count(adjustments) == 0
 
 
 def test_bitcoin_day_uses_its_values_and_first_interval_difficulty() -> None:

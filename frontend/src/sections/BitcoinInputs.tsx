@@ -143,7 +143,11 @@ function firstAndLast<T>(
 }
 
 function Tiles({ backtest }: { backtest: Backtest }) {
-  const { daily, difficulty_adjustments: adjustments } = backtest.bitcoin;
+  const {
+    daily,
+    difficulty_adjustments: adjustments,
+    adjustment_count: adjustmentCount,
+  } = backtest.bitcoin;
   const tiles = BITCOIN_COPY.tiles;
   return (
     <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
@@ -154,7 +158,7 @@ function Tiles({ backtest }: { backtest: Backtest }) {
       />
       <Tile
         label={tiles.adjustments}
-        value={formatInteger(Math.max(adjustments.length - 1, 0))}
+        value={formatInteger(adjustmentCount)}
         caption={firstAndLast(adjustments, (item) =>
           formatDifficulty(item.difficulty),
         )}

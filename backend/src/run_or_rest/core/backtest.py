@@ -7,6 +7,7 @@ from run_or_rest.config import INTERVAL_HOURS
 from run_or_rest.core.bitcoin import (
     BitcoinDay,
     DifficultyAdjustment,
+    adjustment_count,
     bitcoin_days,
     difficulty_adjustments,
 )
@@ -28,8 +29,10 @@ from run_or_rest.core.models import (
 )
 from run_or_rest.core.peaks import (
     FourCpPeak,
+    PeakPriceRange,
     charge_per_peak_usd,
     fourcp_peaks,
+    peak_price_range,
     transmission_usd,
 )
 from run_or_rest.core.strategies import STRATEGIES, Strategy
@@ -80,10 +83,12 @@ class BacktestResult:
     winner: StrategyId
     winner_advantage_usd: Decimal
     charge_per_peak_usd: Decimal
+    peak_price_range: PeakPriceRange
     fourcp_peaks: tuple[PeakOutcome, ...]
     series: tuple[SeriesPoint, ...]
     bitcoin_days: tuple[BitcoinDay, ...]
     difficulty_adjustments: tuple[DifficultyAdjustment, ...]
+    adjustment_count: int
     expected_intervals: int
     missing_intervals: int
 
@@ -264,6 +269,7 @@ def run_backtest(
     baseline = totals[StrategyId.ALWAYS_ON]
     results = tuple(_result(each, baseline) for each in totals.values())
     winner = _winner(results)
+    adjustments = tuple(difficulty_adjustments(window))
     return BacktestResult(
         window_start=window_start,
         window_end=window_end,
@@ -276,10 +282,12 @@ def run_backtest(
             assumptions.fleet_mw,
             len(peaks),
         ),
+        peak_price_range=peak_price_range(peaks),
         fourcp_peaks=_peak_outcomes(peaks, series),
         series=series,
         bitcoin_days=tuple(bitcoin_days(window, assumptions.pool_fee_rate)),
-        difficulty_adjustments=tuple(difficulty_adjustments(window)),
+        difficulty_adjustments=adjustments,
+        adjustment_count=adjustment_count(adjustments),
         expected_intervals=expected,
         missing_intervals=len(window) - len(settled),
     )

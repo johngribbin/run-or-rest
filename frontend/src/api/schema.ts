@@ -60,13 +60,13 @@ export interface components {
         BacktestResponse: {
             /** @description The inputs this run used: the defaults in section 10 and the request's peak_guard_threshold */
             assumptions: components["schemas"]["Assumptions"];
-            /** @description The bitcoin inputs behind the breakeven line: one row per UTC day (section 3.10) and the difficulty adjustments (section 3.11) */
+            /** @description The bitcoin inputs behind the breakeven line: one row per UTC day (section 3.10), the difficulty adjustments and their count (section 3.11) */
             bitcoin: components["schemas"]["Bitcoin"];
             /** @description The allowed range, step and default of each request parameter; the UI builds its controls from these instead of copying the values */
             controls: components["schemas"]["Controls"];
             /** @description Window intervals expected and how many were skipped for missing data (section 6.5) */
             data_quality: components["schemas"]["DataQuality"];
-            /** @description What running at one 4CP peak costs (section 5.2), and the 4CP peak intervals (section 5.1), one per peak month, with the system load, the price and each strategy's decision at each */
+            /** @description What running at one 4CP peak costs (section 5.2), the peak price range (section 5.1), and the 4CP peak intervals (section 5.1), one per peak month, with the system load, the price and each strategy's decision at each */
             fourcp: components["schemas"]["FourCp"];
             /** @description The window's start and end in UTC (section 6.1) and the settlement point priced */
             period: components["schemas"]["Period"];
@@ -85,6 +85,11 @@ export interface components {
         };
         /** Bitcoin */
         Bitcoin: {
+            /**
+             * Adjustment Count
+             * @description How many times the difficulty changed inside the window (section 3.11)
+             */
+            adjustment_count: number;
             /**
              * Daily
              * @description One row per UTC day holding a window interval (section 3.10)
@@ -194,6 +199,16 @@ export interface components {
              * @description What running at one 4CP peak interval costs, USD (section 5.2)
              */
             charge_per_peak_usd: string;
+            /**
+             * Highest Peak Price Usd Per Mwh
+             * @description Highest price among the 4CP peak intervals (section 5.1)
+             */
+            highest_peak_price_usd_per_mwh: string;
+            /**
+             * Lowest Peak Price Usd Per Mwh
+             * @description Lowest price among the 4CP peak intervals (section 5.1)
+             */
+            lowest_peak_price_usd_per_mwh: string;
             /**
              * Peaks
              * @description The 4CP peak intervals (section 5.1), one per peak month

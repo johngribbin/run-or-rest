@@ -45,6 +45,7 @@ const twoDays = {
         change_ratio: "0.0626",
       },
     ],
+    adjustment_count: 2,
   },
 };
 

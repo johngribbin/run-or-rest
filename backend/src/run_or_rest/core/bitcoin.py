@@ -72,3 +72,7 @@ def difficulty_adjustments(
             )
         previous = interval.difficulty
     return adjustments
+
+
+def adjustment_count(adjustments: Sequence[DifficultyAdjustment]) -> int:
+    return sum(1 for adjustment in adjustments if adjustment.change_ratio is not None)
