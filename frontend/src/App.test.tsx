@@ -324,7 +324,7 @@ describe("Peak guard trigger", () => {
     });
 
     expect(within(control).getByRole("slider")).toHaveAccessibleDescription(
-      "Switch miners off when ERCOT demand reaches 95% of the month's peak so far. Tunes Strike + peak guard only.",
+      "Switch miners off when ERCOT demand reaches 95% of the month's peak so far. Tunes Strike + peak guard only. Defaults to 95%, fixed before looking at the results. Drag to see how other settings would have done this season.",
     );
     expect(within(control).getByText("80% · off more")).toBeInTheDocument();
     expect(within(control).getByText("100% · off less")).toBeInTheDocument();
@@ -340,7 +340,26 @@ describe("Peak guard trigger", () => {
     await user.keyboard("{ArrowRight}");
 
     expect(slider).toHaveAccessibleDescription(
-      "Switch miners off when ERCOT demand reaches 96% of the month's peak so far. Tunes Strike + peak guard only.",
+      "Switch miners off when ERCOT demand reaches 96% of the month's peak so far. Tunes Strike + peak guard only. Defaults to 95%, fixed before looking at the results. Drag to see how other settings would have done this season.",
+    );
+  });
+
+  it("names the default the API reports, not a copied value", async () => {
+    respondWith(200, {
+      ...sampleBacktest,
+      controls: {
+        peak_guard_threshold: {
+          ...sampleBacktest.controls.peak_guard_threshold,
+          default: "0.90",
+        },
+      },
+    });
+
+    renderApp();
+    const slider = await screen.findByRole("slider");
+
+    expect(slider).toHaveAccessibleDescription(
+      "Switch miners off when ERCOT demand reaches 90% of the month's peak so far. Tunes Strike + peak guard only. Defaults to 90%, fixed before looking at the results. Drag to see how other settings would have done this season.",
     );
   });
 });

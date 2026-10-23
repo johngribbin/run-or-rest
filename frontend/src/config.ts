@@ -143,6 +143,8 @@ export const THRESHOLD_LABEL = "Peak guard trigger";
 export const THRESHOLD_SCOPE = (rule: string) => `Tunes ${rule} only.`;
 export const THRESHOLD_HELP = (percent: string) =>
   `Switch miners off when ERCOT demand reaches ${percent} of the month's peak so far.`;
+export const THRESHOLD_DEFAULT_NOTE = (percent: string) =>
+  `Defaults to ${percent}, fixed before looking at the results. Drag to see how other settings would have done this season.`;
 export const THRESHOLD_END_LABELS = {
   min: "off more",
   max: "off less",
