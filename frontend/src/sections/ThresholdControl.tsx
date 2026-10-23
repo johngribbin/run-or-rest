@@ -1,6 +1,7 @@
 import { Group, Slider, Stack, Text, Title } from "@mantine/core";
 import type { Backtest } from "../api/backtest.ts";
 import {
+  THRESHOLD_DEFAULT_NOTE,
   THRESHOLD_END_LABELS,
   THRESHOLD_HELP,
   THRESHOLD_LABEL,
@@ -35,7 +36,8 @@ export function ThresholdControl({
             {THRESHOLD_LABEL}
           </Title>
           <Text c="var(--ror-text-secondary)" id="threshold-help">
-            {THRESHOLD_HELP(formatPercent(value))} {THRESHOLD_SCOPE(rule)}
+            {THRESHOLD_HELP(formatPercent(value))} {THRESHOLD_SCOPE(rule)}{" "}
+            {THRESHOLD_DEFAULT_NOTE(formatPercent(control.default))}
           </Text>
         </Stack>
         <Group gap="lg" align="center" wrap="nowrap">
