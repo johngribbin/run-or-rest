@@ -1,4 +1,4 @@
-import { act, screen } from "@testing-library/react";
+import { act, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { type EChartsType, getInstanceByDom } from "echarts/core";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -68,5 +68,80 @@ describe("price chart ranges", () => {
 
     expect(screen.getByRole("radio", { name: "Jun" })).toBeChecked();
     expect(shownZoom(chart)).toEqual({ start: 0, end: 100 });
+  });
+});
+
+const strikeWins = {
+  ...sampleBacktest,
+  winner: { id: "strike_price", advantage_over_always_on_usd: "1000.00" },
+};
+
+function winnerChangesWithThreshold(): void {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn((input: unknown) =>
+      Promise.resolve(
+        new Response(
+          JSON.stringify(
+            String(input).includes("peak_guard_threshold")
+              ? strikeWins
+              : sampleBacktest,
+          ),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+      ),
+    ),
+  );
+}
+
+async function moveThresholdUntilStrikePriceWins(
+  user: ReturnType<typeof userEvent.setup>,
+): Promise<void> {
+  const slider = screen.getByRole("slider");
+  await user.click(slider);
+  await user.keyboard("{ArrowLeft}");
+  await waitFor(() => {
+    expect(
+      within(screen.getByRole("article", { name: "Strike price" })).getByText(
+        "Best",
+      ),
+    ).toBeInTheDocument();
+  });
+}
+
+describe("price chart strategy toggle", () => {
+  it("follows the winner when the threshold changes and no rule was picked", async () => {
+    winnerChangesWithThreshold();
+    const user = userEvent.setup();
+
+    renderApp();
+    const picker = await screen.findByRole("radiogroup", { name: "Strategy" });
+    expect(
+      within(picker).getByRole("radio", { name: "Strike + peak guard" }),
+    ).toBeChecked();
+    await moveThresholdUntilStrikePriceWins(user);
+
+    expect(
+      within(picker).getByRole("radio", { name: "Strike price" }),
+    ).toBeChecked();
+  });
+
+  it("keeps a rule picked by hand when the winner changes", async () => {
+    winnerChangesWithThreshold();
+    const user = userEvent.setup();
+
+    renderApp();
+    const picker = await screen.findByRole("radiogroup", { name: "Strategy" });
+    await user.click(
+      within(picker).getByRole("radio", { name: "Strike price" }),
+    );
+    await user.click(
+      within(picker).getByRole("radio", { name: "Strike + peak guard" }),
+    );
+    await moveThresholdUntilStrikePriceWins(user);
+
+    expect(
+      within(picker).getByRole("radio", { name: "Strike + peak guard" }),
+    ).toBeChecked();
   });
 });
