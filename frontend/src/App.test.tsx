@@ -298,7 +298,7 @@ describe("App", () => {
 });
 
 describe("Peak guard trigger", () => {
-  it("gives the control and the strategy cards their own headings", async () => {
+  it("explains 4CP first, then asks the three-way question, then the control", async () => {
     respondWith(200, sampleBacktest);
 
     renderApp();
@@ -308,8 +308,8 @@ describe("Peak guard trigger", () => {
       screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent),
     ).toEqual([
       "4CP: four 15-minute windows that set a year of transmission cost",
+      "Three ways to run a 1 MW fleet through summer 2026. Which made the most money?",
       "Peak guard trigger",
-      "All three rules",
       "Power price vs. mining breakeven",
       "What sets the breakeven line",
     ]);
@@ -324,7 +324,7 @@ describe("Peak guard trigger", () => {
     });
 
     expect(within(control).getByRole("slider")).toHaveAccessibleDescription(
-      "Switch off when ERCOT demand reaches 95% of the month's peak so far.",
+      "Switch miners off when ERCOT demand reaches 95% of the month's peak so far. Tunes Strike + peak guard only.",
     );
     expect(within(control).getByText("80% · off more")).toBeInTheDocument();
     expect(within(control).getByText("100% · off less")).toBeInTheDocument();
@@ -340,7 +340,7 @@ describe("Peak guard trigger", () => {
     await user.keyboard("{ArrowRight}");
 
     expect(slider).toHaveAccessibleDescription(
-      "Switch off when ERCOT demand reaches 96% of the month's peak so far.",
+      "Switch miners off when ERCOT demand reaches 96% of the month's peak so far. Tunes Strike + peak guard only.",
     );
   });
 });

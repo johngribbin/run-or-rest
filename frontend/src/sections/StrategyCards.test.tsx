@@ -60,9 +60,9 @@ describe("StrategyCards", () => {
     expect(within(strike).getByText("BTC mined").nextSibling).toHaveTextContent(
       "2.8500",
     );
-    expect(
-      within(strike).getByText("4CP peaks run in").nextSibling,
-    ).toHaveTextContent("1 of 1");
+    expect(within(strike).getByText("4CP peaks").nextSibling).toHaveTextContent(
+      "1 of 1",
+    );
   });
 
   it("splits each rule's gain into price and 4CP, but not the baseline's", async () => {
@@ -81,5 +81,20 @@ describe("StrategyCards", () => {
         "Price gain",
       ),
     ).not.toBeInTheDocument();
+  });
+
+  it("asks the three-way question with the API's fleet size", async () => {
+    respondWith(200, {
+      ...sampleBacktest,
+      assumptions: { ...sampleBacktest.assumptions, fleet_mw: "5" },
+    });
+
+    renderApp();
+
+    expect(
+      await screen.findByRole("heading", { level: 2, name: /^Three ways/ }),
+    ).toHaveTextContent(
+      "Three ways to run a 5 MW fleet through summer 2026. Which made the most money?",
+    );
   });
 });

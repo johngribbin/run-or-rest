@@ -82,7 +82,8 @@ export const BITCOIN_COPY = {
 };
 export const ASSUMPTIONS_HEADING = "Model and assumptions";
 export const ASSUMPTIONS_ID = "assumptions";
-export const STRATEGIES_HEADING = "All three rules";
+export const STRATEGIES_HEADING = (fleetMw: string, year: string) =>
+  `Three ways to run a ${fleetMw} MW fleet through summer ${year}. Which made the most money?`;
 export const GAIN_LABELS = { price: "Price gain", fourcp: "4CP gain" };
 export const DATA_QUALITY_LABEL = "Intervals priced";
 export const BEST_BADGE = "Best";
@@ -91,7 +92,7 @@ export const KPI_LABELS = {
   netProfit: "Net profit",
   btcMined: "BTC mined",
   hoursOff: "Hours off",
-  peaksRunIn: "4CP peaks run in",
+  peaksRunIn: "4CP peaks",
 };
 
 export const MODEL_ASSUMPTIONS = [
@@ -139,8 +140,9 @@ export const CHART_COPY = {
 export const DISPLAY_TIME_ZONE = "America/Chicago";
 export const DISPLAY_TIME_ZONE_LABEL = "CT";
 export const THRESHOLD_LABEL = "Peak guard trigger";
+export const THRESHOLD_SCOPE = (rule: string) => `Tunes ${rule} only.`;
 export const THRESHOLD_HELP = (percent: string) =>
-  `Switch off when ERCOT demand reaches ${percent} of the month's peak so far.`;
+  `Switch miners off when ERCOT demand reaches ${percent} of the month's peak so far.`;
 export const THRESHOLD_END_LABELS = {
   min: "off more",
   max: "off less",
