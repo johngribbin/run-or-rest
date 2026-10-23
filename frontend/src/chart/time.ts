@@ -61,3 +61,26 @@ export function chartTime(utc: string): number {
     part(parts, "second"),
   );
 }
+
+const peakMoment = new Intl.DateTimeFormat("en-US", {
+  timeZone: DISPLAY_TIME_ZONE,
+  hourCycle: "h23",
+  weekday: "short",
+  month: "short",
+  day: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+const monthName = new Intl.DateTimeFormat("en-US", {
+  timeZone: DISPLAY_TIME_ZONE,
+  month: "long",
+});
+
+export function formatPeakMoment(utc: string): string {
+  return `${peakMoment.format(new Date(utc))} ${DISPLAY_TIME_ZONE_LABEL}`;
+}
+
+export function formatCentralMonth(utc: string): string {
+  return monthName.format(new Date(utc));
+}

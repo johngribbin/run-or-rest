@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { chartTime, formatCentralTime, formatPeriod } from "./time.ts";
+import {
+  chartTime,
+  formatCentralMonth,
+  formatCentralTime,
+  formatPeakMoment,
+  formatPeriod,
+} from "./time.ts";
 
 function shown(utc: string): string {
   return new Date(chartTime(utc)).toISOString();
@@ -38,5 +44,19 @@ describe("formatPeriod", () => {
     expect(formatPeriod("2026-06-01T05:00:00Z", "2026-10-01T05:00:00Z")).toBe(
       "Jun 1 – Sep 30, 2026",
     );
+  });
+});
+
+describe("formatPeakMoment", () => {
+  it("writes a peak's weekday, date and Central time", () => {
+    expect(formatPeakMoment("2026-07-22T21:45:00Z")).toBe(
+      "Wed, Jul 22, 16:45 CT",
+    );
+  });
+});
+
+describe("formatCentralMonth", () => {
+  it("names the Central month of a late-evening UTC-next-day interval", () => {
+    expect(formatCentralMonth("2026-08-01T04:45:00Z")).toBe("July");
   });
 });

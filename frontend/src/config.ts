@@ -85,6 +85,21 @@ export const STRATEGY_DESCRIPTIONS = {
   strike_peak_guard:
     "Strike price, plus switching off when grid demand nears the month’s peak.",
 };
+export const FOURCP_EXPLAINER = {
+  label: "New to ERCOT?",
+  heading: "4CP: four 15-minute windows that set a year of transmission cost",
+  intro:
+    "Each summer month, ERCOT marks the single 15 minutes when Texas used the most power. How much your site draws in those four intervals sets next year's transmission charge.",
+  chargeLead: "Every peak you run through costs this fleet",
+  chargeTail:
+    "Nobody knows the exact peak in advance, so the peak guard powers down whenever demand gets close to the month's high.",
+  calloutTitle: "Peaks are not price spikes",
+  calloutTail: "A price-only rule cannot see a peak coming.",
+  running: "Running",
+  off: "Off",
+  load: "Grid demand",
+  price: "Power price",
+};
 export const BEST_BADGE = "Best";
 export const BASELINE_DELTA = "Baseline";
 export const KPI_LABELS = {
