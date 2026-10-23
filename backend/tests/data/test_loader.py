@@ -112,7 +112,7 @@ def test_window_interval_before_any_difficulty_row_fails_loading(
             "2026-05-29T10:29:46Z",
             "duplicate",
         ),
-        ("ercot_spp_lz_west.csv", "41.25", "41.2", "parquet row 4: '41.2' is not a"),
+        ("ercot_spp_lz_west.csv", "41.25", "41.2", "parquet row 3: '41.2' is not a"),
         ("ercot_spp_lz_west.csv", "T05:00:00Z", "T05:07:00Z", "not on a 15-minute"),
         ("ercot_load.csv", "T04:45:00Z", "T04:30:00Z", "ercot_load.parquet: duplicate"),
     ],
@@ -152,7 +152,7 @@ def test_grid_values_that_are_not_text_fail_loading(tmp_path: Path) -> None:
         {"interval_start_utc": [at(5, 0)], "price_usd_per_mwh": [41.25]},
     ).write_parquet(paths.spp)
 
-    with pytest.raises(DataError, match="row 2: expected text, got float"):
+    with pytest.raises(DataError, match="parquet row 1: expected text, got float"):
         load_data(paths, RANGES)
 
 
@@ -165,5 +165,7 @@ def test_grid_start_without_a_timezone_fails_loading(tmp_path: Path) -> None:
         },
     ).write_parquet(paths.load)
 
-    with pytest.raises(DataError, match=r"row 2: .* is not a timezone-aware timestamp"):
+    with pytest.raises(
+        DataError, match=r"parquet row 1: .* is not a timezone-aware timestamp"
+    ):
         load_data(paths, RANGES)

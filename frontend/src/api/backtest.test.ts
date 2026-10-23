@@ -108,4 +108,22 @@ describe("fetchBacktest", () => {
       "Request failed with status 500",
     );
   });
+
+  it("falls back to the status when the error body is not JSON", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve(
+          new Response("", {
+            status: 502,
+            headers: { "Content-Type": "text/plain" },
+          }),
+        ),
+      ),
+    );
+
+    await expect(fetchBacktest(null)).rejects.toThrow(
+      "Request failed with status 502",
+    );
+  });
 });

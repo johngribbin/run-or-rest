@@ -84,7 +84,7 @@ def test_missing_day_exits() -> None:
         daily_prices([PriceRow(MAY_31, "104123.4567")], FIRST, LAST)
 
 
-@pytest.mark.parametrize("price", ["", "abc", "-1", "NaN"])
+@pytest.mark.parametrize("price", ["", "abc", "-1", "0", "NaN", "1.05E+5", "+1", " 1"])
 def test_invalid_price_in_range_exits(price: str) -> None:
     rows = [PriceRow(MAY_31, price), PriceRow(JUNE_1, "1")]
 

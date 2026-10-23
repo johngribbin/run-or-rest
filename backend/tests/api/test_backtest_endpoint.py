@@ -147,11 +147,11 @@ def test_every_response_field_has_a_description(tmp_path: Path) -> None:
     framework_models = {"HTTPValidationError", "ValidationError"}
     models = [name for name in schemas if name not in framework_models]
 
-    undescribed = [
-        f"{name}.{field}"
+    fields = {
+        f"{name}.{field}": spec
         for name in models
         for field, spec in schemas[name].get("properties", {}).items()
-        if "description" not in spec
-    ]
-    assert "BacktestResponse" in models
+    }
+    undescribed = [name for name, spec in fields.items() if "description" not in spec]
+    assert {"BacktestResponse.data_quality", "Strategy.hours_off"} <= fields.keys()
     assert undescribed == []

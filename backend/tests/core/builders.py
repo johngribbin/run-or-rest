@@ -3,13 +3,14 @@ from datetime import datetime
 from decimal import Decimal
 
 from run_or_rest.config import INTERVAL, MONTH_TIMEZONE
-from run_or_rest.core.backtest import BacktestResult, run_backtest
+from run_or_rest.core.backtest import BacktestResult, StrategyResult, run_backtest
 from run_or_rest.core.models import (
     Assumptions,
     DailyChain,
     DayEconomics,
     HistoryInterval,
     Sats,
+    StrategyId,
     WindowInterval,
 )
 
@@ -78,3 +79,7 @@ def run(
         intervals[-1].start + INTERVAL,
         assumptions,
     )
+
+
+def strategy(result: BacktestResult, strategy_id: StrategyId) -> StrategyResult:
+    return next(item for item in result.strategies if item.id is strategy_id)

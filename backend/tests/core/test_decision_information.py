@@ -13,7 +13,15 @@ from run_or_rest.core.models import (
     Sats,
     StrategyId,
 )
-from tests.core.builders import ASSUMPTIONS, CHAIN, chicago, history, run, window
+from tests.core.builders import (
+    ASSUMPTIONS,
+    CHAIN,
+    chicago,
+    history,
+    run,
+    strategy,
+    window,
+)
 
 JUNE_1 = chicago(2026, 6, 1)
 JULY_1 = chicago(2026, 7, 1)
@@ -75,7 +83,7 @@ def test_settlement_uses_the_day_and_breakeven_uses_the_previous_day() -> None:
         window(JUNE_1, [40], [50_000], day=day, previous_day=previous_day),
     )
 
-    assert result.strategies[0].revenue_usd == Decimal(50)
+    assert strategy(result, StrategyId.ALWAYS_ON).revenue_usd == Decimal(50)
     assert result.series[0].breakeven_estimate_usd_per_mwh == Decimal(100)
 
 
@@ -89,7 +97,7 @@ def test_breakeven_uses_the_previous_day_reward_per_block() -> None:
     )
 
     assert result.series[0].breakeven_estimate_usd_per_mwh == Decimal(50)
-    assert result.strategies[0].revenue_usd == Decimal(25)
+    assert strategy(result, StrategyId.ALWAYS_ON).revenue_usd == Decimal(25)
 
 
 def test_missing_fourcp_peak_price_fails_the_backtest() -> None:
