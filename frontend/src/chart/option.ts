@@ -124,7 +124,7 @@ export function chartOption(
     symbol: "none",
     lineStyle: { color: CHART_COLORS.peak, type: "dashed" },
     label: { formatter: "{b}", position: "insideEndTop" },
-    data: backtest.fourcp_peaks.map((peak) => ({
+    data: backtest.fourcp.peaks.map((peak) => ({
       name: `4CP ${peak.month}: ${formatDecimal(peak.system_load_mw)} MW`,
       xAxis: chartTime(peak.interval_start_utc),
     })),

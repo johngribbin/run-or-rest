@@ -62,16 +62,13 @@ class Strategy(_Model):
     )
     mined_sats: int = Field(description="Net sats mined")
     hours_off: str = Field(description="Hours the fleet was switched off")
+    peaks_running: int = Field(
+        description="How many 4CP peak intervals the strategy ran in (section 5.2)",
+    )
     gain_vs_always_on: Gain = Field(
         description="Gain over always on split into price, 4CP and total; "
         "zero for always on itself",
     )
-
-
-class FourCpPeak(_Model):
-    month: str = Field(description="Peak month, YYYY-MM")
-    interval_start_utc: str = Field(description="Start of the peak interval in UTC")
-    system_load_mw: str = Field(description="ERCOT system load at the peak, MW")
 
 
 class Decisions(_Model):
@@ -79,6 +76,64 @@ class Decisions(_Model):
     strike_price: Decision = Field(description="The strike_price strategy's decision")
     strike_peak_guard: Decision = Field(
         description="The strike_peak_guard strategy's decision",
+    )
+
+
+class FourCpPeak(_Model):
+    month: str = Field(description="Peak month, YYYY-MM")
+    interval_start_utc: str = Field(description="Start of the peak interval in UTC")
+    system_load_mw: str = Field(description="ERCOT system load at the peak, MW")
+    price_usd_per_mwh: str = Field(description="The peak interval's actual price")
+    decisions: Decisions = Field(
+        description="Each strategy's decision at the peak interval",
+    )
+
+
+class FourCp(_Model):
+    charge_per_peak_usd: str = Field(
+        description="What running at one 4CP peak interval costs, USD (section 5.2)",
+    )
+    peaks: list[FourCpPeak] = Field(
+        description="The 4CP peak intervals (section 5.1), one per peak month",
+    )
+
+
+class BitcoinDay(_Model):
+    date_utc: str = Field(description="UTC date, YYYY-MM-DD")
+    btc_price_usd: str = Field(description="The UTC day's BTC price, USD")
+    difficulty: str = Field(
+        description="Difficulty used by the day's first window interval",
+    )
+    reward_per_block_sats: str = Field(
+        description="The UTC day's subsidy plus fees per block, sats (section 3.4)",
+    )
+    fees_share: str = Field(
+        description="The UTC day's fees as a share of subsidy plus fees",
+    )
+    hashprice_usd_per_ph_day: str = Field(
+        description="What 1 PH/s earns in the day after the pool fee, USD "
+        "(section 3.9)",
+    )
+
+
+class DifficultyAdjustment(_Model):
+    start_utc: str = Field(
+        description="Start of the first window interval using this difficulty",
+    )
+    difficulty: str = Field(description="The difficulty")
+    change_ratio: str | None = Field(
+        description="Difficulty over the previous difficulty, minus 1; null for "
+        "the first entry (section 3.11)",
+    )
+
+
+class Bitcoin(_Model):
+    daily: list[BitcoinDay] = Field(
+        description="One row per UTC day holding a window interval (section 3.10)",
+    )
+    difficulty_adjustments: list[DifficultyAdjustment] = Field(
+        description="The difficulty at the window start, then each change "
+        "(section 3.11)",
     )
 
 
@@ -118,13 +173,18 @@ class BacktestResponse(_Model):
     )
     strategies: list[Strategy] = Field(
         description="One entry per strategy, in the order always_on, "
-        "strike_price, strike_peak_guard: the totals in section 5.3, and "
-        "gain_vs_always_on split into price, 4CP and total (zero for always_on "
-        "itself)",
+        "strike_price, strike_peak_guard: the totals in section 5.3, how many "
+        "4CP peak intervals it ran in (section 5.2), and gain_vs_always_on "
+        "split into price, 4CP and total (zero for always_on itself)",
     )
-    fourcp_peaks: list[FourCpPeak] = Field(
-        description="The 4CP peak intervals (section 5.1), one per peak month, "
-        "with the system load at each",
+    fourcp: FourCp = Field(
+        description="What running at one 4CP peak costs (section 5.2), and the "
+        "4CP peak intervals (section 5.1), one per peak month, with the system "
+        "load, the price and each strategy's decision at each",
+    )
+    bitcoin: Bitcoin = Field(
+        description="The bitcoin inputs behind the breakeven line: one row per "
+        "UTC day (section 3.10) and the difficulty adjustments (section 3.11)",
     )
     series: list[SeriesPoint] = Field(
         description="One entry per non-skipped window interval: the actual "

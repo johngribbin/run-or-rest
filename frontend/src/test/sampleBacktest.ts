@@ -32,6 +32,7 @@ export const sampleBacktest: Backtest = {
       net_profit_usd: "60000.00",
       mined_sats: 300000000,
       hours_off: "0.00",
+      peaks_running: 1,
       gain_vs_always_on: {
         price_usd: "0.00",
         fourcp_usd: "0.00",
@@ -47,6 +48,7 @@ export const sampleBacktest: Backtest = {
       net_profit_usd: "55000.00",
       mined_sats: 285000000,
       hours_off: "12.25",
+      peaks_running: 1,
       gain_vs_always_on: {
         price_usd: "-5000.00",
         fourcp_usd: "0.00",
@@ -62,6 +64,7 @@ export const sampleBacktest: Backtest = {
       net_profit_usd: "61234.56",
       mined_sats: 225000000,
       hours_off: "421.50",
+      peaks_running: 0,
       gain_vs_always_on: {
         price_usd: "-48765.44",
         fourcp_usd: "50000.00",
@@ -69,13 +72,41 @@ export const sampleBacktest: Backtest = {
       },
     },
   ],
-  fourcp_peaks: [
-    {
-      month: "2026-06",
-      interval_start_utc: "2026-06-01T05:15:00Z",
-      system_load_mw: "82712.7",
-    },
-  ],
+  fourcp: {
+    charge_per_peak_usd: "50000.00",
+    peaks: [
+      {
+        month: "2026-06",
+        interval_start_utc: "2026-06-01T05:15:00Z",
+        system_load_mw: "82712.7",
+        price_usd_per_mwh: "500.00",
+        decisions: {
+          always_on: "run",
+          strike_price: "run",
+          strike_peak_guard: "off",
+        },
+      },
+    ],
+  },
+  bitcoin: {
+    daily: [
+      {
+        date_utc: "2026-06-01",
+        btc_price_usd: "80000.00",
+        difficulty: "125000000000000",
+        reward_per_block_sats: "315000000",
+        fees_share: "0.0079",
+        hashprice_usd_per_ph_day: "41.36",
+      },
+    ],
+    difficulty_adjustments: [
+      {
+        start_utc: "2026-06-01T05:00:00Z",
+        difficulty: "125000000000000",
+        change_ratio: null,
+      },
+    ],
+  },
   series: [
     {
       interval_start_utc: "2026-06-01T05:00:00Z",
