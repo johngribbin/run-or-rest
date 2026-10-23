@@ -17,6 +17,12 @@ class FourCpPeak:
 
 
 @dataclass(frozen=True)
+class PeakPriceRange:
+    lowest_usd_per_mwh: Decimal
+    highest_usd_per_mwh: Decimal
+
+
+@dataclass(frozen=True)
 class _Candidate:
     start: datetime
     load_mw: Decimal
@@ -62,6 +68,11 @@ def _peak(month: MonthKey, candidate: _Candidate | None) -> FourCpPeak:
 def fourcp_peaks(window: Sequence[WindowInterval]) -> list[FourCpPeak]:
     highest = _highest_load_by_month(window)
     return [_peak(month, highest.get(month)) for month in _window_months(window)]
+
+
+def peak_price_range(peaks: Sequence[FourCpPeak]) -> PeakPriceRange:
+    prices = [peak.price_usd_per_mwh for peak in peaks]
+    return PeakPriceRange(min(prices), max(prices))
 
 
 def transmission_usd(

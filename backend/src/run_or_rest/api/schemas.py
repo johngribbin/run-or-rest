@@ -93,6 +93,12 @@ class FourCp(_Model):
     charge_per_peak_usd: str = Field(
         description="What running at one 4CP peak interval costs, USD (section 5.2)",
     )
+    lowest_peak_price_usd_per_mwh: str = Field(
+        description="Lowest price among the 4CP peak intervals (section 5.1)",
+    )
+    highest_peak_price_usd_per_mwh: str = Field(
+        description="Highest price among the 4CP peak intervals (section 5.1)",
+    )
     peaks: list[FourCpPeak] = Field(
         description="The 4CP peak intervals (section 5.1), one per peak month",
     )
@@ -133,6 +139,10 @@ class Bitcoin(_Model):
     )
     difficulty_adjustments: list[DifficultyAdjustment] = Field(
         description="The difficulty at the window start, then each change "
+        "(section 3.11)",
+    )
+    adjustment_count: int = Field(
+        description="How many times the difficulty changed inside the window "
         "(section 3.11)",
     )
 
@@ -178,13 +188,15 @@ class BacktestResponse(_Model):
         "split into price, 4CP and total (zero for always_on itself)",
     )
     fourcp: FourCp = Field(
-        description="What running at one 4CP peak costs (section 5.2), and the "
-        "4CP peak intervals (section 5.1), one per peak month, with the system "
-        "load, the price and each strategy's decision at each",
+        description="What running at one 4CP peak costs (section 5.2), the peak "
+        "price range (section 5.1), and the 4CP peak intervals (section 5.1), one "
+        "per peak month, with the system load, the price and each strategy's "
+        "decision at each",
     )
     bitcoin: Bitcoin = Field(
         description="The bitcoin inputs behind the breakeven line: one row per "
-        "UTC day (section 3.10) and the difficulty adjustments (section 3.11)",
+        "UTC day (section 3.10), the difficulty adjustments and their count "
+        "(section 3.11)",
     )
     series: list[SeriesPoint] = Field(
         description="One entry per non-skipped window interval: the actual "

@@ -152,6 +152,14 @@ def to_response(result: BacktestResult) -> schemas.BacktestResponse:
         strategies=[_strategy(strategy) for strategy in result.strategies],
         fourcp=schemas.FourCp(
             charge_per_peak_usd=usd(result.charge_per_peak_usd),
+            lowest_peak_price_usd_per_mwh=rounded(
+                result.peak_price_range.lowest_usd_per_mwh,
+                PRICE_DECIMAL_PLACES,
+            ),
+            highest_peak_price_usd_per_mwh=rounded(
+                result.peak_price_range.highest_usd_per_mwh,
+                PRICE_DECIMAL_PLACES,
+            ),
             peaks=[_peak(outcome) for outcome in result.fourcp_peaks],
         ),
         bitcoin=schemas.Bitcoin(
@@ -159,6 +167,7 @@ def to_response(result: BacktestResult) -> schemas.BacktestResponse:
             difficulty_adjustments=[
                 _adjustment(adjustment) for adjustment in result.difficulty_adjustments
             ],
+            adjustment_count=result.adjustment_count,
         ),
         series=[_point(point) for point in result.series],
         data_quality=schemas.DataQuality(

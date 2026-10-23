@@ -25,6 +25,19 @@ describe("FourCpExplainer", () => {
     );
   });
 
+  it("gives one price when every peak cost the same", async () => {
+    respondWith(200, sampleBacktest);
+
+    renderApp();
+    const panel = await screen.findByRole("region", { name: HEADING });
+
+    expect(
+      within(panel).getByText(/^Peaks are not price spikes/).parentElement,
+    ).toHaveTextContent(
+      "Peaks are not price spikes. Power cost $500.00/MWh at the peak, so a price-only rule cannot see one coming.",
+    );
+  });
+
   it("gives the lowest and highest price across the peaks", async () => {
     const [june] = sampleBacktest.fourcp.peaks;
     if (june === undefined) {
@@ -34,6 +47,8 @@ describe("FourCpExplainer", () => {
       ...sampleBacktest,
       fourcp: {
         ...sampleBacktest.fourcp,
+        lowest_peak_price_usd_per_mwh: "20.53",
+        highest_peak_price_usd_per_mwh: "500.00",
         peaks: [
           june,
           {

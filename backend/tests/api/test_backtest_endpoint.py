@@ -64,6 +64,8 @@ def test_backtest_series_peaks_and_data_quality(tmp_path: Path) -> None:
     ]
     assert body["fourcp"] == {
         "charge_per_peak_usd": "50000.00",
+        "lowest_peak_price_usd_per_mwh": "41.25",
+        "highest_peak_price_usd_per_mwh": "41.25",
         "peaks": [
             {
                 "month": "2026-06",
@@ -109,6 +111,7 @@ def test_backtest_reports_bitcoin_inputs_by_day_and_adjustments(
                 "change_ratio": "255.0000",
             },
         ],
+        "adjustment_count": 1,
     }
 
 

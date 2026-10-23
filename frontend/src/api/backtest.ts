@@ -145,6 +145,16 @@ function parseFourCp(body: object): FourCp {
   const fourcp = child(body, "fourcp", "body");
   return {
     charge_per_peak_usd: text(fourcp, "charge_per_peak_usd", "body.fourcp"),
+    lowest_peak_price_usd_per_mwh: text(
+      fourcp,
+      "lowest_peak_price_usd_per_mwh",
+      "body.fourcp",
+    ),
+    highest_peak_price_usd_per_mwh: text(
+      fourcp,
+      "highest_peak_price_usd_per_mwh",
+      "body.fourcp",
+    ),
     peaks: list(fourcp, "peaks", "body.fourcp").map((item, index) => {
       const path = `body.fourcp.peaks[${String(index)}]`;
       return {
@@ -184,6 +194,7 @@ function parseBitcoin(body: object): Bitcoin {
         change_ratio: nullableText(item, "change_ratio", path),
       };
     }),
+    adjustment_count: integer(bitcoin, "adjustment_count", "body.bitcoin"),
   };
 }
 

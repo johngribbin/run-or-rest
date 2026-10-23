@@ -157,7 +157,9 @@ Example (`fees_share`): subsidy 312,500,000 sats, fees 2,500,000 sats: 0.0079 (t
 
 One entry for the difficulty in effect at the first window interval, then one for every window interval whose difficulty differs from the previous window interval's. Each has the interval's start, the difficulty, and change_ratio = difficulty / previous difficulty − 1. The first entry has no previous difficulty; its change_ratio is null.
 
-Example: 100 then 110: change_ratio 0.1000.
+adjustment_count is the number of entries that have a change_ratio: the difficulty changes inside the window.
+
+Example: 100 then 110: change_ratio 0.1000, adjustment_count 1.
 
 ## 4. Strategies
 
@@ -206,6 +208,10 @@ The strike rule reacts one interval late: interval 40 runs at $500 ($125.00) and
 ### 5.1 Peaks
 
 For each Chicago calendar month in the window (June to September for the real window), the 4CP peak is the window interval with the highest ERCOT system load; on a tie, the earliest. A month's 4CP peak is never used for decisions within that month. A window month with no load value at all fails the backtest with a clear error.
+
+The peak price range is the lowest and highest price among the window's 4CP peak intervals.
+
+Example: peaks at $41.10, $500.00 and $20.53/MWh: lowest $20.53, highest $500.00.
 
 ### 5.2 Transmission charge
 
@@ -360,6 +366,8 @@ Response `200`. Every decimal is a string, rounded independently from its unroun
   ],
   "fourcp": {
     "charge_per_peak_usd": "12500.00",
+    "lowest_peak_price_usd_per_mwh": "0.00",
+    "highest_peak_price_usd_per_mwh": "0.00",
     "peaks": [
       {
         "month": "2026-06",
@@ -381,7 +389,8 @@ Response `200`. Every decimal is a string, rounded independently from its unroun
         "hashprice_usd_per_ph_day": "0.00"
       }
     ],
-    "difficulty_adjustments": [{"start_utc": "...", "difficulty": "0", "change_ratio": null}]
+    "difficulty_adjustments": [{"start_utc": "...", "difficulty": "0", "change_ratio": null}],
+    "adjustment_count": 0
   },
   "series": [
     {
@@ -402,8 +411,8 @@ Response `200`. Every decimal is a string, rounded independently from its unroun
 | `assumptions` | The inputs this run used: the defaults in section 10 and the request's `peak_guard_threshold` |
 | `winner` | The strategy with the highest net profit (section 5.3) and how much more it made than always on |
 | `strategies` | One entry per strategy, in the order always_on, strike_price, strike_peak_guard: the totals in section 5.3, how many 4CP peak intervals it ran in (section 5.2), and `gain_vs_always_on` split into price, 4CP and total (zero for always_on itself) |
-| `fourcp` | What running at one 4CP peak costs (section 5.2), and the 4CP peak intervals (section 5.1), one per peak month, with the system load, the price and each strategy's decision at each |
-| `bitcoin` | The bitcoin inputs behind the breakeven line: one row per UTC day (section 3.10) and the difficulty adjustments (section 3.11) |
+| `fourcp` | What running at one 4CP peak costs (section 5.2), the peak price range (section 5.1), and the 4CP peak intervals (section 5.1), one per peak month, with the system load, the price and each strategy's decision at each |
+| `bitcoin` | The bitcoin inputs behind the breakeven line: one row per UTC day (section 3.10), the difficulty adjustments and their count (section 3.11) |
 | `series` | One entry per non-skipped window interval: the actual price, the breakeven estimate the strategies decided on (section 3.7), and each strategy's decision |
 | `data_quality` | Window intervals expected and how many were skipped for missing data (section 6.5) |
 
@@ -419,11 +428,11 @@ The audience knows bitcoin mining (hashrate, difficulty, hashprice, pools) but n
 
 One page, top to bottom:
 
-1. **4CP explainer** ("New to ERCOT?"): what 4CP is, what running through one peak costs this fleet (`charge_per_peak_usd`), why the peak guard exists, and that peaks are not price spikes, giving the lowest and highest price across the peaks.
+1. **4CP explainer** ("New to ERCOT?"): what 4CP is, what running through one peak costs this fleet (`charge_per_peak_usd`), why the peak guard exists, and that peaks are not price spikes, giving the peak price range (`lowest_peak_price_usd_per_mwh`, `highest_peak_price_usd_per_mwh`).
 2. **Strategy cards:** under the question "Three ways to run a {fleet_mw} MW fleet through summer {year}. Which made the most money?", one card per strategy, in API order: its label, its description (table below), net profit, change vs always on split into price gain and 4CP gain ("Baseline" for always on), hours off, BTC mined, and 4CP peaks run in. The winner's card is marked "Best".
 3. **Peak guard trigger:** a slider built from `controls.peak_guard_threshold` (min, max, step, default), with the current value and helper text that names it and the one strategy it tunes. A change refetches `/api/backtest` after 300 ms without further input; while it loads, the sections dim and a status reads "Updating…".
 4. **Price chart (ECharts):** "Power price vs. mining breakeven": the price, the breakeven estimate as a dashed line, and the 4CP peaks marked. Shaded bands show when the selected strategy was off; a toggle picks between the strategies that can switch off, defaulting to the winner (the first such strategy when always on wins). Range buttons for the season and each month, plus zoom. The hover tooltip gives the time, both prices, and whether the selected strategy was off.
-5. **What sets the breakeven line:** a formula strip "BTC price × block reward ÷ difficulty = hashprice ÷ efficiency = breakeven $/MWh"; tiles for BTC price, hashprice and fees share (first and last day) and the number of difficulty adjustments; then three charts on the price chart's time axis, sharing its zoom and hover: BTC price (Coin Metrics), difficulty as a step line with each adjustment's change, and hashprice. One series per chart; no chart has two y-axes.
+5. **What sets the breakeven line:** a formula strip "BTC price × block reward ÷ difficulty = hashprice ÷ efficiency = breakeven $/MWh"; tiles for BTC price, hashprice and fees share (first and last day) and the number of difficulty adjustments (`adjustment_count`); then three charts on the price chart's time axis, sharing its zoom and hover: BTC price (Coin Metrics), difficulty as a step line with each adjustment's change, and hashprice. One series per chart; no chart has two y-axes.
 6. **Model and assumptions** (collapsed by default): the run's inputs (`assumptions`, the period and the settlement point), how many intervals were priced and skipped, and the list in section 3.8.
 7. **Footer:** "Data provided by Grid Status" linking to https://www.gridstatus.io/; Coin Metrics attribution with licence link.
 
@@ -472,6 +481,7 @@ Defined once, in `config.py`. Values are fixed; never tune them to the backtest'
 - Expected values are literal numbers from the examples above or hand calculations; never computed by the code under test.
 - Required cases, each asserting the exact values given:
   - Every example in section 3 (3.2 to 3.6, 3.9 to 3.11)
+  - The peak price range example (5.1): lowest $20.53, highest $500.00
   - Charge per peak (5.2): $12,500; `peaks_running` 0, 1 and 4 match transmission $0, $12,500, $50,000
   - A UTC day's bitcoin row uses that day's price and rewards and its first window interval's difficulty
   - Difficulty from `bits`: `1d00ffff` gives exactly 1

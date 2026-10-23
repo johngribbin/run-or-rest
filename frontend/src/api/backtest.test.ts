@@ -52,6 +52,32 @@ describe("parseBacktest", () => {
     );
   });
 
+  it("rejects a peak price range bound that is not a decimal string", () => {
+    const body: unknown = JSON.parse(
+      JSON.stringify(sampleBacktest).replace(
+        '"lowest_peak_price_usd_per_mwh":"500.00"',
+        '"lowest_peak_price_usd_per_mwh":500',
+      ),
+    );
+
+    expect(() => parseBacktest(body)).toThrow(
+      "body.fourcp.lowest_peak_price_usd_per_mwh is not a string",
+    );
+  });
+
+  it("rejects an adjustment count that is not an integer", () => {
+    const body: unknown = JSON.parse(
+      JSON.stringify(sampleBacktest).replace(
+        '"adjustment_count":0',
+        '"adjustment_count":"0"',
+      ),
+    );
+
+    expect(() => parseBacktest(body)).toThrow(
+      "body.bitcoin.adjustment_count is not an integer",
+    );
+  });
+
   it("accepts a difficulty change ratio as a string", () => {
     const body: unknown = JSON.parse(
       JSON.stringify(sampleBacktest).replace(
