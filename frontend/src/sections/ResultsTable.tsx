@@ -1,45 +1,113 @@
-import { Badge, Stack, Table, Text } from "@mantine/core";
-import type { Backtest } from "../api/backtest.ts";
-import { TOOLTIPS } from "../config.ts";
-import { formatHours, formatInteger, formatUsd } from "../format.ts";
+import { Badge, Group, Paper, Table, Text, Title } from "@mantine/core";
+import {
+  BASELINE_STRATEGY_ID,
+  type Backtest,
+  type Strategy,
+} from "../api/backtest.ts";
+import { BEST_BADGE, BREAKDOWN_COPY, TOOLTIPS } from "../config.ts";
+import { formatBtc, formatHours, formatInteger, formatUsd } from "../format.ts";
 import { Term } from "./Term.tsx";
 
-const HEADERS: { title: string; tooltip?: string }[] = [
-  { title: "Strategy" },
-  { title: "Revenue" },
-  { title: "Energy cost" },
-  { title: "Transmission", tooltip: TOOLTIPS.transmission },
-  { title: "Net profit" },
-  { title: "Mined sats" },
-  { title: "Hours off", tooltip: TOOLTIPS.hoursOff },
-  { title: "Price gain", tooltip: TOOLTIPS.priceGain },
-  { title: "4CP gain", tooltip: TOOLTIPS.fourcpGain },
+interface Column {
+  title: string;
+  tooltip?: string;
+  groupStart?: boolean;
+  cell: (strategy: Strategy) => string;
+}
+
+function gain(strategy: Strategy, value: string): string {
+  return strategy.id === BASELINE_STRATEGY_ID
+    ? BREAKDOWN_COPY.noGain
+    : formatUsd(value);
+}
+
+const COLUMNS: Column[] = [
+  { title: "Revenue", cell: (s) => formatUsd(s.revenue_usd) },
+  { title: "Energy cost", cell: (s) => formatUsd(s.energy_cost_usd) },
+  {
+    title: "Transmission",
+    tooltip: TOOLTIPS.transmission,
+    cell: (s) => formatUsd(s.transmission_usd),
+  },
+  { title: "Net profit", cell: (s) => formatUsd(s.net_profit_usd) },
+  {
+    title: "Price gain",
+    tooltip: TOOLTIPS.priceGain,
+    groupStart: true,
+    cell: (s) => gain(s, s.gain_vs_always_on.price_usd),
+  },
+  {
+    title: "4CP gain",
+    tooltip: TOOLTIPS.fourcpGain,
+    cell: (s) => gain(s, s.gain_vs_always_on.fourcp_usd),
+  },
+  {
+    title: "BTC mined",
+    groupStart: true,
+    cell: (s) => formatBtc(s.mined_sats),
+  },
+  {
+    title: "Hours off",
+    tooltip: TOOLTIPS.hoursOff,
+    cell: (s) => formatHours(s.hours_off),
+  },
 ];
 
+const GROUP_BORDER = { borderLeft: "1px solid var(--ror-line)" };
+
 function DataQuality({ backtest }: { backtest: Backtest }) {
-  const { expected_intervals, missing_intervals } = backtest.data_quality;
+  const { expected_intervals: expected, missing_intervals: missing } =
+    backtest.data_quality;
   return (
-    <Text size="sm" c="dimmed">
-      Intervals skipped for missing data: {formatInteger(missing_intervals)} of{" "}
-      {formatInteger(expected_intervals)}
+    <Text size="xs" c="dimmed">
+      {formatInteger(expected - missing)} of {formatInteger(expected)} intervals
+      priced · {formatInteger(missing)} skipped for missing data
     </Text>
   );
 }
 
 export function ResultsTable({ backtest }: { backtest: Backtest }) {
   return (
-    <Stack gap="xs">
+    <Paper
+      component="section"
+      aria-label={BREAKDOWN_COPY.heading}
+      withBorder
+      bg="var(--ror-surface)"
+      style={{ borderColor: "var(--ror-line)", overflow: "hidden" }}
+    >
+      <Group justify="space-between" align="baseline" gap="xs" p="xl" pb="sm">
+        <Title order={3} component="h2">
+          {BREAKDOWN_COPY.heading}
+        </Title>
+        <DataQuality backtest={backtest} />
+      </Group>
       <Table.ScrollContainer minWidth={860}>
-        <Table striped highlightOnHover aria-label="Results by strategy">
+        <Table
+          aria-label={BREAKDOWN_COPY.tableLabel}
+          horizontalSpacing="md"
+          verticalSpacing="sm"
+          borderColor="var(--ror-line)"
+        >
           <Table.Thead>
             <Table.Tr>
-              {HEADERS.map(({ title, tooltip }) => (
-                <Table.Th key={title}>
-                  {tooltip === undefined ? (
-                    title
-                  ) : (
-                    <Term tooltip={tooltip}>{title}</Term>
-                  )}
+              <Table.Th>
+                <Text size="xs" fw={500} c="dimmed">
+                  Rule
+                </Text>
+              </Table.Th>
+              {COLUMNS.map((column) => (
+                <Table.Th
+                  key={column.title}
+                  ta="right"
+                  style={column.groupStart === true ? GROUP_BORDER : undefined}
+                >
+                  <Text size="xs" fw={500} c="dimmed" span>
+                    {column.tooltip === undefined ? (
+                      column.title
+                    ) : (
+                      <Term tooltip={column.tooltip}>{column.title}</Term>
+                    )}
+                  </Text>
                 </Table.Th>
               ))}
             </Table.Tr>
@@ -51,37 +119,42 @@ export function ResultsTable({ backtest }: { backtest: Backtest }) {
                 <Table.Tr
                   key={strategy.id}
                   aria-current={winner ? "true" : undefined}
-                  bg={winner ? "var(--mantine-color-teal-light)" : undefined}
+                  bg={winner ? "var(--ror-accent-soft)" : undefined}
                 >
-                  <Table.Td>
-                    <Term tooltip={TOOLTIPS.strategies[strategy.id]}>
+                  <Table.Td fw={winner ? 600 : 400}>
+                    <Group gap="xs" wrap="nowrap">
                       {strategy.label}
-                    </Term>{" "}
-                    {winner ? (
-                      <Badge color="teal" variant="filled" size="sm">
-                        Winner
-                      </Badge>
-                    ) : null}
+                      {winner ? (
+                        <Badge
+                          variant="light"
+                          bg="var(--ror-accent-soft)"
+                          c="var(--ror-accent)"
+                          tt="none"
+                          radius="xl"
+                          size="sm"
+                        >
+                          {BEST_BADGE}
+                        </Badge>
+                      ) : null}
+                    </Group>
                   </Table.Td>
-                  <Table.Td>{formatUsd(strategy.revenue_usd)}</Table.Td>
-                  <Table.Td>{formatUsd(strategy.energy_cost_usd)}</Table.Td>
-                  <Table.Td>{formatUsd(strategy.transmission_usd)}</Table.Td>
-                  <Table.Td>{formatUsd(strategy.net_profit_usd)}</Table.Td>
-                  <Table.Td>{formatInteger(strategy.mined_sats)}</Table.Td>
-                  <Table.Td>{formatHours(strategy.hours_off)}</Table.Td>
-                  <Table.Td>
-                    {formatUsd(strategy.gain_vs_always_on.price_usd)}
-                  </Table.Td>
-                  <Table.Td>
-                    {formatUsd(strategy.gain_vs_always_on.fourcp_usd)}
-                  </Table.Td>
+                  {COLUMNS.map((column) => (
+                    <Table.Td
+                      key={column.title}
+                      ta="right"
+                      style={
+                        column.groupStart === true ? GROUP_BORDER : undefined
+                      }
+                    >
+                      {column.cell(strategy)}
+                    </Table.Td>
+                  ))}
                 </Table.Tr>
               );
             })}
           </Table.Tbody>
         </Table>
       </Table.ScrollContainer>
-      <DataQuality backtest={backtest} />
-    </Stack>
+    </Paper>
   );
 }

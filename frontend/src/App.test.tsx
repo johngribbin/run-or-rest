@@ -76,12 +76,47 @@ describe("App", () => {
     const winnerRow = within(table)
       .getAllByRole("row")
       .find((row) => row.getAttribute("aria-current") === "true");
-    expect(winnerRow).toHaveTextContent("Strike + peak guard");
-    expect(winnerRow).toHaveTextContent("Winner");
-    expect(winnerRow).toHaveTextContent("−$48,765.44");
-    expect(winnerRow).toHaveTextContent("421.50");
-    expect(winnerRow).toHaveTextContent("$50,000.00");
-    expect(winnerRow).toHaveTextContent("225,000,000");
+    expect(
+      within(winnerRow ?? table)
+        .getAllByRole("cell")
+        .map((cell) => cell.textContent),
+    ).toEqual([
+      "Strike + peak guardBest",
+      "$150,000.00",
+      "$88,765.44",
+      "$0.00",
+      "$61,234.56",
+      "−$48,765.44",
+      "$50,000.00",
+      "2.2500",
+      "421.50",
+    ]);
+  });
+
+  it("shows a dash for always on's gains over itself", async () => {
+    respondWith(200, sampleBacktest);
+
+    renderApp();
+    const table = await screen.findByRole("table", {
+      name: "Results by strategy",
+    });
+    const baseline = within(table).getByRole("row", { name: /^Always on/ });
+
+    expect(
+      within(baseline)
+        .getAllByRole("cell")
+        .map((cell) => cell.textContent),
+    ).toEqual([
+      "Always on",
+      "$200,000.00",
+      "$90,000.00",
+      "$50,000.00",
+      "$60,000.00",
+      "—",
+      "—",
+      "3.0000",
+      "0.00",
+    ]);
   });
 
   it("says how many intervals were skipped for missing data", async () => {
@@ -92,15 +127,33 @@ describe("App", () => {
 
     renderApp();
 
+    expect(await screen.findByText(/intervals priced/)).toHaveTextContent(
+      "11,707 of 11,712 intervals priced · 5 skipped for missing data",
+    );
+  });
+
+  it("keeps the assumptions collapsed until asked", async () => {
+    respondWith(200, sampleBacktest);
+
+    renderApp();
+    const toggle = await screen.findByRole("button", {
+      name: "Model and assumptions",
+    });
+
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
     expect(
-      await screen.findByText(/Intervals skipped for missing data/),
-    ).toHaveTextContent("Intervals skipped for missing data: 5 of 11,712");
+      screen.queryByRole("row", { name: "Efficiency 15 J/TH" }),
+    ).not.toBeInTheDocument();
   });
 
   it("lists the assumptions and the data attributions", async () => {
     respondWith(200, sampleBacktest);
+    const user = userEvent.setup();
 
     renderApp();
+    await user.click(
+      await screen.findByRole("button", { name: "Model and assumptions" }),
+    );
 
     expect(
       await screen.findByRole("row", { name: "Efficiency 15 J/TH" }),

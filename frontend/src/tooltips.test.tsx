@@ -5,25 +5,16 @@ import { renderApp, respondWith } from "./test/renderApp.tsx";
 import { sampleBacktest } from "./test/sampleBacktest.ts";
 
 const TABLE_TERMS: [string, string][] = [
-  ["Always on", "Never switches off. The baseline."],
-  [
-    "Strike price",
-    "Switches off when the last 15 minutes’ power price was above breakeven.",
-  ],
-  [
-    "Strike + peak guard",
-    "Strike price, plus switching off when grid demand nears the month’s peak.",
-  ],
   [
     "Transmission",
     "Next year’s charge, set by power used during this summer’s four 4CP peak intervals.",
   ],
-  ["Hours off", "Total time the fleet was switched off."],
   [
     "Price gain",
     "Saved by avoiding expensive power, minus mining revenue given up, compared with always on.",
   ],
   ["4CP gain", "Transmission charges avoided compared with always on."],
+  ["Hours off", "Total time the fleet was switched off."],
 ];
 
 function describedBy(term: HTMLElement): HTMLElement {

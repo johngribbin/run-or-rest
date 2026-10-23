@@ -1,12 +1,4 @@
-import {
-  Alert,
-  Container,
-  Divider,
-  Group,
-  Loader,
-  Stack,
-  Text,
-} from "@mantine/core";
+import { Alert, Container, Group, Loader, Stack, Text } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -97,7 +89,6 @@ export function App() {
               onThresholdChange={setThreshold}
             />
           ) : null}
-          <Divider />
           <Footer />
         </Stack>
       </Container>
