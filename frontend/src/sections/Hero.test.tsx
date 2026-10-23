@@ -24,8 +24,27 @@ describe("Hero", () => {
     expect(within(panel).getByText("Strike + peak guard")).toBeInTheDocument();
     expect(within(panel).getByText("+$1,235")).toBeInTheDocument();
     expect(
-      within(panel).getByText("net profit vs. always on"),
+      within(panel).getByText(
+        "net profit vs. always on · 1 MW fleet at 15 J/TH",
+      ),
     ).toBeInTheDocument();
+  });
+
+  it("names the fleet the dollar figures are for, from the API", async () => {
+    respondWith(200, {
+      ...sampleBacktest,
+      assumptions: {
+        ...sampleBacktest.assumptions,
+        fleet_mw: "5",
+        efficiency_j_per_th: "21",
+      },
+    });
+
+    renderApp();
+
+    expect(within(await answer()).getByText(/MW fleet at/)).toHaveTextContent(
+      "net profit vs. always on · 5 MW fleet at 21 J/TH",
+    );
   });
 
   it("explains the win from hours off, price gain and 4CP gain", async () => {
@@ -115,7 +134,7 @@ describe("Hero", () => {
 
     expect(
       within(await answer()).getByText(
-        "Always on made the most money; neither curtailment rule beat it.",
+        "Always on made the most money; neither curtailment rule beat it. 1 MW fleet at 15 J/TH.",
       ),
     ).toBeInTheDocument();
   });

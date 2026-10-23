@@ -21,20 +21,6 @@ const shownTime = new Intl.DateTimeFormat("en-US", {
   minute: "2-digit",
 });
 
-const periodDate = new Intl.DateTimeFormat("en-US", {
-  timeZone: DISPLAY_TIME_ZONE,
-  year: "numeric",
-  month: "short",
-  day: "numeric",
-});
-
-export function formatPeriod(startUtc: string, endUtc: string): string {
-  const lastMoment = new Date(Date.parse(endUtc) - 1);
-  return periodDate
-    .formatRange(new Date(startUtc), lastMoment)
-    .replace(/\s/g, " ");
-}
-
 export function formatCentralTime(utc: string): string {
   return `${shownTime.format(new Date(utc))} ${DISPLAY_TIME_ZONE_LABEL}`;
 }

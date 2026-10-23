@@ -86,7 +86,7 @@ export function App() {
 
   return (
     <>
-      <Header backtest={query.data} />
+      <Header />
       <Container size="lg" py="xl">
         <Stack gap="xl">
           {query.isError ? (

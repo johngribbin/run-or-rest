@@ -37,19 +37,6 @@ describe("App", () => {
     ).toBeInTheDocument();
   });
 
-  it("names the period, settlement point and fleet of the run", async () => {
-    respondWith(200, sampleBacktest);
-
-    renderApp();
-
-    const chips = await screen.findByRole("list", { name: "This run" });
-    expect(
-      within(chips)
-        .getAllByRole("listitem")
-        .map((chip) => chip.textContent),
-    ).toEqual(["Jun 1, 2026", "LZ_WEST", "1 MW · 15 J/TH · 2% pool fee"]);
-  });
-
   it("always uses the dark scheme, with no theme toggle", () => {
     vi.stubGlobal(
       "fetch",

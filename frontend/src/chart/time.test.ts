@@ -4,7 +4,6 @@ import {
   chartTime,
   formatCentralTime,
   formatPeakDay,
-  formatPeriod,
 } from "./time.ts";
 
 function shown(utc: string): string {
@@ -35,14 +34,6 @@ describe("formatCentralTime", () => {
   it("writes the window start as Central midnight", () => {
     expect(formatCentralTime("2026-06-01T05:00:00Z")).toBe(
       "Jun 1, 2026, 00:00 CT",
-    );
-  });
-});
-
-describe("formatPeriod", () => {
-  it("names the window's first and last Central days", () => {
-    expect(formatPeriod("2026-06-01T05:00:00Z", "2026-10-01T05:00:00Z")).toBe(
-      "Jun 1 – Sep 30, 2026",
     );
   });
 });

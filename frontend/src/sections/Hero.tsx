@@ -5,7 +5,7 @@ import {
   type Strategy,
   strategyById,
 } from "../api/backtest.ts";
-import { ANSWER_LABEL, KPI_LABELS } from "../config.ts";
+import { ANSWER_LABEL, FLEET_LABEL, KPI_LABELS } from "../config.ts";
 import {
   formatBtc,
   formatHoursSummary,
@@ -60,6 +60,10 @@ function Answer({
 }) {
   const baselineWins = winner.id === BASELINE_STRATEGY_ID;
   const peaks = backtest.fourcp.peaks.length;
+  const fleet = FLEET_LABEL(
+    backtest.assumptions.fleet_mw,
+    backtest.assumptions.efficiency_j_per_th,
+  );
   return (
     <Stack gap="lg">
       <Eyebrow heading>{ANSWER_LABEL}</Eyebrow>
@@ -70,7 +74,7 @@ function Answer({
         {baselineWins ? (
           <Text c="var(--ror-text-secondary)">
             {winner.label} made the most money; neither curtailment rule beat
-            it.
+            it. {fleet}.
           </Text>
         ) : (
           <>
@@ -86,7 +90,7 @@ function Answer({
                 )}
               </Text>
               <Text c="var(--ror-text-secondary)">
-                net profit vs. {baseline.label.toLowerCase()}
+                net profit vs. {baseline.label.toLowerCase()} · {fleet}
               </Text>
             </Group>
             <Text c="var(--ror-text-secondary)" maw={560}>
