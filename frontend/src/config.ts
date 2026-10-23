@@ -126,6 +126,12 @@ export const BITCOIN_COPY = {
     hashprice: "Hashprice, USD per PH/s per day",
   },
 };
+export const BREAKDOWN_COPY = {
+  heading: "Full breakdown",
+  tableLabel: "Results by strategy",
+  noGain: "—",
+};
+export const ASSUMPTIONS_HEADING = "Model and assumptions";
 export const BEST_BADGE = "Best";
 export const BASELINE_DELTA = "Baseline";
 export const KPI_LABELS = {
@@ -194,13 +200,6 @@ export const CHART_SERIES_NAMES = {
 };
 
 export const TOOLTIPS = {
-  strategies: {
-    always_on: "Never switches off. The baseline.",
-    strike_price:
-      "Switches off when the last 15 minutes’ power price was above breakeven.",
-    strike_peak_guard:
-      "Strike price, plus switching off when grid demand nears the month’s peak.",
-  },
   transmission:
     "Next year’s charge, set by power used during this summer’s four 4CP peak intervals.",
   hoursOff: "Total time the fleet was switched off.",

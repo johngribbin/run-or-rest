@@ -1,6 +1,10 @@
-import { List, Stack, Table, Title } from "@mantine/core";
+import { Accordion, List, Paper, SimpleGrid, Table } from "@mantine/core";
 import type { Backtest } from "../api/backtest.ts";
-import { MODEL_ASSUMPTIONS, THRESHOLD_LABEL } from "../config.ts";
+import {
+  ASSUMPTIONS_HEADING,
+  MODEL_ASSUMPTIONS,
+  THRESHOLD_LABEL,
+} from "../config.ts";
 import { formatCentralTime } from "../chart/time.ts";
 import { formatPercent, formatUsd } from "../format.ts";
 
@@ -22,25 +26,46 @@ export function AssumptionsSection({ backtest }: { backtest: Backtest }) {
     ["Settlement point", backtest.period.settlement_point],
   ];
   return (
-    <Stack gap="xs">
-      <Title order={3} component="h2">
-        Assumptions
-      </Title>
-      <Table>
-        <Table.Tbody>
-          {rows.map(([name, value]) => (
-            <Table.Tr key={name}>
-              <Table.Th>{name}</Table.Th>
-              <Table.Td>{value}</Table.Td>
-            </Table.Tr>
-          ))}
-        </Table.Tbody>
-      </Table>
-      <List type="ordered" spacing={4}>
-        {MODEL_ASSUMPTIONS.map((assumption) => (
-          <List.Item key={assumption}>{assumption}</List.Item>
-        ))}
-      </List>
-    </Stack>
+    <Paper
+      component="section"
+      aria-label={ASSUMPTIONS_HEADING}
+      withBorder
+      bg="var(--ror-surface)"
+      style={{ borderColor: "var(--ror-line)", overflow: "hidden" }}
+    >
+      <Accordion chevronPosition="right">
+        <Accordion.Item value="assumptions" style={{ borderBottom: 0 }}>
+          <Accordion.Control px="xl" py="xs" fw={600} fz="lg">
+            {ASSUMPTIONS_HEADING}
+          </Accordion.Control>
+          <Accordion.Panel px="md" pb="md">
+            <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
+              <Table verticalSpacing={6} borderColor="var(--ror-line)">
+                <Table.Tbody>
+                  {rows.map(([name, value]) => (
+                    <Table.Tr key={name}>
+                      <Table.Th fw={400} c="dimmed" w="40%">
+                        {name}
+                      </Table.Th>
+                      <Table.Td>{value}</Table.Td>
+                    </Table.Tr>
+                  ))}
+                </Table.Tbody>
+              </Table>
+              <List
+                type="ordered"
+                spacing={6}
+                c="var(--ror-text-secondary)"
+                size="sm"
+              >
+                {MODEL_ASSUMPTIONS.map((assumption) => (
+                  <List.Item key={assumption}>{assumption}</List.Item>
+                ))}
+              </List>
+            </SimpleGrid>
+          </Accordion.Panel>
+        </Accordion.Item>
+      </Accordion>
+    </Paper>
   );
 }
