@@ -15,17 +15,19 @@ make dev
 
 `make dev` serves the page at http://localhost:5173.
 
+## Check
+
+```sh
+make verify       # lint, format, types, source rules, tests
+make verify-ci    # what CI runs
+```
+
+## Bitcoin data
+
 Bitcoin chain data and BTC price history are committed to `data/`, so you don't need to fetch them to run the app. To fetch them again, the price history comes from the Coin Metrics Community API (no key needed), and the chain data needs a fully synced Bitcoin Core node with RPC access:
 
 ```sh
 uv run --project backend python backend/scripts/fetch_price.py
 BITCOIN_RPC_URL=… BITCOIN_RPC_USER=… BITCOIN_RPC_PASSWORD=… \
   uv run --project backend python backend/scripts/fetch_chain.py
-```
-
-## Check
-
-```sh
-make verify       # lint, format, types, source rules, tests
-make verify-ci    # what CI runs
 ```
