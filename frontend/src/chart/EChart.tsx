@@ -33,15 +33,21 @@ export function EChart({
   label,
   height,
   zoom,
+  onZoom,
 }: {
   option: EChartsCoreOption;
   label: string;
   height: number;
   zoom?: ZoomWindow;
+  onZoom?: (zoom: ZoomWindow) => void;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const chart = useRef<EChartsType | null>(null);
   const shown = useRef<ZoomWindow>(FULL_ZOOM);
+  const zoomListener = useRef(onZoom);
+  useEffect(() => {
+    zoomListener.current = onZoom;
+  }, [onZoom]);
   useEffect(() => {
     const element = container.current;
     if (element === null) {
@@ -53,6 +59,7 @@ export function EChart({
       const next = zoomFromEvent(event);
       if (next !== null) {
         shown.current = next;
+        zoomListener.current?.(next);
       }
     });
     const observer = new ResizeObserver(() => {

@@ -250,12 +250,14 @@ function zoomControls(): DataZoomComponentOption[] {
   return [
     {
       type: "inside",
+      filterMode: "weakFilter",
       zoomOnMouseWheel: true,
       moveOnMouseWheel: false,
       moveOnMouseMove: true,
     },
     {
       type: "slider",
+      filterMode: "weakFilter",
       height: 20,
       bottom: 8,
       showDataShadow: false,
