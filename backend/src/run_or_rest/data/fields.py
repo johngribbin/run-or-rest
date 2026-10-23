@@ -2,6 +2,8 @@ import re
 from datetime import UTC, date, datetime
 from decimal import Decimal
 
+from run_or_rest.config import UTC_TIMESTAMP_FORMAT
+
 TWO_PLACES = re.compile(r"-?\d+\.\d{2}")
 PLAIN_DECIMAL = re.compile(r"-?\d+(\.\d+)?")
 NON_NEGATIVE_INT = re.compile(r"\d+")
@@ -62,7 +64,7 @@ def iso_date(value: object) -> date:
 
 def utc_timestamp(value: object) -> datetime:
     text = _matching(value, UTC_TIMESTAMP, "a YYYY-MM-DDTHH:MM:SSZ timestamp")
-    return datetime.strptime(text, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=UTC)
+    return datetime.strptime(text, UTC_TIMESTAMP_FORMAT).replace(tzinfo=UTC)
 
 
 def bits(value: object) -> str:

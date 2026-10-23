@@ -2,6 +2,7 @@ import {
   Alert,
   Container,
   Divider,
+  Group,
   Loader,
   Stack,
   Text,
@@ -11,7 +12,13 @@ import { useDebouncedValue } from "@mantine/hooks";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { type Backtest, fetchBacktest } from "./api/backtest.ts";
-import { APP_SUBTITLE, APP_TITLE, REFETCH_DEBOUNCE_MS } from "./config.ts";
+import {
+  APP_SUBTITLE,
+  APP_TITLE,
+  REFETCH_DEBOUNCE_MS,
+  STALE_OPACITY,
+  UPDATING_TEXT,
+} from "./config.ts";
 import { Answer } from "./sections/Answer.tsx";
 import { AssumptionsSection } from "./sections/AssumptionsSection.tsx";
 import { ChartSection } from "./sections/ChartSection.tsx";
@@ -21,25 +28,38 @@ import { ThresholdControl } from "./sections/ThresholdControl.tsx";
 
 function Results({
   backtest,
+  stale,
   threshold,
   onThresholdChange,
 }: {
   backtest: Backtest;
+  stale: boolean;
   threshold: string | null;
   onThresholdChange: (value: string) => void;
 }) {
   const control = backtest.controls.peak_guard_threshold;
+  const shown = { opacity: stale ? STALE_OPACITY : 1 };
   return (
     <Stack gap="xl">
-      <Answer backtest={backtest} />
+      <Stack gap="xl" style={shown} aria-busy={stale}>
+        <Answer backtest={backtest} />
+      </Stack>
       <ThresholdControl
         control={control}
         value={threshold ?? control.default}
         onChange={onThresholdChange}
       />
-      <ResultsTable backtest={backtest} />
-      <ChartSection backtest={backtest} />
-      <AssumptionsSection backtest={backtest} />
+      {stale ? (
+        <Group gap="xs" role="status">
+          <Loader size="xs" />
+          <Text size="sm">{UPDATING_TEXT}</Text>
+        </Group>
+      ) : null}
+      <Stack gap="xl" style={shown} aria-busy={stale}>
+        <ResultsTable backtest={backtest} />
+        <ChartSection backtest={backtest} />
+        <AssumptionsSection backtest={backtest} />
+      </Stack>
     </Stack>
   );
 }
@@ -74,6 +94,7 @@ export function App() {
         {query.isSuccess ? (
           <Results
             backtest={query.data}
+            stale={query.isPlaceholderData}
             threshold={threshold}
             onThresholdChange={setThreshold}
           />

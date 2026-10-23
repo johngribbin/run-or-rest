@@ -1,7 +1,7 @@
 from bisect import bisect_right
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from datetime import UTC, date, datetime, timedelta
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
 
@@ -9,8 +9,9 @@ from run_or_rest.config import (
     BTC_PRICE_DAILY_PATH,
     CHAIN_DAILY_PATH,
     DIFFICULTY_EPOCHS_PATH,
-    INTERVAL,
+    LOAD_COLUMN,
     LOAD_PATH,
+    PRICE_COLUMN,
     SPP_PATH,
 )
 from run_or_rest.core.models import (
@@ -19,7 +20,7 @@ from run_or_rest.core.models import (
     HistoryInterval,
     WindowInterval,
 )
-from run_or_rest.core.timestamps import utc_text
+from run_or_rest.core.timestamps import interval_starts, utc_text
 from run_or_rest.data.files import (
     DataError,
     DifficultyEpoch,
@@ -62,11 +63,6 @@ class _DailyData:
     epochs: Sequence[DifficultyEpoch]
 
 
-def _starts(first: datetime, end: datetime) -> list[datetime]:
-    count = (end - first) // INTERVAL
-    return [(first + index * INTERVAL).astimezone(UTC) for index in range(count)]
-
-
 def _day(daily: _DailyData, day: date, start: datetime) -> DayEconomics:
     chain = daily.chain.get(day)
     price = daily.btc_price.get(day)
@@ -78,7 +74,7 @@ def _day(daily: _DailyData, day: date, start: datetime) -> DayEconomics:
 
 
 def _difficulty(daily: _DailyData, start: datetime) -> Decimal:
-    index = bisect_right([epoch.start for epoch in daily.epochs], start)
+    index = bisect_right(daily.epochs, start, key=lambda epoch: epoch.start)
     if index == 0:
         name = daily.paths.difficulty_epochs.name
         msg = f"{name} has no row at or before {utc_text(start)}"
@@ -102,7 +98,7 @@ def _window_slots(daily: _DailyData, ranges: Ranges) -> list[_WindowSlot]:
             day=_day(daily, start.date(), start),
             previous_day=_day(daily, start.date() - ONE_DAY, start),
         )
-        for start in _starts(ranges.window_start, ranges.window_end)
+        for start in interval_starts(ranges.window_start, ranges.window_end)
     ]
 
 
@@ -114,11 +110,11 @@ def load_data(paths: DataPaths, ranges: Ranges) -> LoadedData:
         epochs=read_difficulty_epochs(paths.difficulty_epochs),
     )
     slots = _window_slots(daily, ranges)
-    prices = read_interval_values(paths.spp, "price_usd_per_mwh")
-    loads = read_interval_values(paths.load, "load_mw")
+    prices = read_interval_values(paths.spp, PRICE_COLUMN)
+    loads = read_interval_values(paths.load, LOAD_COLUMN)
     history = tuple(
         HistoryInterval(start, prices.get(start), loads.get(start))
-        for start in _starts(ranges.history_start, ranges.window_start)
+        for start in interval_starts(ranges.history_start, ranges.window_start)
     )
     window = tuple(
         WindowInterval(

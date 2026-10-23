@@ -1,6 +1,6 @@
 import { Box, Group, Text } from "@mantine/core";
 import type { ReactNode } from "react";
-import { CHART_COLORS, TOOLTIPS } from "../config.ts";
+import { CHART_COLORS, CHART_SERIES_NAMES, TOOLTIPS } from "../config.ts";
 import { Term } from "./Term.tsx";
 
 function Entry({
@@ -37,11 +37,15 @@ export function ChartLegend() {
   return (
     <Group gap="lg" aria-label="Chart legend" role="list">
       <div role="listitem">
-        <Entry swatch={<LineSwatch color={CHART_COLORS.price} />}>Price</Entry>
+        <Entry swatch={<LineSwatch color={CHART_COLORS.price} />}>
+          {CHART_SERIES_NAMES.price}
+        </Entry>
       </div>
       <div role="listitem">
         <Entry swatch={<LineSwatch color={CHART_COLORS.breakeven} />}>
-          <Term tooltip={TOOLTIPS.breakevenEstimate}>Breakeven estimate</Term>
+          <Term tooltip={TOOLTIPS.breakevenEstimate}>
+            {CHART_SERIES_NAMES.breakeven}
+          </Term>
         </Entry>
       </div>
       <div role="listitem">

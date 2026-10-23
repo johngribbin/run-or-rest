@@ -1,6 +1,6 @@
 import { List, Stack, Table, Title } from "@mantine/core";
 import type { Backtest } from "../api/backtest.ts";
-import { MODEL_ASSUMPTIONS } from "../config.ts";
+import { MODEL_ASSUMPTIONS, THRESHOLD_LABEL } from "../config.ts";
 import { formatCentralTime } from "../chart/time.ts";
 import { formatPercent, formatUsd } from "../format.ts";
 
@@ -14,7 +14,7 @@ export function AssumptionsSection({ backtest }: { backtest: Backtest }) {
       "Transmission rate",
       `${formatUsd(values.transmission_rate_usd_per_mw_year)} per MW-year`,
     ],
-    ["Peak guard threshold", formatPercent(values.peak_guard_threshold)],
+    [THRESHOLD_LABEL, formatPercent(values.peak_guard_threshold)],
     [
       "Period",
       `${formatCentralTime(backtest.period.start_utc)} to ${formatCentralTime(backtest.period.end_utc)}`,

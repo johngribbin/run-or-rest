@@ -24,11 +24,11 @@ class _Candidate:
 
 def _highest_load_by_month(
     window: Sequence[WindowInterval],
-) -> dict[MonthKey, _Candidate | None]:
-    highest: dict[MonthKey, _Candidate | None] = {}
+) -> dict[MonthKey, _Candidate]:
+    highest: dict[MonthKey, _Candidate] = {}
     for interval in window:
         month = month_of(interval.start)
-        best = highest.setdefault(month, None)
+        best = highest.get(month)
         load = interval.load_mw
         if load is not None and (best is None or load > best.load_mw):
             highest[month] = _Candidate(
@@ -37,6 +37,10 @@ def _highest_load_by_month(
                 interval.price_usd_per_mwh,
             )
     return highest
+
+
+def _window_months(window: Sequence[WindowInterval]) -> list[MonthKey]:
+    return list(dict.fromkeys(month_of(interval.start) for interval in window))
 
 
 def _peak(month: MonthKey, candidate: _Candidate | None) -> FourCpPeak:
@@ -50,10 +54,8 @@ def _peak(month: MonthKey, candidate: _Candidate | None) -> FourCpPeak:
 
 
 def fourcp_peaks(window: Sequence[WindowInterval]) -> list[FourCpPeak]:
-    return [
-        _peak(month, candidate)
-        for month, candidate in _highest_load_by_month(window).items()
-    ]
+    highest = _highest_load_by_month(window)
+    return [_peak(month, highest.get(month)) for month in _window_months(window)]
 
 
 def transmission_usd(

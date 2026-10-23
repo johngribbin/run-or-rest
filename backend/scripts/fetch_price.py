@@ -4,17 +4,19 @@ import json
 import sys
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
-from datetime import date, timedelta
+from datetime import date
 from pathlib import Path
 from urllib.parse import urlencode, urlsplit
 
 from run_or_rest.config import (
+    BTC_PRICE_DAILY_COLUMNS,
     BTC_PRICE_DAILY_PATH,
     COIN_METRICS_ASSET_METRICS_URL,
     DAILY_FIRST_DATE_UTC,
     DAILY_LAST_DATE_UTC,
 )
 from run_or_rest.data import fields
+from scripts.common import inclusive_days
 
 MIDNIGHT_SUFFIX = "T00:00:00.000000000Z"
 PAGE_SIZE = 1000
@@ -98,7 +100,7 @@ def daily_prices(rows: Iterable[PriceRow], first: date, last: date) -> list[Dail
         day = _parse_day(row.time)
         if first <= day <= last:
             found[day] = DailyPrice(day, _check_price(row.price_usd, day))
-    days = [first + timedelta(days=offset) for offset in range((last - first).days + 1)]
+    days = inclusive_days(first, last)
     missing = [day.isoformat() for day in days if day not in found]
     if missing:
         sys.exit(f"Coin Metrics has no PriceUSD for {missing}")
@@ -109,7 +111,7 @@ def write_prices(prices: Sequence[DailyPrice], path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.writer(handle, lineterminator="\n")
-        writer.writerow(["date_utc", "price_usd"])
+        writer.writerow(BTC_PRICE_DAILY_COLUMNS)
         writer.writerows(
             [price.date_utc.isoformat(), price.price_usd] for price in prices
         )

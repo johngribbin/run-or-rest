@@ -123,7 +123,7 @@ export function chartOption(
     silent: true,
     symbol: "none",
     lineStyle: { color: CHART_COLORS.peak, type: "dashed" },
-    label: { formatter: "{b}" },
+    label: { formatter: "{b}", position: "insideEndTop" },
     data: backtest.fourcp_peaks.map((peak) => ({
       name: `4CP ${peak.month}: ${formatDecimal(peak.system_load_mw)} MW`,
       xAxis: chartTime(peak.interval_start_utc),
@@ -141,7 +141,11 @@ export function chartOption(
       },
     },
     grid: { left: 56, right: 24, top: 24, bottom: 72 },
-    xAxis: { type: "time", name: CHART_TIME_AXIS_NAME },
+    xAxis: {
+      type: "time",
+      name: CHART_TIME_AXIS_NAME,
+      axisLabel: { hideOverlap: true },
+    },
     yAxis: {
       type: "value",
       name: "$/MWh",

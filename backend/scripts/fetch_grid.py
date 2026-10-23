@@ -1,6 +1,5 @@
 import os
 import sys
-from collections.abc import Mapping
 from datetime import timedelta
 from decimal import ROUND_HALF_EVEN, Decimal
 from pathlib import Path
@@ -12,25 +11,23 @@ from run_or_rest.config import (
     GRIDSTATUS_API_KEY_ENV,
     HISTORY_START,
     INTERVAL,
+    INTERVAL_START_COLUMN,
+    LOAD_COLUMN,
     LOAD_DATASET,
     LOAD_PATH,
+    PRICE_COLUMN,
     SETTLEMENT_POINT,
     SPP_DATASET,
     SPP_PATH,
     WINDOW_END,
 )
+from scripts.common import require_env
 
-START_COLUMN = "interval_start_utc"
+START_COLUMN = INTERVAL_START_COLUMN
+KEY_HINT = "Export it or add it to .env and retry."
 SPP_COLUMNS = (START_COLUMN, "location", "spp")
 LOAD_COLUMNS = (START_COLUMN, "load")
 CENTS = Decimal("0.01")
-
-
-def require_env(name: str, environ: Mapping[str, str]) -> str:
-    value = environ.get(name, "")
-    if not value:
-        sys.exit(f"{name} is not set. Export it or add it to .env and retry.")
-    return value
 
 
 def require_columns(
@@ -61,7 +58,7 @@ def prices(frame: pl.DataFrame) -> pl.DataFrame:
     others = frame.filter(pl.col("location") != SETTLEMENT_POINT)
     if others.height:
         sys.exit(f"{SPP_DATASET} returned locations other than {SETTLEMENT_POINT}")
-    return _decimal_strings(frame, "spp", "price_usd_per_mwh")
+    return _decimal_strings(frame, "spp", PRICE_COLUMN)
 
 
 def loads(frame: pl.DataFrame) -> pl.DataFrame:
@@ -75,7 +72,7 @@ def loads(frame: pl.DataFrame) -> pl.DataFrame:
         .agg(pl.col("load").mean())
         .sort(START_COLUMN)
     )
-    return _decimal_strings(averaged, "load", "load_mw")
+    return _decimal_strings(averaged, "load", LOAD_COLUMN)
 
 
 def _write(frame: pl.DataFrame, path: Path) -> None:
@@ -86,7 +83,7 @@ def _write(frame: pl.DataFrame, path: Path) -> None:
 
 def main() -> None:
     client = GridStatusClient(
-        api_key=require_env(GRIDSTATUS_API_KEY_ENV, os.environ),
+        api_key=require_env(GRIDSTATUS_API_KEY_ENV, os.environ, KEY_HINT),
         return_format="polars",
     )
     spp = client.get_dataset(

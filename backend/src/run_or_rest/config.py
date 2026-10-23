@@ -24,6 +24,12 @@ SECONDS_PER_HOUR: Final = 3600
 INTERVAL: Final = timedelta(seconds=INTERVAL_SECONDS)
 INTERVAL_HOURS: Final = Decimal(INTERVAL_SECONDS) / SECONDS_PER_HOUR
 UTC_TIMESTAMP_FORMAT: Final = "%Y-%m-%dT%H:%M:%SZ"
+INTERVAL_START_COLUMN: Final = "interval_start_utc"
+PRICE_COLUMN: Final = "price_usd_per_mwh"
+LOAD_COLUMN: Final = "load_mw"
+CHAIN_DAILY_COLUMNS: Final = ("date_utc", "block_count", "subsidy_sats", "fees_sats")
+BTC_PRICE_DAILY_COLUMNS: Final = ("date_utc", "price_usd")
+DIFFICULTY_EPOCH_COLUMNS: Final = ("start_time_utc", "height", "bits")
 WATTS_PER_MW: Final = 10**6
 HASHES_PER_TERAHASH: Final = 10**12
 HASHES_PER_DIFFICULTY: Final = 2**32
