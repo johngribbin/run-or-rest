@@ -41,6 +41,9 @@ For a bitcoin mining fleet buying power at the ERCOT West load zone real-time pr
 | FPPS | A pool payout method that pays miners their expected share of subsidy and fees, regardless of the pool's luck |
 | Decision information | What the miner knew at the start of an interval (section 3.7) |
 | Settlement information | What actually happened in that interval (section 3.7) |
+| Hashprice | What 1 PH/s of hashrate earns in one day, in USD, after the pool fee (section 3.9). The number miners use to compare revenue across days |
+| Difficulty adjustment | A change of difficulty, every 2,016 blocks (about two weeks), that keeps blocks about 10 minutes apart. Higher difficulty means fewer expected blocks for the same hashrate |
+| Transmission charge | The part of a power bill that pays for the grid's wires. In ERCOT it is set by the customer's load during the 4CP intervals |
 
 ## 2. Deliverables
 
@@ -131,6 +134,31 @@ The UI shows exactly this list:
 4. The full next-year 4CP transmission charge is attributed to this season.
 5. Excluded: hardware, hosting and staffing costs; demand response and ancillary service payments; retail adders and other bill components.
 
+### 3.9 Hashprice
+
+hashprice_usd_per_ph_day = revenue_usd (section 3.4) of net_sats (section 3.4) for expected_blocks (section 3.3) at 10^15 H/s for 86,400 seconds
+
+It uses the same difficulty, reward per block, pool fee and BTC price as the row it belongs to (section 3.10). It explains the breakeven line; strategies never use it.
+
+Example: difficulty 20,599,365,234,375 (27 × 5^17): 10^15 H/s for 86,400 seconds is 0.0009765625 expected blocks (1/1024). Reward 320,000,000 sats per block, 2% pool fee: 306,250 sats. At $80,000/BTC: $245.00 per PH/s per day.
+
+### 3.10 Bitcoin inputs by day
+
+For each UTC day that holds at least one window interval, one row:
+
+- `btc_price_usd`, `reward_per_block_sats` (section 3.4): the UTC day's values
+- `difficulty`: the difficulty used by the day's first window interval
+- `fees_share` = fees_sats / (subsidy_sats + fees_sats), the UTC day's totals
+- `hashprice_usd_per_ph_day` (section 3.9) from the values above
+
+Example (`fees_share`): subsidy 312,500,000 sats, fees 2,500,000 sats: 0.0079 (to 4 places).
+
+### 3.11 Difficulty adjustments
+
+One entry for the difficulty in effect at the first window interval, then one for every window interval whose difficulty differs from the previous window interval's. Each has the interval's start, the difficulty, and change_ratio = difficulty / previous difficulty − 1. The first entry has no previous difficulty; its change_ratio is null.
+
+Example: 100 then 110: change_ratio 0.1000.
+
 ## 4. Strategies
 
 Each strategy returns `RUN` (full load) or `OFF` (zero load) for every window interval. Strategies are plain functions of a `DecisionContext`, which core builds for each window interval:
@@ -186,6 +214,8 @@ transmission_usd = transmission_rate_usd_per_mw_year × fleet_mw × (peak interv
 Peak intervals running is how many of the window's 4CP peak intervals the strategy decided `RUN` in. The real window has four peak months.
 
 Example: $50,000/MW-year, 1 MW, running at 1 of 4 peaks: $12,500. At all 4: $50,000.
+
+charge_per_peak_usd = transmission_rate_usd_per_mw_year × fleet_mw / peak months in the window: what running at one peak interval costs. Example: $50,000/MW-year, 1 MW, 4 peak months: $12,500.
 
 ### 5.3 Totals, gains and winner
 
@@ -300,7 +330,7 @@ Rules in this spec and in AGENTS.md refer to these paths, so they are fixed. Eve
 | --- | --- | --- | --- |
 | `peak_guard_threshold` | decimal | 0.95 | 0.80 to 1.00, step 0.01 |
 
-Response `200`. Every decimal is a string, rounded independently from its unrounded value with ROUND_HALF_EVEN: USD and prices to 2 places, `hours_off` to 2, `system_load_mw` to 1, threshold values to 2. `assumptions` values are unrounded: the configured defaults, and the `peak_guard_threshold` used for this request. Sats are integers. Pydantic fields carry descriptions.
+Response `200`. Every decimal is a string, rounded independently from its unrounded value with ROUND_HALF_EVEN: USD and prices to 2 places, `hours_off` to 2, `system_load_mw` to 1, threshold values to 2, `difficulty` to 0, `fees_share` and `change_ratio` to 4, `reward_per_block_sats` to 0. `assumptions` values are unrounded: the configured defaults, and the `peak_guard_threshold` used for this request. Sats are integers. Pydantic fields carry descriptions.
 
 ```json
 {
@@ -324,10 +354,35 @@ Response `200`. Every decimal is a string, rounded independently from its unroun
       "net_profit_usd": "0.00",
       "mined_sats": 0,
       "hours_off": "0.00",
+      "peaks_running": 4,
       "gain_vs_always_on": {"price_usd": "0.00", "fourcp_usd": "0.00", "total_usd": "0.00"}
     }
   ],
-  "fourcp_peaks": [{"month": "2026-06", "interval_start_utc": "...", "system_load_mw": "0.0"}],
+  "fourcp": {
+    "charge_per_peak_usd": "12500.00",
+    "peaks": [
+      {
+        "month": "2026-06",
+        "interval_start_utc": "...",
+        "system_load_mw": "0.0",
+        "price_usd_per_mwh": "0.00",
+        "decisions": {"always_on": "run", "strike_price": "run", "strike_peak_guard": "off"}
+      }
+    ]
+  },
+  "bitcoin": {
+    "daily": [
+      {
+        "date_utc": "2026-06-01",
+        "btc_price_usd": "0.00",
+        "difficulty": "0",
+        "reward_per_block_sats": "0",
+        "fees_share": "0.0000",
+        "hashprice_usd_per_ph_day": "0.00"
+      }
+    ],
+    "difficulty_adjustments": [{"start_utc": "...", "difficulty": "0", "change_ratio": null}]
+  },
   "series": [
     {
       "interval_start_utc": "...",
@@ -346,8 +401,9 @@ Response `200`. Every decimal is a string, rounded independently from its unroun
 | `controls` | The allowed range, step and default of each request parameter; the UI builds its controls from these instead of copying the values |
 | `assumptions` | The inputs this run used: the defaults in section 10 and the request's `peak_guard_threshold` |
 | `winner` | The strategy with the highest net profit (section 5.3) and how much more it made than always on |
-| `strategies` | One entry per strategy, in the order always_on, strike_price, strike_peak_guard: the totals in section 5.3, and `gain_vs_always_on` split into price, 4CP and total (zero for always_on itself) |
-| `fourcp_peaks` | The 4CP peak intervals (section 5.1), one per peak month, with the system load at each |
+| `strategies` | One entry per strategy, in the order always_on, strike_price, strike_peak_guard: the totals in section 5.3, how many 4CP peak intervals it ran in (section 5.2), and `gain_vs_always_on` split into price, 4CP and total (zero for always_on itself) |
+| `fourcp` | What running at one 4CP peak costs (section 5.2), and the 4CP peak intervals (section 5.1), one per peak month, with the system load, the price and each strategy's decision at each |
+| `bitcoin` | The bitcoin inputs behind the breakeven line: one row per UTC day (section 3.10) and the difficulty adjustments (section 3.11) |
 | `series` | One entry per non-skipped window interval: the actual price, the breakeven estimate the strategies decided on (section 3.7), and each strategy's decision |
 | `data_quality` | Window intervals expected (11,712) and how many were skipped for missing data (section 6.5) |
 
@@ -357,32 +413,48 @@ Errors: `422` for an out-of-range or off-step parameter; `503` with `{"detail": 
 
 ## 9. UI
 
-Title "Run or Rest", subtitle "A transparent ERCOT curtailment backtest for bitcoin miners". One page, top to bottom:
+The audience knows bitcoin mining (hashrate, difficulty, hashprice, pools) but not the Texas grid. The page explains the grid side in plain words and shows the bitcoin inputs behind every result.
 
-1. **Answer:** question 1, the winner, and its advantage over always on
-2. **Peak guard control:** Mantine slider using `controls.peak_guard_threshold` (min, max, step, default), current value shown beside it. A change refetches `/api/backtest` after 300 ms without further input and updates every section below.
-3. **Results table:** per strategy: revenue, energy cost, transmission, net profit, hours off, price gain, 4CP gain; winner highlighted
-4. **Chart (ECharts):** price and breakeven estimate over time; shaded bands where the selected strategy is off (segmented control picks the strategy); the 4CP peaks marked; zoom
-5. **Assumptions:** the `assumptions` values from the API, and the list in section 3.8 as static text
-6. **Footer:** "Data provided by Grid Status" linking to https://www.gridstatus.io/; Coin Metrics attribution with licence link
+**Header:** title "Run or Rest", subtitle "ERCOT curtailment backtest for bitcoin miners"; chips for the period, the settlement point, and the fleet (`fleet_mw`, `efficiency_j_per_th`, `pool_fee_rate`); a colour-scheme toggle. The default scheme is dark; the toggle switches to light.
 
-Tooltips: these terms show a Mantine `Tooltip` with exactly this text, marked by a dotted underline: the three rule names in question 1 above the answer, the peak guard slider's label, the results table's strategy names and its transmission, hours off, price gain and 4CP gain headers, and "Breakeven estimate" in the chart legend. The text is static, defined once in `frontend/src/config.ts`, and not served by the API.
+One page, top to bottom:
+
+1. **Answer:** the label "Which rule made the most money this summer?", the winner's label, its advantage over always on as a signed amount ("+$32,739 net profit vs. always on"), and one sentence built from the winner's `hours_off`, `gain_vs_always_on.price_usd` and `gain_vs_always_on.fourcp_usd`: a negative price gain reads "gave up $X of mining margin", a positive one "saved $X on power", and a positive 4CP gain "avoided $Y of next year's transmission charge". Then a row with the winner's net profit, BTC mined, hours off, and 4CP peaks run in ("0 of 4").
+   **Gain bridge** beside it, titled "Where the extra profit came from": four bars, always on's net profit, the price gain, the 4CP gain, and the winner's net profit, each labelled with its value. When always on wins, the answer reads "Always on made the most money; neither curtailment rule beat it." and the bridge is not shown.
+2. **Peak guard trigger:** Mantine slider using `controls.peak_guard_threshold` (min, max, step, default), the current value beside it, the helper text "Switch off when ERCOT demand reaches this share of the month's peak so far.", and end labels "off more often" (min) and "off less" (max). A change refetches `/api/backtest` after 300 ms without further input and updates every section; while it loads, the sections dim and a status reads "Updating…".
+3. **Strategy cards:** one card per strategy, in API order: its label, its description (table below) as visible text, net profit, change vs always on ("Baseline" for always on), hours off, BTC mined, and 4CP peaks run in. The winner's card has the accent border and a "Best" badge.
+4. **4CP explainer:** label "New to ERCOT?", heading "4CP: four 15-minute windows that set a year of transmission cost", and the static text: "Each summer month, ERCOT marks the single 15 minutes when Texas used the most power. How much your site draws in those four intervals sets next year's transmission charge." and "Every peak you run through costs this fleet {charge_per_peak_usd}. Nobody knows the exact peak in advance, so the peak guard powers down whenever demand gets close to the month's high." A callout "Peaks are not price spikes" gives the lowest and highest price across the peaks and the text "A price-only rule cannot see a peak coming." Then one tile per peak: month, start in Central time, system load, price, and for each strategy "Running · {charge_per_peak_usd}" or "Off · $0".
+5. **Price chart (ECharts):** heading "Power price vs. mining breakeven", subtitle "LZ_WEST real-time price, $/MWh, Central time. Above the breakeven line, mining loses money." Price as a line, the breakeven estimate as a dashed reference line, each 4CP peak as a marker labelled "4CP · Jun 18". Range buttons "Season" and one per window month, plus zoom. Below the chart, "When each rule was switched off": one lane per strategy marking its `off` intervals, with its hours off.
+6. **What sets the breakeven line:** a formula strip "BTC price × block reward ÷ difficulty = hashprice ÷ {efficiency} J/TH = breakeven $/MWh"; tiles for BTC price (first and last day), difficulty adjustments (count, after the first entry), hashprice (first and last day) and fees share (first and last day); then three charts that share the price chart's time axis, zoom and hover: BTC price (source "Coin Metrics"), difficulty as a step line with each adjustment's change as a signed percent (source "own Bitcoin Core node"), and hashprice in USD per PH/s per day. One series per chart; no chart has two y-axes.
+7. **Breakdown table:** per strategy: revenue, energy cost, transmission, net profit; price gain and 4CP gain ("—" for always on); BTC mined and hours off. The winner's row highlighted. Above it: "{expected − missing} of {expected} intervals priced · {missing} skipped for missing data".
+8. **Assumptions:** collapsed by default under "Model and assumptions": the `assumptions` values from the API, and the list in section 3.8 as static text.
+9. **Footer:** "Data provided by Grid Status" linking to https://www.gridstatus.io/; Coin Metrics attribution with licence link.
+
+Strategy descriptions, shown as text on the cards:
+
+| Strategy | Description |
+| --- | --- |
+| Always on | Never switches off. The baseline every other rule is measured against. |
+| Strike price | Switches off when the last 15 minutes’ power price was above breakeven. |
+| Strike + peak guard | Strike price, plus switching off when grid demand nears the month’s peak. |
+
+Tooltips: these terms show a Mantine `Tooltip` with exactly this text, marked by a dotted underline: the breakdown table's transmission, price gain, 4CP gain and hours off headers, "Breakeven" in the chart legend, and "Hashprice" and "Difficulty" in the formula strip. The tooltip and description text is static, defined once in `frontend/src/config.ts`, and not served by the API.
 
 | Term | Tooltip |
 | --- | --- |
-| Peak guard threshold | Switch off when grid demand reaches this share of the month’s highest demand so far (or last month’s, if higher), to dodge the 4CP peaks. |
-| Always on | Never switches off. The baseline. |
-| Strike price | Switches off when the last 15 minutes’ power price was above breakeven. |
-| Strike + peak guard | Strike price, plus switching off when grid demand nears the month’s peak. |
 | Transmission | Next year’s charge, set by power used during this summer’s four 4CP peak intervals. |
-| Hours off | Total time the fleet was switched off. |
 | Price gain | Saved by avoiding expensive power, minus mining revenue given up, compared with always on. |
 | 4CP gain | Transmission charges avoided compared with always on. |
-| Breakeven estimate | The power price where mining just pays for itself, using yesterday’s bitcoin price and rewards. |
+| Hours off | Total time the fleet was switched off. |
+| Breakeven | The power price where mining just pays for itself, using yesterday’s bitcoin price and rewards. |
+| Hashprice | What 1 PH/s of hashrate earns in a day, in USD, after the pool fee. |
+| Difficulty | How hard it is to find a block. It adjusts every 2,016 blocks, about every two weeks, to keep blocks near 10 minutes apart. |
 
 React + TypeScript + Vite, Mantine, TanStack Query, ECharts. Types come from `schema.ts`. States: loading, error (shows `detail`), success.
 
-Formatting: USD as `$1,234.56` (negative as `−$1,234.56`); hours to two decimals; sats with thousands separators; prices as `$12.34/MWh`. Formatting only; no rounding of values used in any calculation.
+Look: one type scale of five sizes (40, 24, 16, 14 and 12 px), the system font stack with tabular figures, three text colours (primary, secondary, muted), and colour tokens defined once for both schemes. Gains and losses show a sign as well as a colour. Text meets WCAG AA contrast in both schemes. The page works at 390 px wide with no horizontal page scroll; the breakdown table scrolls inside its box.
+
+Formatting: in the breakdown table, USD as `$1,234.56`; elsewhere, USD rounded with ROUND_HALF_EVEN to whole dollars as `$1,235`; negatives as `−$1,234.56`, and gains with an explicit sign (`+$1,235`); hours to one decimal outside the table and two in it; BTC as sats ÷ 100,000,000 to 4 places; sats with thousands separators; prices as `$12.34/MWh`; difficulty in T (÷ 10^12) to one decimal; ratios as percents to one decimal. Formatting only; no rounding of values used in any calculation.
 
 ## 10. Defaults
 
@@ -402,7 +474,9 @@ Defined once, in `config.py`. Values are fixed; never tune them to the backtest'
 
 - Expected values are literal numbers from the examples above or hand calculations; never computed by the code under test.
 - Required cases, each asserting the exact values given:
-  - Every example in section 3 (3.2 to 3.6)
+  - Every example in section 3 (3.2 to 3.6, 3.9 to 3.11)
+  - Charge per peak (5.2): $12,500; `peaks_running` 0, 1 and 4 match transmission $0, $12,500, $50,000
+  - A UTC day's bitcoin row uses that day's price and rewards and its first window interval's difficulty
   - Difficulty from `bits`: `1d00ffff` gives exactly 1
   - The worked day (4.2), asserting every value in its table
   - The peak guard example (4.1): fires at 76,000 MW, not at 75,999 MW
