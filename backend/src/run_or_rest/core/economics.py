@@ -9,7 +9,7 @@ from run_or_rest.config import (
     SATS_PER_BTC,
     WATTS_PER_MW,
 )
-from run_or_rest.core.models import Assumptions, DailyChain, DayEconomics, Sats
+from run_or_rest.core.models import DailyChain, DayEconomics, Sats
 
 
 def _floor(value: Decimal) -> int:
@@ -57,11 +57,11 @@ def difficulty_from_bits(bits: str) -> Decimal:
 
 
 def interval_net_sats(
-    assumptions: Assumptions,
+    hashrate: int,
+    pool_fee_rate: Decimal,
     difficulty: Decimal,
     day: DayEconomics,
 ) -> Sats:
-    hashrate = hashrate_hs(assumptions.fleet_mw, assumptions.efficiency_j_per_th)
     blocks = expected_blocks(hashrate, INTERVAL_SECONDS, difficulty)
     reward = reward_per_block_sats(day.chain)
-    return net_sats(blocks, reward, assumptions.pool_fee_rate)
+    return net_sats(blocks, reward, pool_fee_rate)

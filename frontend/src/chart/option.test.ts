@@ -98,7 +98,11 @@ describe("chartOption", () => {
 
   it("draws every price and breakeven point at its Central time", () => {
     expect(option.useUTC).toBe(true);
-    expect(option.xAxis).toEqual({ type: "time", name: "Central time" });
+    expect(option.xAxis).toEqual({
+      type: "time",
+      name: "Central time",
+      axisLabel: { hideOverlap: true },
+    });
     expect(series.map((item) => item.name)).toEqual([
       "Price",
       "Breakeven estimate",

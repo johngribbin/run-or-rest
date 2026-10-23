@@ -23,7 +23,6 @@ from run_or_rest.core.timestamps import utc_text
 class SettledInterval:
     interval: WindowInterval
     price_usd_per_mwh: Decimal
-    load_mw: Decimal
     context: DecisionContext
 
 
@@ -62,9 +61,15 @@ def _require(value: Decimal | None, missing: str, start: datetime) -> Decimal:
 def breakeven_estimate(
     interval: WindowInterval,
     assumptions: Assumptions,
+    hashrate: int,
 ) -> Decimal:
     day = interval.previous_day
-    sats = interval_net_sats(assumptions, interval.difficulty, day)
+    sats = interval_net_sats(
+        hashrate,
+        assumptions.pool_fee_rate,
+        interval.difficulty,
+        day,
+    )
     revenue = revenue_usd(sats, day.btc_price_usd)
     return breakeven_usd_per_mwh(revenue, assumptions.fleet_mw)
 
@@ -73,6 +78,7 @@ def _context(
     observed: _Observed,
     interval: WindowInterval,
     assumptions: Assumptions,
+    hashrate: int,
 ) -> DecisionContext:
     month = month_of(interval.start)
     previous_peak = observed.month_peaks_mw.get(previous_month(month))
@@ -83,7 +89,11 @@ def _context(
             interval.start,
         ),
         previous_load_mw=_require(observed.load_mw, "load", interval.start),
-        breakeven_estimate_usd_per_mwh=breakeven_estimate(interval, assumptions),
+        breakeven_estimate_usd_per_mwh=breakeven_estimate(
+            interval,
+            assumptions,
+            hashrate,
+        ),
         previous_month_peak_mw=_require(
             previous_peak,
             "load in the previous month",
@@ -98,6 +108,7 @@ def settled_intervals(
     history: Sequence[HistoryInterval],
     window: Sequence[WindowInterval],
     assumptions: Assumptions,
+    hashrate: int,
 ) -> list[SettledInterval]:
     observed = _Observed()
     for past in history:
@@ -107,7 +118,7 @@ def settled_intervals(
         price = interval.price_usd_per_mwh
         load = interval.load_mw
         if price is not None and load is not None:
-            context = _context(observed, interval, assumptions)
-            settled.append(SettledInterval(interval, price, load, context))
+            context = _context(observed, interval, assumptions, hashrate)
+            settled.append(SettledInterval(interval, price, context))
         observed.observe(interval.start, price, load)
     return settled

@@ -40,6 +40,10 @@ export const CHART_HEIGHT_PX = 420;
 export const DISPLAY_TIME_ZONE = "America/Chicago";
 export const DISPLAY_TIME_ZONE_LABEL = "CT";
 export const CHART_TIME_AXIS_NAME = "Central time";
+export const THRESHOLD_LABEL = "Peak guard threshold";
+export const UPDATING_TEXT = "Updating for the new threshold…";
+export const STALE_OPACITY = 0.5;
+
 export const CHART_SERIES_NAMES = {
   price: "Price",
   breakeven: "Breakeven estimate",

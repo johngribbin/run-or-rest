@@ -149,4 +149,83 @@ describe("App", () => {
       );
     });
   });
+
+  it("says when always on beat both curtailment rules", async () => {
+    respondWith(200, {
+      ...sampleBacktest,
+      winner: { id: "always_on", advantage_over_always_on_usd: "0.00" },
+    });
+
+    renderApp();
+
+    expect(
+      await screen.findByText(/neither curtailment rule/),
+    ).toHaveTextContent(
+      "Always on made the most money; neither curtailment rule beat it.",
+    );
+  });
+
+  it("switches the strategy shown on the chart", async () => {
+    respondWith(200, sampleBacktest);
+    const user = userEvent.setup();
+    renderApp();
+
+    const strike = await screen.findByRole("radio", { name: "Strike price" });
+    expect(strike).not.toBeChecked();
+    await user.click(strike);
+
+    expect(strike).toBeChecked();
+    expect(
+      screen.getByRole("radio", { name: "Strike + peak guard" }),
+    ).not.toBeChecked();
+  });
+
+  it("shows the status when the error body is not JSON", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() =>
+        Promise.resolve(
+          new Response("", {
+            status: 502,
+            headers: { "Content-Type": "text/plain" },
+          }),
+        ),
+      ),
+    );
+
+    renderApp();
+
+    expect(
+      await screen.findByText("Request failed with status 502"),
+    ).toBeInTheDocument();
+  });
+
+  it("marks the results as updating while a new threshold loads", async () => {
+    const fetchStub = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(sampleBacktest), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      )
+      .mockReturnValue(new Promise<Response>(() => undefined));
+    vi.stubGlobal("fetch", fetchStub);
+    const user = userEvent.setup();
+    renderApp();
+
+    const slider = await screen.findByRole("slider");
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    await user.click(slider);
+    await user.keyboard("{ArrowRight}");
+
+    expect(
+      await screen.findByRole("status", {}, { timeout: 2000 }),
+    ).toHaveTextContent("Updating for the new threshold…");
+    expect(
+      screen
+        .getByRole("table", { name: "Results by strategy" })
+        .closest("[aria-busy='true']"),
+    ).not.toBeNull();
+  });
 });

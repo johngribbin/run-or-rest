@@ -4,6 +4,13 @@ from decimal import Decimal
 from enum import StrEnum
 from typing import NewType
 
+from run_or_rest.config import (
+    EFFICIENCY_J_PER_TH,
+    FLEET_MW,
+    POOL_FEE_RATE,
+    TRANSMISSION_RATE_USD_PER_MW_YEAR,
+)
+
 Sats = NewType("Sats", int)
 
 
@@ -55,6 +62,16 @@ class Assumptions:
     pool_fee_rate: Decimal
     transmission_rate_usd_per_mw_year: Decimal
     peak_guard_threshold: Decimal
+
+
+def default_assumptions(peak_guard_threshold: Decimal) -> Assumptions:
+    return Assumptions(
+        fleet_mw=FLEET_MW,
+        efficiency_j_per_th=EFFICIENCY_J_PER_TH,
+        pool_fee_rate=POOL_FEE_RATE,
+        transmission_rate_usd_per_mw_year=TRANSMISSION_RATE_USD_PER_MW_YEAR,
+        peak_guard_threshold=peak_guard_threshold,
+    )
 
 
 @dataclass(frozen=True)

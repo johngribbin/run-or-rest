@@ -14,13 +14,15 @@ def strike_price(context: DecisionContext) -> Decision:
     return Decision.RUN
 
 
-def peak_guard_fires(context: DecisionContext) -> bool:
+def peak_guard(context: DecisionContext) -> Decision:
     reference_mw = max(context.previous_month_peak_mw, context.month_to_date_peak_mw)
-    return context.previous_load_mw >= context.peak_guard_threshold * reference_mw
+    if context.previous_load_mw >= context.peak_guard_threshold * reference_mw:
+        return Decision.OFF
+    return Decision.RUN
 
 
 def strike_peak_guard(context: DecisionContext) -> Decision:
-    if strike_price(context) is Decision.OFF or peak_guard_fires(context):
+    if Decision.OFF in (strike_price(context), peak_guard(context)):
         return Decision.OFF
     return Decision.RUN
 

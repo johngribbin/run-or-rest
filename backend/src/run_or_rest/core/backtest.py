@@ -3,10 +3,11 @@ from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
 
-from run_or_rest.config import INTERVAL, INTERVAL_HOURS
+from run_or_rest.config import INTERVAL_HOURS
 from run_or_rest.core.context import SettledInterval, settled_intervals
 from run_or_rest.core.economics import (
     energy_cost_usd,
+    hashrate_hs,
     interval_net_sats,
     revenue_usd,
 )
@@ -21,6 +22,7 @@ from run_or_rest.core.models import (
 )
 from run_or_rest.core.peaks import FourCpPeak, fourcp_peaks, transmission_usd
 from run_or_rest.core.strategies import STRATEGIES, Strategy
+from run_or_rest.core.timestamps import interval_starts
 
 
 @dataclass(frozen=True)
@@ -90,8 +92,7 @@ def _check_ranges(
     window_start: datetime,
     window_end: datetime,
 ) -> int:
-    expected = (window_end - window_start) // INTERVAL
-    slots = [window_start + index * INTERVAL for index in range(expected)]
+    slots = interval_starts(window_start, window_end)
     if [interval.start for interval in window] != slots:
         msg = "Window intervals must cover every interval of the window in order"
         raise BacktestError(msg)
@@ -99,12 +100,21 @@ def _check_ranges(
     if starts != sorted(set(starts)) or any(start >= window_start for start in starts):
         msg = "History intervals must be unique, in order and before the window"
         raise BacktestError(msg)
-    return expected
+    return len(slots)
 
 
-def _settle(settled: SettledInterval, assumptions: Assumptions) -> _Settlement:
+def _settle(
+    settled: SettledInterval,
+    assumptions: Assumptions,
+    hashrate: int,
+) -> _Settlement:
     interval = settled.interval
-    sats = interval_net_sats(assumptions, interval.difficulty, interval.day)
+    sats = interval_net_sats(
+        hashrate,
+        assumptions.pool_fee_rate,
+        interval.difficulty,
+        interval.day,
+    )
     point = SeriesPoint(
         start=interval.start,
         price_usd_per_mwh=settled.price_usd_per_mwh,
@@ -144,10 +154,9 @@ def _split_by_decision(
 def _totals(
     strategy: Strategy,
     settlements: Sequence[_Settlement],
-    peaks: Sequence[FourCpPeak],
+    peak_starts: frozenset[datetime],
     assumptions: Assumptions,
 ) -> _Totals:
-    peak_starts = {peak.start for peak in peaks}
     running, intervals_off = _split_by_decision(strategy.id, settlements)
     revenue = sum((settlement.revenue_usd for settlement in running), Decimal(0))
     cost = sum((settlement.energy_cost_usd for settlement in running), Decimal(0))
@@ -155,7 +164,7 @@ def _totals(
         assumptions.transmission_rate_usd_per_mw_year,
         assumptions.fleet_mw,
         sum(1 for settlement in running if settlement.point.start in peak_starts),
-        len(peaks),
+        len(peak_starts),
     )
     return _Totals(
         strategy=strategy,
@@ -207,11 +216,13 @@ def run_backtest(
     assumptions: Assumptions,
 ) -> BacktestResult:
     expected = _check_ranges(history, window, window_start, window_end)
-    settled = settled_intervals(history, window, assumptions)
+    hashrate = hashrate_hs(assumptions.fleet_mw, assumptions.efficiency_j_per_th)
+    settled = settled_intervals(history, window, assumptions, hashrate)
     peaks = fourcp_peaks(window)
-    settlements = [_settle(interval, assumptions) for interval in settled]
+    peak_starts = frozenset(peak.start for peak in peaks)
+    settlements = [_settle(interval, assumptions, hashrate) for interval in settled]
     totals = {
-        strategy.id: _totals(strategy, settlements, peaks, assumptions)
+        strategy.id: _totals(strategy, settlements, peak_starts, assumptions)
         for strategy in STRATEGIES
     }
     baseline = totals[StrategyId.ALWAYS_ON]

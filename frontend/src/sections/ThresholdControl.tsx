@@ -1,6 +1,6 @@
 import { Group, Slider, Stack, Text } from "@mantine/core";
 import type { Backtest } from "../api/backtest.ts";
-import { TOOLTIPS } from "../config.ts";
+import { THRESHOLD_LABEL, TOOLTIPS } from "../config.ts";
 import { formatPercent } from "../format.ts";
 import { Term } from "./Term.tsx";
 
@@ -23,7 +23,7 @@ export function ThresholdControl({
   return (
     <Stack gap={4}>
       <Text fw={600} id="threshold-label">
-        <Term tooltip={TOOLTIPS.peakGuardThreshold}>Peak guard threshold</Term>
+        <Term tooltip={TOOLTIPS.peakGuardThreshold}>{THRESHOLD_LABEL}</Term>
       </Text>
       <Group gap="md" wrap="nowrap">
         <Slider

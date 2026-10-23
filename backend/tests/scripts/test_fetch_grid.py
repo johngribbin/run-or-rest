@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 import polars as pl
 import pytest
 
-from scripts.fetch_grid import decimal_string, loads, prices, require_env
+from scripts.fetch_grid import decimal_string, loads, prices
 
 
 def at(hour: int, minute: int) -> datetime:
@@ -19,15 +19,6 @@ def test_decimal_string_rounds_half_even_to_two_places(
     expected: str,
 ) -> None:
     assert decimal_string(value) == expected
-
-
-def test_require_env_returns_the_value() -> None:
-    assert require_env("GRIDSTATUS_API_KEY", {"GRIDSTATUS_API_KEY": "k"}) == "k"
-
-
-def test_require_env_exits_with_a_clear_message_when_missing() -> None:
-    with pytest.raises(SystemExit, match="GRIDSTATUS_API_KEY is not set"):
-        require_env("GRIDSTATUS_API_KEY", {})
 
 
 def test_prices_become_decimal_strings_with_missing_values_kept() -> None:

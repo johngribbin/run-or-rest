@@ -4,22 +4,28 @@ import http.client
 import json
 import os
 import sys
-from collections.abc import Callable, Iterable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, date, datetime
 from pathlib import Path
 from urllib.parse import urlsplit
 
 from run_or_rest.config import (
     BITCOIN_RPC_ENV,
+    CHAIN_DAILY_COLUMNS,
     CHAIN_DAILY_PATH,
     CHAIN_FETCH_END_UTC,
     CHAIN_FETCH_START_UTC,
     DAILY_FIRST_DATE_UTC,
     DAILY_LAST_DATE_UTC,
+    DIFFICULTY_EPOCH_COLUMNS,
     DIFFICULTY_EPOCHS_PATH,
     RETARGET_INTERVAL_BLOCKS,
 )
+from run_or_rest.core.timestamps import utc_text
+from scripts.common import inclusive_days, require_env
+
+RPC_HINT = "Export it and retry."
 
 FIRST_BLOCK_SEARCH_MARGIN = RETARGET_INTERVAL_BLOCKS
 BLOCK_STATS = ["height", "time", "subsidy", "totalfee"]
@@ -97,22 +103,24 @@ def block_date(block: Block) -> date:
 
 
 def daily_totals(blocks: Iterable[Block], first: date, last: date) -> list[DailyTotal]:
-    totals: dict[date, DailyTotal] = {}
+    by_day: dict[date, list[Block]] = {}
     for block in blocks:
         day = block_date(block)
         if first <= day <= last:
-            current = totals.get(day, DailyTotal(day, 0, 0, 0))
-            totals[day] = DailyTotal(
-                day,
-                current.block_count + 1,
-                current.subsidy_sats + block.subsidy_sats,
-                current.fees_sats + block.fees_sats,
-            )
-    days = [first + timedelta(days=offset) for offset in range((last - first).days + 1)]
-    missing = [day.isoformat() for day in days if day not in totals]
+            by_day.setdefault(day, []).append(block)
+    days = inclusive_days(first, last)
+    missing = [day.isoformat() for day in days if day not in by_day]
     if missing:
         sys.exit(f"No blocks found on {missing}")
-    return [totals[day] for day in days]
+    return [
+        DailyTotal(
+            day,
+            len(by_day[day]),
+            sum(block.subsidy_sats for block in by_day[day]),
+            sum(block.fees_sats for block in by_day[day]),
+        )
+        for day in days
+    ]
 
 
 def difficulty_rows(blocks: Sequence[Block]) -> list[DifficultyRow]:
@@ -126,14 +134,10 @@ def difficulty_rows(blocks: Sequence[Block]) -> list[DifficultyRow]:
     return rows
 
 
-def utc_timestamp(moment: datetime) -> str:
-    return moment.astimezone(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
 def write_daily(rows: Sequence[DailyTotal], path: Path) -> None:
     with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.writer(handle, lineterminator="\n")
-        writer.writerow(["date_utc", "block_count", "subsidy_sats", "fees_sats"])
+        writer.writerow(CHAIN_DAILY_COLUMNS)
         writer.writerows(
             [r.date_utc.isoformat(), r.block_count, r.subsidy_sats, r.fees_sats]
             for r in rows
@@ -143,10 +147,8 @@ def write_daily(rows: Sequence[DailyTotal], path: Path) -> None:
 def write_difficulty(rows: Sequence[DifficultyRow], path: Path) -> None:
     with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.writer(handle, lineterminator="\n")
-        writer.writerow(["start_time_utc", "height", "bits"])
-        writer.writerows(
-            [utc_timestamp(r.start_time_utc), r.height, r.bits] for r in rows
-        )
+        writer.writerow(DIFFICULTY_EPOCH_COLUMNS)
+        writer.writerows([utc_text(r.start_time_utc), r.height, r.bits] for r in rows)
 
 
 class Rpc:
@@ -201,15 +203,10 @@ class Rpc:
         )
 
 
-def require_env(name: str, environ: Mapping[str, str]) -> str:
-    value = environ.get(name, "")
-    if not value:
-        sys.exit(f"{name} is not set")
-    return value
-
-
 def main() -> None:
-    url, user, password = (require_env(name, os.environ) for name in BITCOIN_RPC_ENV)
+    url, user, password = (
+        require_env(name, os.environ, RPC_HINT) for name in BITCOIN_RPC_ENV
+    )
     rpc = Rpc(url, user, password)
     tip = int(str(rpc.call("getblockcount", [])))
 
