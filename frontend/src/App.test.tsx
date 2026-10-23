@@ -72,6 +72,44 @@ describe("App", () => {
       }),
     ).toBeInTheDocument();
   });
+  it("links from the header to the assumptions and opens them", async () => {
+    respondWith(200, sampleBacktest);
+    const user = userEvent.setup();
+
+    renderApp();
+    const link = await screen.findByRole("link", {
+      name: "Model and assumptions",
+    });
+    expect(link).toHaveAttribute("href", "#assumptions");
+    expect(
+      screen.getByRole("region", { name: "Model and assumptions" }),
+    ).toHaveAttribute("id", "assumptions");
+
+    const scroll = vi.spyOn(Element.prototype, "scrollIntoView");
+    await user.click(link);
+
+    expect(
+      screen.getByRole("button", { name: "Model and assumptions" }),
+    ).toHaveAttribute("aria-expanded", "true");
+    expect(scroll.mock.contexts).toEqual([
+      document.getElementById("assumptions"),
+    ]);
+    expect(
+      screen.getByRole("row", { name: "Efficiency 15 J/TH" }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows no assumptions link when the backtest fails", async () => {
+    respondWith(503, { detail: "Grid data not found." });
+
+    renderApp();
+    await screen.findByText("Grid data not found.");
+
+    expect(
+      screen.queryByRole("link", { name: "Model and assumptions" }),
+    ).not.toBeInTheDocument();
+  });
+
   it("keeps the assumptions collapsed until asked", async () => {
     respondWith(200, sampleBacktest);
 

@@ -27,6 +27,7 @@ function matchMedia(query: string) {
 
 vi.stubGlobal("ResizeObserver", ResizeObserverStand);
 vi.stubGlobal("matchMedia", matchMedia);
+Element.prototype.scrollIntoView = () => undefined;
 
 afterEach(() => {
   cleanup();

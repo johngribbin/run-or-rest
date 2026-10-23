@@ -1,7 +1,9 @@
 import { Accordion, List, Paper, SimpleGrid, Table } from "@mantine/core";
+import { useEffect, useRef } from "react";
 import type { Backtest } from "../api/backtest.ts";
 import {
   ASSUMPTIONS_HEADING,
+  ASSUMPTIONS_ID,
   DATA_QUALITY_LABEL,
   MODEL_ASSUMPTIONS,
   THRESHOLD_LABEL,
@@ -9,7 +11,23 @@ import {
 import { formatCentralTime } from "../chart/time.ts";
 import { formatInteger, formatPercent, formatUsd } from "../format.ts";
 
-export function AssumptionsSection({ backtest }: { backtest: Backtest }) {
+export function AssumptionsSection({
+  backtest,
+  open,
+  onOpenChange,
+  jump,
+}: {
+  backtest: Backtest;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  jump: number;
+}) {
+  const section = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (jump > 0) {
+      section.current?.scrollIntoView({ block: "start" });
+    }
+  }, [jump]);
   const values = backtest.assumptions;
   const { expected_intervals: expected, missing_intervals: missing } =
     backtest.data_quality;
@@ -34,14 +52,23 @@ export function AssumptionsSection({ backtest }: { backtest: Backtest }) {
   ];
   return (
     <Paper
+      ref={section}
+      id={ASSUMPTIONS_ID}
       component="section"
       aria-label={ASSUMPTIONS_HEADING}
       withBorder
       bg="var(--ror-surface)"
       style={{ borderColor: "var(--ror-line)", overflow: "hidden" }}
     >
-      <Accordion chevronPosition="right">
-        <Accordion.Item value="assumptions" style={{ borderBottom: 0 }}>
+      <Accordion
+        chevronPosition="right"
+        transitionDuration={0}
+        value={open ? ASSUMPTIONS_ID : null}
+        onChange={(value) => {
+          onOpenChange(value === ASSUMPTIONS_ID);
+        }}
+      >
+        <Accordion.Item value={ASSUMPTIONS_ID} style={{ borderBottom: 0 }}>
           <Accordion.Control px="xl" py="xs" fw={600} fz="lg">
             {ASSUMPTIONS_HEADING}
           </Accordion.Control>

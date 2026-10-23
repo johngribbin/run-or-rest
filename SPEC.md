@@ -415,7 +415,7 @@ Errors: `422` for an out-of-range or off-step parameter; `503` with `{"detail": 
 
 The audience knows bitcoin mining (hashrate, difficulty, hashprice, pools) but not the Texas grid. The page explains the grid side in plain words and shows the bitcoin inputs behind every result.
 
-**Header:** title "Run or Rest", subtitle "ERCOT curtailment backtest for bitcoin miners". The page has one colour scheme, dark; there is no light scheme or toggle.
+**Header:** title "Run or Rest", subtitle "ERCOT curtailment backtest for bitcoin miners", and, once results load, a link "Model and assumptions" that opens that section and scrolls it into view. The page has one colour scheme, dark; there is no light scheme or toggle.
 
 One page, top to bottom:
 

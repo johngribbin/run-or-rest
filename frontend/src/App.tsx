@@ -32,11 +32,17 @@ function Results({
   stale,
   threshold,
   onThresholdChange,
+  assumptionsOpen,
+  onAssumptionsOpenChange,
+  assumptionsJump,
 }: {
   backtest: Backtest;
   stale: boolean;
   threshold: string | null;
   onThresholdChange: (value: string) => void;
+  assumptionsOpen: boolean;
+  onAssumptionsOpenChange: (open: boolean) => void;
+  assumptionsJump: number;
 }) {
   const control = backtest.controls.peak_guard_threshold;
   const shown = { opacity: stale ? STALE_OPACITY : 1 };
@@ -60,7 +66,12 @@ function Results({
         <StrategyCards backtest={backtest} />
         <ChartSection backtest={backtest} />
         <BitcoinInputs backtest={backtest} />
-        <AssumptionsSection backtest={backtest} />
+        <AssumptionsSection
+          backtest={backtest}
+          open={assumptionsOpen}
+          onOpenChange={onAssumptionsOpenChange}
+          jump={assumptionsJump}
+        />
       </Stack>
     </Stack>
   );
@@ -68,6 +79,8 @@ function Results({
 
 export function App() {
   const [threshold, setThreshold] = useState<string | null>(null);
+  const [assumptionsOpen, setAssumptionsOpen] = useState(false);
+  const [assumptionsJump, setAssumptionsJump] = useState(0);
   const [requested] = useDebouncedValue(threshold, REFETCH_DEBOUNCE_MS);
   const query = useQuery({
     queryKey: ["backtest", requested],
@@ -86,7 +99,16 @@ export function App() {
 
   return (
     <>
-      <Header />
+      <Header
+        onShowAssumptions={
+          query.isSuccess
+            ? () => {
+                setAssumptionsOpen(true);
+                setAssumptionsJump((count) => count + 1);
+              }
+            : undefined
+        }
+      />
       <Container size="lg" py="xl">
         <Stack gap="xl">
           {query.isError ? (
@@ -100,6 +122,9 @@ export function App() {
               stale={query.isPlaceholderData}
               threshold={threshold}
               onThresholdChange={setThreshold}
+              assumptionsOpen={assumptionsOpen}
+              onAssumptionsOpenChange={setAssumptionsOpen}
+              assumptionsJump={assumptionsJump}
             />
           ) : null}
           <Footer />

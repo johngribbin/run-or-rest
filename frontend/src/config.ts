@@ -81,6 +81,7 @@ export const BITCOIN_COPY = {
   },
 };
 export const ASSUMPTIONS_HEADING = "Model and assumptions";
+export const ASSUMPTIONS_ID = "assumptions";
 export const STRATEGIES_HEADING = "All three rules";
 export const GAIN_LABELS = { price: "Price gain", fourcp: "4CP gain" };
 export const DATA_QUALITY_LABEL = "Intervals priced";
