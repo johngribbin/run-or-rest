@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  centralMonths,
   chartTime,
   formatCentralMonth,
   formatCentralTime,
+  formatPeakDay,
   formatPeakMoment,
   formatPeriod,
 } from "./time.ts";
@@ -58,5 +60,42 @@ describe("formatPeakMoment", () => {
 describe("formatCentralMonth", () => {
   it("names the Central month of a late-evening UTC-next-day interval", () => {
     expect(formatCentralMonth("2026-08-01T04:45:00Z")).toBe("July");
+  });
+});
+
+describe("formatPeakDay", () => {
+  it("writes a peak's Central month and day", () => {
+    expect(formatPeakDay("2026-06-18T20:45:00Z")).toBe("Jun 18");
+  });
+});
+
+describe("centralMonths", () => {
+  it("splits a window into whole Central months on the chart's clock", () => {
+    expect(
+      centralMonths("2026-06-01T05:00:00Z", "2026-08-01T05:00:00Z"),
+    ).toEqual([
+      {
+        label: "Jun",
+        from: Date.UTC(2026, 5, 1),
+        to: Date.UTC(2026, 6, 1),
+      },
+      {
+        label: "Jul",
+        from: Date.UTC(2026, 6, 1),
+        to: Date.UTC(2026, 7, 1),
+      },
+    ]);
+  });
+
+  it("keeps a window that starts and ends mid-month to its own days", () => {
+    expect(
+      centralMonths("2026-06-15T05:00:00Z", "2026-06-20T05:00:00Z"),
+    ).toEqual([
+      {
+        label: "Jun",
+        from: Date.UTC(2026, 5, 15),
+        to: Date.UTC(2026, 5, 20),
+      },
+    ]);
   });
 });

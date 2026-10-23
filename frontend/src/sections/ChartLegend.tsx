@@ -1,6 +1,6 @@
 import { Box, Group, Text } from "@mantine/core";
 import type { ReactNode } from "react";
-import { CHART_COLORS, CHART_SERIES_NAMES, TOOLTIPS } from "../config.ts";
+import { CHART_COPY, CHART_SERIES_NAMES, TOOLTIPS } from "../config.ts";
 import { Term } from "./Term.tsx";
 
 function Entry({
@@ -11,9 +11,11 @@ function Entry({
   children: ReactNode;
 }) {
   return (
-    <Group gap={6} wrap="nowrap">
+    <Group gap={6} wrap="nowrap" role="listitem">
       {swatch}
-      <Text size="sm">{children}</Text>
+      <Text size="xs" c="var(--ror-text-secondary)">
+        {children}
+      </Text>
     </Group>
   );
 }
@@ -27,7 +29,7 @@ function LineSwatch({
 }) {
   return (
     <Box
-      w={18}
+      w={16}
       style={{ borderTop: `2px ${dashed ? "dashed" : "solid"} ${color}` }}
     />
   );
@@ -36,28 +38,15 @@ function LineSwatch({
 export function ChartLegend() {
   return (
     <Group gap="lg" aria-label="Chart legend" role="list">
-      <div role="listitem">
-        <Entry swatch={<LineSwatch color={CHART_COLORS.price} />}>
-          {CHART_SERIES_NAMES.price}
-        </Entry>
-      </div>
-      <div role="listitem">
-        <Entry swatch={<LineSwatch color={CHART_COLORS.breakeven} />}>
-          <Term tooltip={TOOLTIPS.breakevenEstimate}>
-            {CHART_SERIES_NAMES.breakeven}
-          </Term>
-        </Entry>
-      </div>
-      <div role="listitem">
-        <Entry swatch={<Box w={18} h={10} bg={CHART_COLORS.offBand} />}>
-          Switched off
-        </Entry>
-      </div>
-      <div role="listitem">
-        <Entry swatch={<LineSwatch color={CHART_COLORS.peak} dashed />}>
-          4CP peak
-        </Entry>
-      </div>
+      <Entry swatch={<LineSwatch color="var(--ror-price)" />}>
+        {CHART_SERIES_NAMES.price}
+      </Entry>
+      <Entry swatch={<LineSwatch color="var(--ror-text)" dashed />}>
+        <Term tooltip={TOOLTIPS.breakeven}>{CHART_SERIES_NAMES.breakeven}</Term>
+      </Entry>
+      <Entry swatch={<Box w={2} h={12} bg="var(--ror-peak)" />}>
+        {CHART_COPY.peakLegend}
+      </Entry>
     </Group>
   );
 }

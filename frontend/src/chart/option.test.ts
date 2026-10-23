@@ -5,9 +5,13 @@ import { sampleBacktest } from "../test/sampleBacktest.ts";
 import {
   chartOption,
   intervalMs,
+  laneRects,
   offBands,
   priceTick,
   tooltipText,
+  visibleExtent,
+  zoomFor,
+  zoomFromEvent,
 } from "./option.ts";
 
 const FIFTEEN_MINUTES_MS = 900000;
@@ -88,25 +92,20 @@ describe("tooltipText", () => {
     const point = sampleBacktest.series[2];
 
     expect(point === undefined ? "" : tooltipText(point)).toBe(
-      "Jun 1, 2026, 00:30 CT<br/>Price: −$3.10/MWh<br/>Breakeven estimate: $100.00/MWh",
+      "Jun 1, 2026, 00:30 CT<br/>Power price: −$3.10/MWh<br/>Breakeven: $100.00/MWh",
     );
   });
 });
 
 describe("chartOption", () => {
-  const option = chartOption(sampleBacktest, "strike_price", COLOR_TOKENS.dark);
+  const option = chartOption(sampleBacktest, COLOR_TOKENS.dark);
   const series = Array.isArray(option.series) ? option.series : [];
 
   it("draws every price and breakeven point at its Central time", () => {
     expect(option.useUTC).toBe(true);
-    expect(option.xAxis).toMatchObject({
-      type: "time",
-      name: "Central time",
-      axisLabel: { hideOverlap: true },
-    });
     expect(series.map((item) => item.name)).toEqual([
-      "Price",
-      "Breakeven estimate",
+      "Power price",
+      "Breakeven",
     ]);
     expect(series.map((item) => item.sampling)).toEqual([undefined, undefined]);
     expect(series[0]?.data).toEqual([
@@ -117,31 +116,110 @@ describe("chartOption", () => {
     ]);
   });
 
-  it("shades the selected strategy's off intervals and marks 4CP peaks", () => {
+  it("spans the whole window even where intervals are missing", () => {
+    expect(option.xAxis).toMatchObject({
+      type: "time",
+      min: Date.UTC(2026, 5, 1, 0, 0),
+      max: Date.UTC(2026, 5, 1, 1, 0),
+    });
+  });
+
+  it("draws breakeven as a dashed line in the primary ink", () => {
+    expect(series[1]).toMatchObject({
+      lineStyle: { type: "dashed", color: "#ECEEF1" },
+    });
+  });
+
+  it("marks each 4CP peak with a short dated label and no off bands", () => {
     const price = series[0];
 
-    expect(price?.markArea?.data).toEqual([
-      [
-        { xAxis: Date.UTC(2026, 5, 1, 0, 30) },
-        { xAxis: Date.UTC(2026, 5, 1, 0, 45) },
-      ],
-    ]);
+    expect(price?.markArea).toBeUndefined();
     expect(price?.markLine?.data).toEqual([
-      {
-        name: "4CP 2026-06: 82,712.7 MW",
-        xAxis: Date.UTC(2026, 5, 1, 0, 15),
-      },
+      { name: "4CP · Jun 1", xAxis: Date.UTC(2026, 5, 1, 0, 15) },
     ]);
   });
 
-  it("draws axes and gridlines in the scheme's muted ink and line colours", () => {
+  it("draws axes in the scheme's muted ink and line colours", () => {
     expect(option.yAxis).toMatchObject({
       axisLabel: { color: "#8C939E" },
       splitLine: { lineStyle: { color: "#232831" } },
     });
   });
 
-  it("lets the user zoom", () => {
-    expect(option.dataZoom).toEqual([{ type: "inside" }, { type: "slider" }]);
+  it("zooms with a drag or ctrl-wheel, and a slider", () => {
+    expect(option.dataZoom).toMatchObject([
+      { type: "inside", zoomOnMouseWheel: "ctrl", moveOnMouseMove: true },
+      { type: "slider" },
+    ]);
+  });
+});
+
+describe("zoom windows", () => {
+  const extent = { min: 0, max: 1000 };
+
+  it("turns a zoom window into the visible time range", () => {
+    expect(visibleExtent(extent, { start: 25, end: 50 })).toEqual({
+      min: 250,
+      max: 500,
+    });
+  });
+
+  it("turns a time range into a zoom window", () => {
+    expect(zoomFor(extent, { min: 250, max: 500 })).toEqual({
+      start: 25,
+      end: 50,
+    });
+  });
+});
+
+describe("laneRects", () => {
+  const band = { start: "2026-06-01T05:15:00Z", end: "2026-06-01T05:30:00Z" };
+
+  it("places an off band across the visible hour", () => {
+    expect(
+      laneRects([band], {
+        min: Date.UTC(2026, 5, 1, 0, 0),
+        max: Date.UTC(2026, 5, 1, 1, 0),
+      }),
+    ).toEqual([{ x: 250, width: 250 }]);
+  });
+
+  it("clips a band that starts before the visible range", () => {
+    expect(
+      laneRects([band], {
+        min: Date.UTC(2026, 5, 1, 0, 20),
+        max: Date.UTC(2026, 5, 1, 1, 0),
+      }),
+    ).toEqual([{ x: 0, width: 250 }]);
+  });
+
+  it("drops a band outside the visible range", () => {
+    expect(
+      laneRects([band], {
+        min: Date.UTC(2026, 5, 1, 0, 30),
+        max: Date.UTC(2026, 5, 1, 1, 0),
+      }),
+    ).toEqual([]);
+  });
+});
+
+describe("zoomFromEvent", () => {
+  it("reads a slider's start and end", () => {
+    expect(zoomFromEvent({ start: 10, end: 20 })).toEqual({
+      start: 10,
+      end: 20,
+    });
+  });
+
+  it("reads the first entry of a batched inside zoom", () => {
+    expect(zoomFromEvent({ batch: [{ start: 5, end: 6 }] })).toEqual({
+      start: 5,
+      end: 6,
+    });
+  });
+
+  it("ignores an event without percentages", () => {
+    expect(zoomFromEvent({ startValue: 1, endValue: 2 })).toBeNull();
+    expect(zoomFromEvent(null)).toBeNull();
   });
 });

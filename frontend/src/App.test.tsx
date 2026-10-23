@@ -159,19 +159,37 @@ describe("App", () => {
     });
   });
 
-  it("switches the strategy shown on the chart", async () => {
+  it("lists every rule's switched-off hours under the chart", async () => {
+    respondWith(200, sampleBacktest);
+
+    renderApp();
+    const lanes = await screen.findByRole("list", {
+      name: "When each rule was switched off",
+    });
+
+    expect(
+      within(lanes)
+        .getAllByRole("listitem")
+        .map((lane) => lane.getAttribute("aria-label")),
+    ).toEqual([
+      "Always on: 0.0 h",
+      "Strike price: 12.2 h",
+      "Strike + peak guard: 421.5 h",
+    ]);
+  });
+
+  it("offers the whole season and each month as chart ranges", async () => {
     respondWith(200, sampleBacktest);
     const user = userEvent.setup();
+
     renderApp();
+    const season = await screen.findByRole("radio", { name: "Season" });
+    const june = screen.getByRole("radio", { name: "Jun" });
+    expect(season).toBeChecked();
+    await user.click(june);
 
-    const strike = await screen.findByRole("radio", { name: "Strike price" });
-    expect(strike).not.toBeChecked();
-    await user.click(strike);
-
-    expect(strike).toBeChecked();
-    expect(
-      screen.getByRole("radio", { name: "Strike + peak guard" }),
-    ).not.toBeChecked();
+    expect(june).toBeChecked();
+    expect(season).not.toBeChecked();
   });
 
   it("shows the status when the error body is not JSON", async () => {

@@ -54,8 +54,8 @@ function Results({
       <Stack gap="lg" style={shown} aria-busy={stale}>
         <StrategyCards backtest={backtest} />
         <FourCpExplainer backtest={backtest} />
-        <ResultsTable backtest={backtest} />
         <ChartSection backtest={backtest} />
+        <ResultsTable backtest={backtest} />
         <AssumptionsSection backtest={backtest} />
       </Stack>
     </Stack>
