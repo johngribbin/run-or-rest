@@ -1,4 +1,4 @@
-import { Box, Stack, Text, Title } from "@mantine/core";
+import { Box, SimpleGrid, Stack, Text, Title } from "@mantine/core";
 import type { Backtest } from "../api/backtest.ts";
 import { FOURCP_EXPLAINER } from "../config.ts";
 import { formatPrice, formatUsd, formatUsdWhole } from "../format.ts";
@@ -22,8 +22,7 @@ function Callout({ peaks }: { peaks: readonly Peak[] }) {
     <Box
       bg="var(--ror-surface-raised)"
       p="lg"
-      mt="xs"
-      style={{ borderRadius: "var(--mantine-radius-md)" }}
+      style={{ borderRadius: "var(--mantine-radius-md)", alignSelf: "center" }}
     >
       <Stack gap="xs">
         <Text fw={600} size="lg">
@@ -45,19 +44,21 @@ export function FourCpIntro({ backtest }: { backtest: Backtest }) {
   const { peaks, charge_per_peak_usd: perPeak } = backtest.fourcp;
   return (
     <Panel label={FOURCP_EXPLAINER.heading}>
-      <Stack gap="sm">
-        <Eyebrow>{FOURCP_EXPLAINER.label}</Eyebrow>
-        <Title order={2}>{FOURCP_EXPLAINER.heading}</Title>
-        <Text c="var(--ror-text-secondary)">{FOURCP_EXPLAINER.intro}</Text>
-        <Text c="var(--ror-text-secondary)">
-          {FOURCP_EXPLAINER.chargeLead}{" "}
-          <Text span inherit c="var(--ror-text)">
-            {formatUsdWhole(perPeak)}
+      <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
+        <Stack gap="sm">
+          <Eyebrow>{FOURCP_EXPLAINER.label}</Eyebrow>
+          <Title order={2}>{FOURCP_EXPLAINER.heading}</Title>
+          <Text c="var(--ror-text-secondary)">{FOURCP_EXPLAINER.intro}</Text>
+          <Text c="var(--ror-text-secondary)">
+            {FOURCP_EXPLAINER.chargeLead}{" "}
+            <Text span inherit c="var(--ror-text)">
+              {formatUsdWhole(perPeak)}
+            </Text>
+            . {FOURCP_EXPLAINER.chargeTail}
           </Text>
-          . {FOURCP_EXPLAINER.chargeTail}
-        </Text>
+        </Stack>
         <Callout peaks={peaks} />
-      </Stack>
+      </SimpleGrid>
     </Panel>
   );
 }

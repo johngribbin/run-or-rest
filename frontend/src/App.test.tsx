@@ -269,7 +269,6 @@ describe("Peak guard trigger", () => {
     expect(
       screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent),
     ).toEqual([
-      "Which rule made the most money this summer?",
       "4CP: four 15-minute windows that set a year of transmission cost",
       "Peak guard trigger",
       "All three rules",

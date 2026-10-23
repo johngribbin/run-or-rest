@@ -1,4 +1,4 @@
-import { Paper, Stack, Text } from "@mantine/core";
+import { Paper, Text } from "@mantine/core";
 import type { ReactNode } from "react";
 
 export function Panel({
@@ -22,16 +22,10 @@ export function Panel({
   );
 }
 
-export function Eyebrow({
-  children,
-  heading = false,
-}: {
-  children: ReactNode;
-  heading?: boolean;
-}) {
+export function Eyebrow({ children }: { children: ReactNode }) {
   return (
     <Text
-      component={heading ? "h2" : "p"}
+      component="p"
       m={0}
       size="xs"
       fw={500}
@@ -41,16 +35,5 @@ export function Eyebrow({
     >
       {children}
     </Text>
-  );
-}
-
-export function Kpi({ label, value }: { label: string; value: string }) {
-  return (
-    <Stack gap={0}>
-      <Eyebrow>{label}</Eyebrow>
-      <Text size="xl" fw={600} lh={1.25}>
-        {value}
-      </Text>
-    </Stack>
   );
 }

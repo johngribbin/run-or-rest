@@ -23,7 +23,7 @@ import { BitcoinInputs } from "./sections/BitcoinInputs.tsx";
 import { ChartSection } from "./sections/ChartSection.tsx";
 import { Footer } from "./sections/Footer.tsx";
 import { Header } from "./sections/Header.tsx";
-import { Hero } from "./sections/Hero.tsx";
+import { FourCpIntro } from "./sections/FourCpExplainer.tsx";
 import { StrategyCards } from "./sections/StrategyCards.tsx";
 import { ThresholdControl } from "./sections/ThresholdControl.tsx";
 
@@ -43,7 +43,7 @@ function Results({
   return (
     <Stack gap="lg">
       <Stack gap="lg" style={shown} aria-busy={stale}>
-        <Hero backtest={backtest} />
+        <FourCpIntro backtest={backtest} />
       </Stack>
       <ThresholdControl
         control={control}
