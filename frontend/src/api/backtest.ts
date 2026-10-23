@@ -25,6 +25,7 @@ const STRATEGY_IDS = Object.values(STRATEGY_ID_MEMBERS);
 const DECISIONS = Object.values(DECISION_MEMBERS);
 
 export const BASELINE_STRATEGY_ID: StrategyId = "always_on";
+export const GUARDED_STRATEGY_ID: StrategyId = "strike_peak_guard";
 
 function shapeError(path: string, expected: string): Error {
   return new BacktestRequestError(`Unexpected response: ${path} ${expected}`);

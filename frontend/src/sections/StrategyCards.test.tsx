@@ -82,4 +82,19 @@ describe("StrategyCards", () => {
       ),
     ).not.toBeInTheDocument();
   });
+
+  it("asks the three-way question with the API's fleet size", async () => {
+    respondWith(200, {
+      ...sampleBacktest,
+      assumptions: { ...sampleBacktest.assumptions, fleet_mw: "5" },
+    });
+
+    renderApp();
+
+    expect(
+      await screen.findByRole("heading", { level: 2, name: /^Three ways/ }),
+    ).toHaveTextContent(
+      "Three ways to run a 5 MW fleet through summer 2026. Which made the most money?",
+    );
+  });
 });

@@ -21,6 +21,15 @@ const shownTime = new Intl.DateTimeFormat("en-US", {
   minute: "2-digit",
 });
 
+const centralYear = new Intl.DateTimeFormat("en-US", {
+  timeZone: DISPLAY_TIME_ZONE,
+  year: "numeric",
+});
+
+export function formatCentralYear(utc: string): string {
+  return centralYear.format(new Date(utc));
+}
+
 export function formatCentralTime(utc: string): string {
   return `${shownTime.format(new Date(utc))} ${DISPLAY_TIME_ZONE_LABEL}`;
 }

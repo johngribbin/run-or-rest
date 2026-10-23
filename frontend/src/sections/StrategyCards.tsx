@@ -6,7 +6,6 @@ import {
   Stack,
   Text,
   Title,
-  VisuallyHidden,
 } from "@mantine/core";
 import {
   BASELINE_STRATEGY_ID,
@@ -29,6 +28,7 @@ import {
   formatSignedUsdWhole,
   formatUsdWhole,
 } from "../format.ts";
+import { formatCentralYear } from "../chart/time.ts";
 import { Term } from "./Term.tsx";
 import { Eyebrow } from "./ui.tsx";
 
@@ -136,10 +136,13 @@ function StrategyCard({
 
 export function StrategyCards({ backtest }: { backtest: Backtest }) {
   return (
-    <section aria-labelledby="strategies-heading">
-      <VisuallyHidden component="h2" id="strategies-heading">
-        {STRATEGIES_HEADING}
-      </VisuallyHidden>
+    <Stack component="section" gap="md" aria-labelledby="strategies-heading">
+      <Title order={2} id="strategies-heading">
+        {STRATEGIES_HEADING(
+          backtest.assumptions.fleet_mw,
+          formatCentralYear(backtest.period.start_utc),
+        )}
+      </Title>
       <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
         {backtest.strategies.map((strategy) => (
           <StrategyCard
@@ -150,6 +153,6 @@ export function StrategyCards({ backtest }: { backtest: Backtest }) {
           />
         ))}
       </SimpleGrid>
-    </section>
+    </Stack>
   );
 }

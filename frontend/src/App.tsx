@@ -11,7 +11,12 @@ import {
 import { useDebouncedValue } from "@mantine/hooks";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { type Backtest, fetchBacktest } from "./api/backtest.ts";
+import {
+  type Backtest,
+  GUARDED_STRATEGY_ID,
+  fetchBacktest,
+  strategyById,
+} from "./api/backtest.ts";
 import {
   COLORS,
   LOADING_TEXT,
@@ -50,11 +55,13 @@ function Results({
   return (
     <Stack gap="lg">
       <Stack gap="lg" style={shown} aria-busy={stale}>
+        <StrategyCards backtest={backtest} />
         <FourCpIntro backtest={backtest} />
       </Stack>
       <ThresholdControl
         control={control}
         value={threshold ?? control.default}
+        rule={strategyById(backtest, GUARDED_STRATEGY_ID).label}
         onChange={onThresholdChange}
       />
       {stale ? (
@@ -64,7 +71,6 @@ function Results({
         </Group>
       ) : null}
       <Stack gap="lg" style={shown} aria-busy={stale}>
-        <StrategyCards backtest={backtest} />
         <ChartSection backtest={backtest} />
         <BitcoinInputs backtest={backtest} />
         <AssumptionsSection

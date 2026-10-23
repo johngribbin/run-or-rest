@@ -3,6 +3,7 @@ import {
   centralMonths,
   chartTime,
   formatCentralTime,
+  formatCentralYear,
   formatPeakDay,
 } from "./time.ts";
 
@@ -72,5 +73,11 @@ describe("centralMonths", () => {
         to: Date.UTC(2026, 5, 20),
       },
     ]);
+  });
+});
+
+describe("formatCentralYear", () => {
+  it("takes the year on the Central clock", () => {
+    expect(formatCentralYear("2027-01-01T03:00:00Z")).toBe("2026");
   });
 });

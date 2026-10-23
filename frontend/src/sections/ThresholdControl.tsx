@@ -4,6 +4,7 @@ import {
   THRESHOLD_END_LABELS,
   THRESHOLD_HELP,
   THRESHOLD_LABEL,
+  THRESHOLD_SCOPE,
 } from "../config.ts";
 import { formatPercent } from "../format.ts";
 import { Panel } from "./ui.tsx";
@@ -17,10 +18,12 @@ function decimals(step: string): number {
 export function ThresholdControl({
   control,
   value,
+  rule,
   onChange,
 }: {
   control: Control;
   value: string;
+  rule: string;
   onChange: (value: string) => void;
 }) {
   const places = decimals(control.step);
@@ -37,7 +40,7 @@ export function ThresholdControl({
             </Text>
           </Group>
           <Text c="var(--ror-text-secondary)" id="threshold-help">
-            {THRESHOLD_HELP(formatPercent(value))}
+            {THRESHOLD_HELP(formatPercent(value))} {THRESHOLD_SCOPE(rule)}
           </Text>
         </Stack>
         <Stack gap={6} style={{ flex: "2 1 320px" }}>
