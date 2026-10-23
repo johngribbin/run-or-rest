@@ -92,7 +92,7 @@ export const KPI_LABELS = {
   netProfit: "Net profit",
   btcMined: "BTC mined",
   hoursOff: "Hours off",
-  peaksRunIn: "4CP peaks run in",
+  peaksRunIn: "4CP peaks",
 };
 
 export const MODEL_ASSUMPTIONS = [

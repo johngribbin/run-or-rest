@@ -47,46 +47,46 @@ export function ChartSection({ backtest }: { backtest: Backtest }) {
   return (
     <Panel label={CHART_COPY.heading}>
       <Stack gap="md">
-        <Group justify="space-between" align="flex-end" gap="md">
-          <Stack gap={2}>
-            <Title order={3} component="h2">
-              {CHART_COPY.heading}
-            </Title>
-            <Text c="var(--ror-text-secondary)">
-              {backtest.period.settlement_point} {CHART_COPY.subtitleTail}
-            </Text>
-          </Stack>
-          <SegmentedControl
-            aria-label={CHART_COPY.rangeLabel}
-            size="xs"
-            value={range}
-            data={ranges.map((item) => item.label)}
-            onChange={(label) => {
-              const match = ranges.find((item) => item.label === label);
-              if (match !== undefined) {
-                setRange(match.label);
-                setRequested(match.zoom);
-              }
-            }}
-          />
-        </Group>
+        <Stack gap={2}>
+          <Title order={3} component="h2">
+            {CHART_COPY.heading}
+          </Title>
+          <Text c="var(--ror-text-secondary)">
+            {backtest.period.settlement_point} {CHART_COPY.subtitleTail}
+          </Text>
+        </Stack>
         <Group justify="space-between" gap="md">
           <ChartLegend />
-          <SegmentedControl
-            aria-label={CHART_COPY.offPicker}
-            size="xs"
-            value={picked}
-            data={curtailing.map((strategy) => ({
-              label: strategy.label,
-              value: strategy.id,
-            }))}
-            onChange={(value) => {
-              const match = curtailing.find((item) => item.id === value);
-              if (match !== undefined) {
-                setPicked(match.id);
-              }
-            }}
-          />
+          <Group gap="sm">
+            <SegmentedControl
+              aria-label={CHART_COPY.rangeLabel}
+              size="xs"
+              value={range}
+              data={ranges.map((item) => item.label)}
+              onChange={(label) => {
+                const match = ranges.find((item) => item.label === label);
+                if (match !== undefined) {
+                  setRange(match.label);
+                  setRequested(match.zoom);
+                }
+              }}
+            />
+            <SegmentedControl
+              aria-label={CHART_COPY.offPicker}
+              size="xs"
+              value={picked}
+              data={curtailing.map((strategy) => ({
+                label: strategy.label,
+                value: strategy.id,
+              }))}
+              onChange={(value) => {
+                const match = curtailing.find((item) => item.id === value);
+                if (match !== undefined) {
+                  setPicked(match.id);
+                }
+              }}
+            />
+          </Group>
         </Group>
         <EChart
           option={option}

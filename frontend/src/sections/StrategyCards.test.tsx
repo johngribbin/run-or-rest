@@ -60,9 +60,9 @@ describe("StrategyCards", () => {
     expect(within(strike).getByText("BTC mined").nextSibling).toHaveTextContent(
       "2.8500",
     );
-    expect(
-      within(strike).getByText("4CP peaks run in").nextSibling,
-    ).toHaveTextContent("1 of 1");
+    expect(within(strike).getByText("4CP peaks").nextSibling).toHaveTextContent(
+      "1 of 1",
+    );
   });
 
   it("splits each rule's gain into price and 4CP, but not the baseline's", async () => {
