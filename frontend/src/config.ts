@@ -68,6 +68,7 @@ export const BITCOIN_COPY = {
     reward: "Block reward",
     difficulty: "Difficulty",
     hashprice: "Hashprice",
+    efficiency: "Efficiency",
     breakeven: "Breakeven $/MWh",
   },
   tiles: {
@@ -172,6 +173,10 @@ export const TOOLTIPS = {
     "What 1 PH/s of hashrate earns in a day, in USD, after the pool fee.",
   difficulty:
     "How hard it is to find a block. It adjusts every 2,016 blocks, about every two weeks, to keep blocks near 10 minutes apart.",
+  blockReward:
+    "The new bitcoin each block creates (the subsidy) plus the transaction fees paid to its miner.",
+  efficiency: (value: string) =>
+    `Energy the fleet uses per terahash in this run: ${value} J/TH. Lower is better.`,
   breakeven:
     "The power price where mining just pays for itself, using yesterday’s bitcoin price and rewards.",
 };

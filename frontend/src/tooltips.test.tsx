@@ -68,7 +68,7 @@ describe("tooltips", () => {
     );
   });
 
-  it("explain hashprice and difficulty in the formula", async () => {
+  it("explain block reward, hashprice, difficulty and efficiency in the formula", async () => {
     respondWith(200, sampleBacktest);
     renderApp();
     const panel = await screen.findByRole("region", {
@@ -84,6 +84,12 @@ describe("tooltips", () => {
     );
     expect(await tooltipFor(within(formula).getByText("Difficulty"))).toBe(
       "How hard it is to find a block. It adjusts every 2,016 blocks, about every two weeks, to keep blocks near 10 minutes apart.",
+    );
+    expect(await tooltipFor(within(formula).getByText("Block reward"))).toBe(
+      "The new bitcoin each block creates (the subsidy) plus the transaction fees paid to its miner.",
+    );
+    expect(await tooltipFor(within(formula).getByText("Efficiency"))).toBe(
+      "Energy the fleet uses per terahash in this run: 15 J/TH. Lower is better.",
     );
   });
 

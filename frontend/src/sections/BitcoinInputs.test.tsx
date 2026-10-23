@@ -58,7 +58,7 @@ describe("BitcoinInputs", () => {
     });
 
     expect(within(panel).getAllByRole("list")[0]).toHaveAccessibleName(
-      "BTC price times Block reward divided by Difficulty equals Hashprice, divided by 15 J/TH equals Breakeven $/MWh",
+      "BTC price times Block reward divided by Difficulty equals Hashprice, divided by Efficiency (15 J/TH) equals Breakeven $/MWh",
     );
   });
 

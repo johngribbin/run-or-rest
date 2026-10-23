@@ -424,7 +424,7 @@ One page, top to bottom:
 2. **Peak guard trigger:** Mantine slider using `controls.peak_guard_threshold` (min, max, step, default), the current value beside it, the helper text "Switch off when ERCOT demand reaches this share of the month's peak so far.", and end labels "off more often" (min) and "off less" (max). A change refetches `/api/backtest` after 300 ms without further input and updates every section; while it loads, the sections dim and a status reads "Updating…".
 3. **Strategy cards:** one card per strategy, in API order: its label, its description (table below) as visible text, net profit, change vs always on ("Baseline" for always on), hours off, BTC mined, and 4CP peaks run in. The winner's card has the accent border and a "Best" badge.
 4. **Price chart (ECharts):** heading "Power price vs. mining breakeven", subtitle "LZ_WEST real-time price, $/MWh, Central time. Above the breakeven line, mining loses money." Price as a line, the breakeven estimate as a dashed reference line, each 4CP peak as a marker labelled "4CP · Jun 18". Range buttons "Season" and one per window month, plus zoom. Below the chart, "When each rule was switched off": one lane per strategy marking its `off` intervals, with its hours off.
-5. **What sets the breakeven line:** a formula strip "BTC price × block reward ÷ difficulty = hashprice ÷ {efficiency} J/TH = breakeven $/MWh"; tiles for BTC price (first and last day), difficulty adjustments (count, after the first entry), hashprice (first and last day) and fees share (first and last day); then three charts that share the price chart's time axis, zoom and hover: BTC price (source "Coin Metrics"), difficulty as a step line with each adjustment's change as a signed percent (source "own Bitcoin Core node"), and hashprice in USD per PH/s per day. One series per chart; no chart has two y-axes.
+5. **What sets the breakeven line:** a formula strip "BTC price × block reward ÷ difficulty = hashprice ÷ efficiency = breakeven $/MWh"; tiles for BTC price (first and last day), difficulty adjustments (count, after the first entry), hashprice (first and last day) and fees share (first and last day); then three charts that share the price chart's time axis, zoom and hover: BTC price (source "Coin Metrics"), difficulty as a step line with each adjustment's change as a signed percent (source "own Bitcoin Core node"), and hashprice in USD per PH/s per day. One series per chart; no chart has two y-axes.
 6. **Breakdown table:** per strategy: revenue, energy cost, transmission, net profit; price gain and 4CP gain ("—" for always on); BTC mined and hours off. The winner's row highlighted. Above it: "{expected − missing} of {expected} intervals priced · {missing} skipped for missing data". Below it, in the same panel, "4CP peaks": one row per peak with its start in Central time, system load, price, and for each strategy "Running · {charge_per_peak_usd}" or "Off · $0".
 7. **Assumptions:** collapsed by default under "Model and assumptions": the `assumptions` values from the API, and the list in section 3.8 as static text.
 8. **Footer:** "Data provided by Grid Status" linking to https://www.gridstatus.io/; Coin Metrics attribution with licence link.
@@ -437,7 +437,7 @@ Strategy descriptions, shown as text on the cards:
 | Strike price | Switches off when the last 15 minutes’ power price was above breakeven. |
 | Strike + peak guard | Strike price, plus switching off when grid demand nears the month’s peak. |
 
-Tooltips: these terms show a Mantine `Tooltip` with exactly this text, marked by a dotted underline: the breakdown table's transmission, price gain, 4CP gain and hours off headers, "Breakeven" in the chart legend, and "Hashprice" and "Difficulty" in the formula strip. The tooltip and description text is static, defined once in `frontend/src/config.ts`, and not served by the API.
+Tooltips: these terms show a Mantine `Tooltip` with exactly this text, marked by a dotted underline: the breakdown table's transmission, price gain, 4CP gain and hours off headers, "Breakeven" in the chart legend, and "Block reward", "Difficulty", "Hashprice" and "Efficiency" in the formula strip. The tooltip and description text is defined once in `frontend/src/config.ts` and not served by the API; only the Efficiency tooltip inserts a value, `assumptions.efficiency_j_per_th`.
 
 | Term | Tooltip |
 | --- | --- |
@@ -446,7 +446,9 @@ Tooltips: these terms show a Mantine `Tooltip` with exactly this text, marked by
 | 4CP gain | Transmission charges avoided compared with always on. |
 | Hours off | Total time the fleet was switched off. |
 | Breakeven | The power price where mining just pays for itself, using yesterday’s bitcoin price and rewards. |
+| Block reward | The new bitcoin each block creates (the subsidy) plus the transaction fees paid to its miner. |
 | Hashprice | What 1 PH/s of hashrate earns in a day, in USD, after the pool fee. |
+| Efficiency | Energy the fleet uses per terahash in this run: {efficiency_j_per_th} J/TH. Lower is better. |
 | Difficulty | How hard it is to find a block. It adjusts every 2,016 blocks, about every two weeks, to keep blocks near 10 minutes apart. |
 
 React + TypeScript + Vite, Mantine, TanStack Query, ECharts. Types come from `schema.ts`. States: loading (only a centred spinner, with its status text visually hidden; nothing else on the page), error (shows `detail`), success.
