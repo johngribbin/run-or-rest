@@ -51,7 +51,7 @@ export const FOURCP_EXPLAINER = {
   chargeTail:
     "Nobody knows the exact peak in advance, so the peak guard powers down whenever demand gets close to the month's high.",
   calloutTitle: "Peaks are not price spikes",
-  calloutTail: "A price-only rule cannot see a peak coming.",
+  calloutTail: "so a price-only rule cannot see one coming.",
 };
 export const BITCOIN_COPY = {
   heading: "What sets the breakeven line",

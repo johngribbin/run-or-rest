@@ -49,8 +49,10 @@ describe("FourCpExplainer", () => {
     renderApp();
     const panel = await screen.findByRole("region", { name: HEADING });
 
-    expect(within(panel).getByText(/^Power cost/)).toHaveTextContent(
-      "Power cost $20.53–$500.00/MWh at the 2 peaks. A price-only rule cannot see a peak coming.",
+    expect(
+      within(panel).getByText(/^Peaks are not price spikes/).parentElement,
+    ).toHaveTextContent(
+      "Peaks are not price spikes. Power cost $20.53–$500.00/MWh at the 2 peaks, so a price-only rule cannot see one coming.",
     );
   });
 });

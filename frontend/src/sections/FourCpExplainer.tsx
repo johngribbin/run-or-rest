@@ -1,4 +1,4 @@
-import { Box, SimpleGrid, Stack, Text, Title } from "@mantine/core";
+import { Stack, Text, Title } from "@mantine/core";
 import type { Backtest } from "../api/backtest.ts";
 import { FOURCP_EXPLAINER } from "../config.ts";
 import { formatPrice, formatUsd, formatUsdWhole } from "../format.ts";
@@ -17,26 +17,16 @@ function priceRange(peaks: readonly Peak[]): string {
     : `${formatUsd(lowest)}–${formatPrice(highest)}`;
 }
 
-function Callout({ peaks }: { peaks: readonly Peak[] }) {
+function PeakPrices({ peaks }: { peaks: readonly Peak[] }) {
+  const where =
+    peaks.length === 1 ? "the peak" : `the ${String(peaks.length)} peaks`;
   return (
-    <Box
-      bg="var(--ror-surface-raised)"
-      p="lg"
-      style={{ borderRadius: "var(--mantine-radius-md)", alignSelf: "center" }}
-    >
-      <Stack gap="xs">
-        <Text fw={600} size="lg">
-          {FOURCP_EXPLAINER.calloutTitle}
-        </Text>
-        <Text c="var(--ror-text-secondary)">
-          Power cost {priceRange(peaks)} at{" "}
-          {peaks.length === 1
-            ? "the peak"
-            : `the ${String(peaks.length)} peaks`}
-          . {FOURCP_EXPLAINER.calloutTail}
-        </Text>
-      </Stack>
-    </Box>
+    <Text c="var(--ror-text-secondary)">
+      <Text span inherit fw={600} c="var(--ror-text)">
+        {FOURCP_EXPLAINER.calloutTitle}.
+      </Text>{" "}
+      Power cost {priceRange(peaks)} at {where}, {FOURCP_EXPLAINER.calloutTail}
+    </Text>
   );
 }
 
@@ -44,21 +34,19 @@ export function FourCpIntro({ backtest }: { backtest: Backtest }) {
   const { peaks, charge_per_peak_usd: perPeak } = backtest.fourcp;
   return (
     <Panel label={FOURCP_EXPLAINER.heading}>
-      <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
-        <Stack gap="sm">
-          <Eyebrow>{FOURCP_EXPLAINER.label}</Eyebrow>
-          <Title order={2}>{FOURCP_EXPLAINER.heading}</Title>
-          <Text c="var(--ror-text-secondary)">{FOURCP_EXPLAINER.intro}</Text>
-          <Text c="var(--ror-text-secondary)">
-            {FOURCP_EXPLAINER.chargeLead}{" "}
-            <Text span inherit c="var(--ror-text)">
-              {formatUsdWhole(perPeak)}
-            </Text>
-            . {FOURCP_EXPLAINER.chargeTail}
+      <Stack gap="sm" maw={720}>
+        <Eyebrow>{FOURCP_EXPLAINER.label}</Eyebrow>
+        <Title order={2}>{FOURCP_EXPLAINER.heading}</Title>
+        <Text c="var(--ror-text-secondary)">{FOURCP_EXPLAINER.intro}</Text>
+        <Text c="var(--ror-text-secondary)">
+          {FOURCP_EXPLAINER.chargeLead}{" "}
+          <Text span inherit c="var(--ror-text)">
+            {formatUsdWhole(perPeak)}
           </Text>
-        </Stack>
-        <Callout peaks={peaks} />
-      </SimpleGrid>
+          . {FOURCP_EXPLAINER.chargeTail}
+        </Text>
+        <PeakPrices peaks={peaks} />
+      </Stack>
     </Panel>
   );
 }
