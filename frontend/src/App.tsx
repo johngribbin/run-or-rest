@@ -1,14 +1,28 @@
-import { Alert, Container, Group, Loader, Stack, Text } from "@mantine/core";
+import {
+  Alert,
+  Center,
+  Container,
+  Group,
+  Loader,
+  Stack,
+  Text,
+  VisuallyHidden,
+} from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { type Backtest, fetchBacktest } from "./api/backtest.ts";
-import { REFETCH_DEBOUNCE_MS, STALE_OPACITY, UPDATING_TEXT } from "./config.ts";
+import {
+  LOADING_TEXT,
+  REFETCH_DEBOUNCE_MS,
+  STALE_OPACITY,
+  UPDATING_TEXT,
+} from "./config.ts";
 import { AssumptionsSection } from "./sections/AssumptionsSection.tsx";
 import { BitcoinInputs } from "./sections/BitcoinInputs.tsx";
 import { ChartSection } from "./sections/ChartSection.tsx";
 import { Footer } from "./sections/Footer.tsx";
-import { FourCpExplainer } from "./sections/FourCpExplainer.tsx";
+import { FourCpPeaks } from "./sections/FourCpExplainer.tsx";
 import { Header } from "./sections/Header.tsx";
 import { Hero } from "./sections/Hero.tsx";
 import { ResultsTable } from "./sections/ResultsTable.tsx";
@@ -46,8 +60,8 @@ function Results({
       ) : null}
       <Stack gap="lg" style={shown} aria-busy={stale}>
         <StrategyCards backtest={backtest} />
-        <FourCpExplainer backtest={backtest} />
         <ChartSection backtest={backtest} />
+        <FourCpPeaks backtest={backtest} />
         <BitcoinInputs backtest={backtest} />
         <ResultsTable backtest={backtest} />
         <AssumptionsSection backtest={backtest} />
@@ -65,17 +79,20 @@ export function App() {
     placeholderData: keepPreviousData,
   });
 
+  if (query.isPending) {
+    return (
+      <Center h="100vh" role="status">
+        <Loader color="var(--ror-accent)" />
+        <VisuallyHidden>{LOADING_TEXT}</VisuallyHidden>
+      </Center>
+    );
+  }
+
   return (
     <>
       <Header backtest={query.data} />
       <Container size="lg" py="xl">
         <Stack gap="xl">
-          {query.isPending ? (
-            <Stack align="center" gap="xs" role="status">
-              <Loader />
-              <Text>Running the backtest…</Text>
-            </Stack>
-          ) : null}
           {query.isError ? (
             <Alert color="red" title="The backtest could not be loaded">
               {query.error.message}

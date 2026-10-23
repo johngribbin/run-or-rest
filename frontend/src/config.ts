@@ -35,8 +35,6 @@ export const BACKTEST_PATH = "/api/backtest";
 export const THRESHOLD_PARAM = "peak_guard_threshold";
 
 export const ANSWER_LABEL = "Which rule made the most money this summer?";
-export const BRIDGE_TITLE = "Where the extra profit came from";
-export const GAIN_LABELS = { price: "Price gain", fourcp: "4CP gain" };
 export const STRATEGY_DESCRIPTIONS = {
   always_on:
     "Never switches off. The baseline every other rule is measured against.",
@@ -54,6 +52,7 @@ export const FOURCP_EXPLAINER = {
   chargeTail:
     "Nobody knows the exact peak in advance, so the peak guard powers down whenever demand gets close to the month's high.",
   calloutTitle: "Peaks are not price spikes",
+  peaksHeading: "This summer's 4CP peaks",
   calloutTail: "A price-only rule cannot see a peak coming.",
   running: "Running",
   off: "Off",
@@ -153,6 +152,7 @@ export const THRESHOLD_END_LABELS = {
   min: "off more often",
   max: "off less",
 };
+export const LOADING_TEXT = "Running the backtest…";
 export const UPDATING_TEXT = "Updating…";
 export const STALE_OPACITY = 0.5;
 

@@ -88,23 +88,24 @@ describe("Hero", () => {
     }
   });
 
-  it("bridges always on's net profit to the winner's through both gains", async () => {
+  it("sits the 4CP explainer beside the answer", async () => {
     respondWith(200, sampleBacktest);
 
     renderApp();
-    const bridge = await screen.findByRole("region", { name: "Gain bridge" });
+    await answer();
 
     expect(
-      within(bridge).getByRole("heading", {
-        name: "Where the extra profit came from",
-      }),
-    ).toBeInTheDocument();
-    expect(within(bridge).getByRole("img")).toHaveAccessibleName(
-      "Always on $60,000, Price gain −$48,765, 4CP gain +$50,000, Strike + peak guard $61,235",
-    );
+      screen
+        .getAllByRole("region")
+        .slice(0, 2)
+        .map((region) => region.getAttribute("aria-label")),
+    ).toEqual([
+      "Answer",
+      "4CP: four 15-minute windows that set a year of transmission cost",
+    ]);
   });
 
-  it("drops the bridge and says so when always on wins", async () => {
+  it("says so when always on wins", async () => {
     respondWith(200, {
       ...sampleBacktest,
       winner: { id: "always_on", advantage_over_always_on_usd: "0.00" },
@@ -117,8 +118,5 @@ describe("Hero", () => {
         "Always on made the most money; neither curtailment rule beat it.",
       ),
     ).toBeInTheDocument();
-    expect(
-      screen.queryByRole("region", { name: "Gain bridge" }),
-    ).not.toBeInTheDocument();
   });
 });

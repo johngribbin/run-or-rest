@@ -9,7 +9,7 @@ afterEach(() => {
 });
 
 describe("App", () => {
-  it("shows the title, subtitle and a loading state", () => {
+  it("shows only a spinner while the first backtest loads", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(() => new Promise<Response>(() => undefined)),
@@ -17,15 +17,24 @@ describe("App", () => {
 
     renderApp();
 
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Running the backtest…",
+    );
+    expect(screen.queryByRole("heading")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link")).not.toBeInTheDocument();
+  });
+
+  it("shows the title and subtitle once the backtest loads", async () => {
+    respondWith(200, sampleBacktest);
+
+    renderApp();
+
     expect(
-      screen.getByRole("heading", { level: 1, name: "Run or Rest" }),
+      await screen.findByRole("heading", { level: 1, name: "Run or Rest" }),
     ).toBeInTheDocument();
     expect(
       screen.getByText("ERCOT curtailment backtest for bitcoin miners"),
     ).toBeInTheDocument();
-    expect(screen.getByRole("status")).toHaveTextContent(
-      "Running the backtest",
-    );
   });
 
   it("names the period, settlement point and fleet of the run", async () => {
@@ -301,10 +310,11 @@ describe("Peak guard trigger", () => {
       screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent),
     ).toEqual([
       "Which rule made the most money this summer?",
+      "4CP: four 15-minute windows that set a year of transmission cost",
       "Peak guard trigger",
       "All three rules",
-      "4CP: four 15-minute windows that set a year of transmission cost",
       "Power price vs. mining breakeven",
+      "This summer's 4CP peaks",
       "What sets the breakeven line",
       "Full breakdown",
     ]);

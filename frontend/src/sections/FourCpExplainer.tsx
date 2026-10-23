@@ -28,7 +28,8 @@ function Callout({ peaks }: { peaks: readonly Peak[] }) {
     <Box
       bg="var(--ror-surface-raised)"
       p="lg"
-      style={{ borderRadius: "var(--mantine-radius-md)", alignSelf: "start" }}
+      mt="xs"
+      style={{ borderRadius: "var(--mantine-radius-md)" }}
     >
       <Stack gap="xs">
         <Text fw={600} size="lg">
@@ -114,27 +115,36 @@ function PeakTile({
   );
 }
 
-export function FourCpExplainer({ backtest }: { backtest: Backtest }) {
+export function FourCpIntro({ backtest }: { backtest: Backtest }) {
+  const { peaks, charge_per_peak_usd: perPeak } = backtest.fourcp;
+  return (
+    <Panel label={FOURCP_EXPLAINER.heading}>
+      <Stack gap="sm">
+        <Eyebrow>{FOURCP_EXPLAINER.label}</Eyebrow>
+        <Title order={2}>{FOURCP_EXPLAINER.heading}</Title>
+        <Text c="var(--ror-text-secondary)">{FOURCP_EXPLAINER.intro}</Text>
+        <Text c="var(--ror-text-secondary)">
+          {FOURCP_EXPLAINER.chargeLead}{" "}
+          <Text span inherit c="var(--ror-text)">
+            {formatUsdWhole(perPeak)}
+          </Text>
+          . {FOURCP_EXPLAINER.chargeTail}
+        </Text>
+        <Callout peaks={peaks} />
+      </Stack>
+    </Panel>
+  );
+}
+
+export function FourCpPeaks({ backtest }: { backtest: Backtest }) {
   const { peaks, charge_per_peak_usd: perPeak } = backtest.fourcp;
   const charge = formatUsdWhole(perPeak);
   return (
-    <Panel label={FOURCP_EXPLAINER.heading}>
-      <Stack gap="xl">
-        <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
-          <Stack gap="sm">
-            <Eyebrow>{FOURCP_EXPLAINER.label}</Eyebrow>
-            <Title order={2}>{FOURCP_EXPLAINER.heading}</Title>
-            <Text c="var(--ror-text-secondary)">{FOURCP_EXPLAINER.intro}</Text>
-            <Text c="var(--ror-text-secondary)">
-              {FOURCP_EXPLAINER.chargeLead}{" "}
-              <Text span inherit c="var(--ror-text)">
-                {charge}
-              </Text>
-              . {FOURCP_EXPLAINER.chargeTail}
-            </Text>
-          </Stack>
-          <Callout peaks={peaks} />
-        </SimpleGrid>
+    <Panel label={FOURCP_EXPLAINER.peaksHeading}>
+      <Stack gap="md">
+        <Title order={3} component="h2">
+          {FOURCP_EXPLAINER.peaksHeading}
+        </Title>
         <SimpleGrid
           component="ul"
           cols={{ base: 1, sm: 2, lg: 4 }}

@@ -13,7 +13,7 @@ import {
   formatSignedUsdWhole,
   formatUsdWhole,
 } from "../format.ts";
-import { GainBridge } from "./GainBridge.tsx";
+import { FourCpIntro } from "./FourCpExplainer.tsx";
 import { Eyebrow, Kpi, Panel } from "./ui.tsx";
 
 function isNegative(value: string): boolean {
@@ -122,17 +122,12 @@ function Answer({
 export function Hero({ backtest }: { backtest: Backtest }) {
   const winner = strategyById(backtest, backtest.winner.id);
   const baseline = strategyById(backtest, BASELINE_STRATEGY_ID);
-  const baselineWins = winner.id === BASELINE_STRATEGY_ID;
   return (
-    <SimpleGrid cols={{ base: 1, md: baselineWins ? 1 : 2 }} spacing="lg">
+    <SimpleGrid cols={{ base: 1, md: 2 }} spacing="lg">
       <Panel label="Answer">
         <Answer backtest={backtest} winner={winner} baseline={baseline} />
       </Panel>
-      {baselineWins ? null : (
-        <Panel label="Gain bridge">
-          <GainBridge baseline={baseline} winner={winner} />
-        </Panel>
-      )}
+      <FourCpIntro backtest={backtest} />
     </SimpleGrid>
   );
 }
