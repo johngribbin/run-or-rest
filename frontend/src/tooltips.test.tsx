@@ -4,17 +4,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { renderApp, respondWith } from "./test/renderApp.tsx";
 import { sampleBacktest } from "./test/sampleBacktest.ts";
 
-const TABLE_TERMS: [string, string][] = [
-  [
-    "Transmission",
-    "Next year’s charge, set by power used during this summer’s four 4CP peak intervals.",
-  ],
+const CARD_TERMS: [string, string][] = [
   [
     "Price gain",
     "Saved by avoiding expensive power, minus mining revenue given up, compared with always on.",
   ],
   ["4CP gain", "Transmission charges avoided compared with always on."],
-  ["Hours off", "Total time the fleet was switched off."],
 ];
 
 function describedBy(term: HTMLElement): HTMLElement {
@@ -43,21 +38,18 @@ afterEach(() => {
 });
 
 describe("tooltips", () => {
-  it("explain every jargon term in the results table", async () => {
+  it("explain the gain split on a strategy card", async () => {
     respondWith(200, sampleBacktest);
     renderApp();
-    const table = await screen.findByRole("table", {
-      name: "Results by strategy",
-    });
+    const card = await screen.findByRole("article", { name: "Strike price" });
 
     const seen: [string, string | null][] = [];
-    for (const [term] of TABLE_TERMS) {
-      seen.push([term, await tooltipFor(within(table).getByText(term))]);
+    for (const [term] of CARD_TERMS) {
+      seen.push([term, await tooltipFor(within(card).getByText(term))]);
     }
 
-    expect(seen).toEqual(TABLE_TERMS);
+    expect(seen).toEqual(CARD_TERMS);
   });
-
   it("explain breakeven in the chart legend", async () => {
     respondWith(200, sampleBacktest);
     renderApp();
@@ -68,7 +60,7 @@ describe("tooltips", () => {
     );
   });
 
-  it("explain hashprice and difficulty in the formula", async () => {
+  it("explain block reward, hashprice, difficulty and efficiency in the formula", async () => {
     respondWith(200, sampleBacktest);
     renderApp();
     const panel = await screen.findByRole("region", {
@@ -84,6 +76,12 @@ describe("tooltips", () => {
     );
     expect(await tooltipFor(within(formula).getByText("Difficulty"))).toBe(
       "How hard it is to find a block. It adjusts every 2,016 blocks, about every two weeks, to keep blocks near 10 minutes apart.",
+    );
+    expect(await tooltipFor(within(formula).getByText("Block reward"))).toBe(
+      "The new bitcoin each block creates (the subsidy) plus the transaction fees paid to its miner.",
+    );
+    expect(await tooltipFor(within(formula).getByText("Efficiency"))).toBe(
+      "Energy the fleet uses per terahash in this run: 15 J/TH. Lower is better.",
     );
   });
 

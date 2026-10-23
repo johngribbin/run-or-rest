@@ -64,4 +64,22 @@ describe("StrategyCards", () => {
       within(strike).getByText("4CP peaks run in").nextSibling,
     ).toHaveTextContent("1 of 1");
   });
+
+  it("splits each rule's gain into price and 4CP, but not the baseline's", async () => {
+    respondWith(200, sampleBacktest);
+
+    renderApp();
+    const guard = await screen.findByRole("article", {
+      name: "Strike + peak guard",
+    });
+
+    expect(
+      within(guard).getByText(/^Price gain/).parentElement,
+    ).toHaveTextContent("Price gain −$48,765 · 4CP gain +$50,000");
+    expect(
+      within(screen.getByRole("article", { name: "Always on" })).queryByText(
+        "Price gain",
+      ),
+    ).not.toBeInTheDocument();
+  });
 });

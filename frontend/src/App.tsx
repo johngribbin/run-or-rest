@@ -1,17 +1,29 @@
-import { Alert, Container, Group, Loader, Stack, Text } from "@mantine/core";
+import {
+  Alert,
+  Center,
+  Container,
+  Group,
+  Loader,
+  Stack,
+  Text,
+  VisuallyHidden,
+} from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { type Backtest, fetchBacktest } from "./api/backtest.ts";
-import { REFETCH_DEBOUNCE_MS, STALE_OPACITY, UPDATING_TEXT } from "./config.ts";
+import {
+  LOADING_TEXT,
+  REFETCH_DEBOUNCE_MS,
+  STALE_OPACITY,
+  UPDATING_TEXT,
+} from "./config.ts";
 import { AssumptionsSection } from "./sections/AssumptionsSection.tsx";
 import { BitcoinInputs } from "./sections/BitcoinInputs.tsx";
 import { ChartSection } from "./sections/ChartSection.tsx";
 import { Footer } from "./sections/Footer.tsx";
-import { FourCpExplainer } from "./sections/FourCpExplainer.tsx";
 import { Header } from "./sections/Header.tsx";
-import { Hero } from "./sections/Hero.tsx";
-import { ResultsTable } from "./sections/ResultsTable.tsx";
+import { FourCpIntro } from "./sections/FourCpExplainer.tsx";
 import { StrategyCards } from "./sections/StrategyCards.tsx";
 import { ThresholdControl } from "./sections/ThresholdControl.tsx";
 
@@ -20,18 +32,24 @@ function Results({
   stale,
   threshold,
   onThresholdChange,
+  assumptionsOpen,
+  onAssumptionsOpenChange,
+  assumptionsJump,
 }: {
   backtest: Backtest;
   stale: boolean;
   threshold: string | null;
   onThresholdChange: (value: string) => void;
+  assumptionsOpen: boolean;
+  onAssumptionsOpenChange: (open: boolean) => void;
+  assumptionsJump: number;
 }) {
   const control = backtest.controls.peak_guard_threshold;
   const shown = { opacity: stale ? STALE_OPACITY : 1 };
   return (
     <Stack gap="lg">
       <Stack gap="lg" style={shown} aria-busy={stale}>
-        <Hero backtest={backtest} />
+        <FourCpIntro backtest={backtest} />
       </Stack>
       <ThresholdControl
         control={control}
@@ -46,11 +64,14 @@ function Results({
       ) : null}
       <Stack gap="lg" style={shown} aria-busy={stale}>
         <StrategyCards backtest={backtest} />
-        <FourCpExplainer backtest={backtest} />
         <ChartSection backtest={backtest} />
         <BitcoinInputs backtest={backtest} />
-        <ResultsTable backtest={backtest} />
-        <AssumptionsSection backtest={backtest} />
+        <AssumptionsSection
+          backtest={backtest}
+          open={assumptionsOpen}
+          onOpenChange={onAssumptionsOpenChange}
+          jump={assumptionsJump}
+        />
       </Stack>
     </Stack>
   );
@@ -58,6 +79,8 @@ function Results({
 
 export function App() {
   const [threshold, setThreshold] = useState<string | null>(null);
+  const [assumptionsOpen, setAssumptionsOpen] = useState(false);
+  const [assumptionsJump, setAssumptionsJump] = useState(0);
   const [requested] = useDebouncedValue(threshold, REFETCH_DEBOUNCE_MS);
   const query = useQuery({
     queryKey: ["backtest", requested],
@@ -65,17 +88,29 @@ export function App() {
     placeholderData: keepPreviousData,
   });
 
+  if (query.isPending) {
+    return (
+      <Center h="100vh" role="status">
+        <Loader color="var(--ror-accent)" />
+        <VisuallyHidden>{LOADING_TEXT}</VisuallyHidden>
+      </Center>
+    );
+  }
+
   return (
     <>
-      <Header backtest={query.data} />
+      <Header
+        onShowAssumptions={
+          query.isSuccess
+            ? () => {
+                setAssumptionsOpen(true);
+                setAssumptionsJump((count) => count + 1);
+              }
+            : undefined
+        }
+      />
       <Container size="lg" py="xl">
         <Stack gap="xl">
-          {query.isPending ? (
-            <Stack align="center" gap="xs" role="status">
-              <Loader />
-              <Text>Running the backtest…</Text>
-            </Stack>
-          ) : null}
           {query.isError ? (
             <Alert color="red" title="The backtest could not be loaded">
               {query.error.message}
@@ -87,6 +122,9 @@ export function App() {
               stale={query.isPlaceholderData}
               threshold={threshold}
               onThresholdChange={setThreshold}
+              assumptionsOpen={assumptionsOpen}
+              onAssumptionsOpenChange={setAssumptionsOpen}
+              assumptionsJump={assumptionsJump}
             />
           ) : null}
           <Footer />

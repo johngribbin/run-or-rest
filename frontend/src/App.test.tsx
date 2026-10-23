@@ -9,7 +9,7 @@ afterEach(() => {
 });
 
 describe("App", () => {
-  it("shows the title, subtitle and a loading state", () => {
+  it("shows only a spinner while the first backtest loads", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(() => new Promise<Response>(() => undefined)),
@@ -17,28 +17,24 @@ describe("App", () => {
 
     renderApp();
 
-    expect(
-      screen.getByRole("heading", { level: 1, name: "Run or Rest" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("ERCOT curtailment backtest for bitcoin miners"),
-    ).toBeInTheDocument();
     expect(screen.getByRole("status")).toHaveTextContent(
-      "Running the backtest",
+      "Running the backtest…",
     );
+    expect(screen.queryByRole("heading")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link")).not.toBeInTheDocument();
   });
 
-  it("names the period, settlement point and fleet of the run", async () => {
+  it("shows the title and subtitle once the backtest loads", async () => {
     respondWith(200, sampleBacktest);
 
     renderApp();
 
-    const chips = await screen.findByRole("list", { name: "This run" });
     expect(
-      within(chips)
-        .getAllByRole("listitem")
-        .map((chip) => chip.textContent),
-    ).toEqual(["Jun 1, 2026", "LZ_WEST", "1 MW · 15 J/TH · 2% pool fee"]);
+      await screen.findByRole("heading", { level: 1, name: "Run or Rest" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("ERCOT curtailment backtest for bitcoin miners"),
+    ).toBeInTheDocument();
   });
 
   it("always uses the dark scheme, with no theme toggle", () => {
@@ -58,71 +54,60 @@ describe("App", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("shows formatted totals and highlights the winner", async () => {
-    respondWith(200, sampleBacktest);
-
-    renderApp();
-
-    const table = await screen.findByRole("table", {
-      name: "Results by strategy",
-    });
-    const winnerRow = within(table)
-      .getAllByRole("row")
-      .find((row) => row.getAttribute("aria-current") === "true");
-    expect(
-      within(winnerRow ?? table)
-        .getAllByRole("cell")
-        .map((cell) => cell.textContent),
-    ).toEqual([
-      "Strike + peak guardBest",
-      "$150,000.00",
-      "$88,765.44",
-      "$0.00",
-      "$61,234.56",
-      "−$48,765.44",
-      "$50,000.00",
-      "2.2500",
-      "421.50",
-    ]);
-  });
-
-  it("shows a dash for always on's gains over itself", async () => {
-    respondWith(200, sampleBacktest);
-
-    renderApp();
-    const table = await screen.findByRole("table", {
-      name: "Results by strategy",
-    });
-    const baseline = within(table).getByRole("row", { name: /^Always on/ });
-
-    expect(
-      within(baseline)
-        .getAllByRole("cell")
-        .map((cell) => cell.textContent),
-    ).toEqual([
-      "Always on",
-      "$200,000.00",
-      "$90,000.00",
-      "$50,000.00",
-      "$60,000.00",
-      "—",
-      "—",
-      "3.0000",
-      "0.00",
-    ]);
-  });
-
-  it("says how many intervals were skipped for missing data", async () => {
+  it("says how many intervals were skipped, under the assumptions", async () => {
     respondWith(200, {
       ...sampleBacktest,
       data_quality: { expected_intervals: 11712, missing_intervals: 5 },
     });
+    const user = userEvent.setup();
 
     renderApp();
-
-    expect(await screen.findByText(/intervals priced/)).toHaveTextContent(
-      "11,707 of 11,712 intervals priced · 5 skipped for missing data",
+    await user.click(
+      await screen.findByRole("button", { name: "Model and assumptions" }),
     );
+
+    expect(
+      screen.getByRole("row", {
+        name: "Intervals priced 11,707 of 11,712 (5 skipped for missing data)",
+      }),
+    ).toBeInTheDocument();
+  });
+  it("links from the header to the assumptions and opens them", async () => {
+    respondWith(200, sampleBacktest);
+    const user = userEvent.setup();
+
+    renderApp();
+    const link = await screen.findByRole("link", {
+      name: "Model and assumptions",
+    });
+    expect(link).toHaveAttribute("href", "#assumptions");
+    expect(
+      screen.getByRole("region", { name: "Model and assumptions" }),
+    ).toHaveAttribute("id", "assumptions");
+
+    const scroll = vi.spyOn(Element.prototype, "scrollIntoView");
+    await user.click(link);
+
+    expect(
+      screen.getByRole("button", { name: "Model and assumptions" }),
+    ).toHaveAttribute("aria-expanded", "true");
+    expect(scroll.mock.contexts).toEqual([
+      document.getElementById("assumptions"),
+    ]);
+    expect(
+      screen.getByRole("row", { name: "Efficiency 15 J/TH" }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows no assumptions link when the backtest fails", async () => {
+    respondWith(503, { detail: "Grid data not found." });
+
+    renderApp();
+    await screen.findByText("Grid data not found.");
+
+    expect(
+      screen.queryByRole("link", { name: "Model and assumptions" }),
+    ).not.toBeInTheDocument();
   });
 
   it("keeps the assumptions collapsed until asked", async () => {
@@ -207,23 +192,45 @@ describe("App", () => {
     });
   });
 
-  it("lists every rule's switched-off hours under the chart", async () => {
+  it("shades the winner's off periods and lets you pick the other rule", async () => {
     respondWith(200, sampleBacktest);
+    const user = userEvent.setup();
 
     renderApp();
-    const lanes = await screen.findByRole("list", {
-      name: "When each rule was switched off",
+    const picker = await screen.findByRole("radiogroup", {
+      name: "Strategy",
+    });
+    const radios = within(picker).getAllByRole("radio");
+
+    expect(radios.map((radio) => radio.getAttribute("value"))).toEqual([
+      "strike_price",
+      "strike_peak_guard",
+    ]);
+    expect(
+      within(picker).getByRole("radio", { name: "Strike + peak guard" }),
+    ).toBeChecked();
+    await user.click(
+      within(picker).getByRole("radio", { name: "Strike price" }),
+    );
+    expect(
+      within(picker).getByRole("radio", { name: "Strike price" }),
+    ).toBeChecked();
+  });
+
+  it("shades the first curtailing rule when always on wins", async () => {
+    respondWith(200, {
+      ...sampleBacktest,
+      winner: { id: "always_on", advantage_over_always_on_usd: "0.00" },
+    });
+
+    renderApp();
+    const picker = await screen.findByRole("radiogroup", {
+      name: "Strategy",
     });
 
     expect(
-      within(lanes)
-        .getAllByRole("listitem")
-        .map((lane) => lane.getAttribute("aria-label")),
-    ).toEqual([
-      "Always on: 0.0 h",
-      "Strike price: 12.2 h",
-      "Strike + peak guard: 421.5 h",
-    ]);
+      within(picker).getByRole("radio", { name: "Strike price" }),
+    ).toBeChecked();
   });
 
   it("offers the whole season and each month as chart ranges", async () => {
@@ -284,7 +291,7 @@ describe("App", () => {
     ).toHaveTextContent("Updating…");
     expect(
       screen
-        .getByRole("table", { name: "Results by strategy" })
+        .getByRole("article", { name: "Strike price" })
         .closest("[aria-busy='true']"),
     ).not.toBeNull();
   });
@@ -300,13 +307,11 @@ describe("Peak guard trigger", () => {
     expect(
       screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent),
     ).toEqual([
-      "Which rule made the most money this summer?",
+      "4CP: four 15-minute windows that set a year of transmission cost",
       "Peak guard trigger",
       "All three rules",
-      "4CP: four 15-minute windows that set a year of transmission cost",
       "Power price vs. mining breakeven",
       "What sets the breakeven line",
-      "Full breakdown",
     ]);
   });
 
@@ -319,11 +324,23 @@ describe("Peak guard trigger", () => {
     });
 
     expect(within(control).getByRole("slider")).toHaveAccessibleDescription(
-      "Switch off when ERCOT demand reaches this share of the month's peak so far.",
+      "Switch off when ERCOT demand reaches 95% of the month's peak so far.",
     );
-    expect(
-      within(control).getByText("80% · off more often"),
-    ).toBeInTheDocument();
+    expect(within(control).getByText("80% · off more")).toBeInTheDocument();
     expect(within(control).getByText("100% · off less")).toBeInTheDocument();
+  });
+
+  it("names the chosen percentage in its explanation as the slider moves", async () => {
+    respondWith(200, sampleBacktest);
+    const user = userEvent.setup();
+
+    renderApp();
+    const slider = await screen.findByRole("slider");
+    await user.click(slider);
+    await user.keyboard("{ArrowRight}");
+
+    expect(slider).toHaveAccessibleDescription(
+      "Switch off when ERCOT demand reaches 96% of the month's peak so far.",
+    );
   });
 });

@@ -19,6 +19,8 @@ import {
   KPI_LABELS,
   STRATEGIES_HEADING,
   STRATEGY_DESCRIPTIONS,
+  GAIN_LABELS,
+  TOOLTIPS,
 } from "../config.ts";
 import {
   formatBtc,
@@ -27,17 +29,30 @@ import {
   formatSignedUsdWhole,
   formatUsdWhole,
 } from "../format.ts";
+import { Term } from "./Term.tsx";
 import { Eyebrow } from "./ui.tsx";
 
 function Delta({ strategy }: { strategy: Strategy }) {
   if (strategy.id === BASELINE_STRATEGY_ID) {
     return <Text c="dimmed">{BASELINE_DELTA}</Text>;
   }
-  const total = strategy.gain_vs_always_on.total_usd;
+  const gain = strategy.gain_vs_always_on;
   return (
-    <Text c={total.startsWith("-") ? "var(--ror-bad)" : "var(--ror-good)"}>
-      {formatSignedUsdWhole(total)} vs. always on
-    </Text>
+    <>
+      <Text
+        c={
+          gain.total_usd.startsWith("-") ? "var(--ror-bad)" : "var(--ror-good)"
+        }
+      >
+        {formatSignedUsdWhole(gain.total_usd)} vs. always on
+      </Text>
+      <Text size="xs" c="dimmed">
+        <Term tooltip={TOOLTIPS.priceGain}>{GAIN_LABELS.price}</Term>{" "}
+        {formatSignedUsdWhole(gain.price_usd)} ·{" "}
+        <Term tooltip={TOOLTIPS.fourcpGain}>{GAIN_LABELS.fourcp}</Term>{" "}
+        {formatSignedUsdWhole(gain.fourcp_usd)}
+      </Text>
+    </>
   );
 }
 

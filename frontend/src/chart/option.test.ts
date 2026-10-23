@@ -1,14 +1,18 @@
 import { describe, expect, it } from "vitest";
 import type { Decision, SeriesPoint } from "../api/backtest.ts";
 import { sampleBacktest } from "../test/sampleBacktest.ts";
+
+const strike = sampleBacktest.strategies[1];
+if (strike === undefined) {
+  throw new Error("The sample needs the strike price strategy");
+}
 import {
+  bandRect,
   chartOption,
   intervalMs,
-  laneRects,
   offBands,
   priceTick,
   tooltipText,
-  visibleExtent,
   zoomFor,
   zoomFromEvent,
 } from "./option.ts";
@@ -87,26 +91,29 @@ describe("priceTick", () => {
 });
 
 describe("tooltipText", () => {
-  it("shows the Central time and both prices as $/MWh", () => {
+  it("shows the Central time, both prices and whether the chosen rule was off", () => {
     const point = sampleBacktest.series[2];
 
-    expect(point === undefined ? "" : tooltipText(point)).toBe(
-      "Jun 1, 2026, 00:30 CT<br/>Power price: −$3.10/MWh<br/>Breakeven: $100.00/MWh",
+    expect(point === undefined ? "" : tooltipText(point, strike)).toBe(
+      "Jun 1, 2026, 00:30 CT<br/>Power price: −$3.10/MWh<br/>Breakeven: $100.00/MWh<br/>Strike price: off",
     );
   });
 });
 
 describe("chartOption", () => {
-  const option = chartOption(sampleBacktest);
+  const option = chartOption(sampleBacktest, strike);
   const series = Array.isArray(option.series) ? option.series : [];
 
   it("draws every price and breakeven point at its Central time", () => {
     expect(option.useUTC).toBe(true);
-    expect(series.map((item) => item.name)).toEqual([
+    const lines = series.flatMap((item) =>
+      item.type === "line" ? [item] : [],
+    );
+    expect(lines.map((item) => item.name)).toEqual([
       "Power price",
       "Breakeven",
     ]);
-    expect(series.map((item) => item.sampling)).toEqual([undefined, undefined]);
+    expect(lines.map((item) => item.sampling)).toEqual([undefined, undefined]);
     expect(series[0]?.data).toEqual([
       [Date.UTC(2026, 5, 1, 0, 0), 40],
       [Date.UTC(2026, 5, 1, 0, 15), 500],
@@ -129,10 +136,16 @@ describe("chartOption", () => {
     });
   });
 
-  it("marks each 4CP peak with a short dated label and no off bands", () => {
+  it("shades the chosen rule's off intervals beneath the lines", () => {
+    expect(series[2]).toMatchObject({ type: "custom", z: 1, silent: true });
+    expect(series[2]?.data).toEqual([
+      [Date.UTC(2026, 5, 1, 0, 30), Date.UTC(2026, 5, 1, 0, 45)],
+    ]);
+  });
+
+  it("marks each 4CP peak with a short dated label", () => {
     const price = series[0];
 
-    expect(price?.markArea).toBeUndefined();
     expect(price?.markLine?.data).toEqual([
       { name: "4CP · Jun 1", xAxis: Date.UTC(2026, 5, 1, 0, 15) },
     ]);
@@ -156,49 +169,11 @@ describe("chartOption", () => {
 describe("zoom windows", () => {
   const extent = { min: 0, max: 1000 };
 
-  it("turns a zoom window into the visible time range", () => {
-    expect(visibleExtent(extent, { start: 25, end: 50 })).toEqual({
-      min: 250,
-      max: 500,
-    });
-  });
-
   it("turns a time range into a zoom window", () => {
     expect(zoomFor(extent, { min: 250, max: 500 })).toEqual({
       start: 25,
       end: 50,
     });
-  });
-});
-
-describe("laneRects", () => {
-  const band = { start: "2026-06-01T05:15:00Z", end: "2026-06-01T05:30:00Z" };
-
-  it("places an off band across the visible hour", () => {
-    expect(
-      laneRects([band], {
-        min: Date.UTC(2026, 5, 1, 0, 0),
-        max: Date.UTC(2026, 5, 1, 1, 0),
-      }),
-    ).toEqual([{ x: 250, width: 250 }]);
-  });
-
-  it("clips a band that starts before the visible range", () => {
-    expect(
-      laneRects([band], {
-        min: Date.UTC(2026, 5, 1, 0, 20),
-        max: Date.UTC(2026, 5, 1, 1, 0),
-      }),
-    ).toEqual([{ x: 0, width: 250 }]);
-  });
-
-  it("drops a band outside the visible range", () => {
-    expect(
-      laneRects([band], {
-        min: Date.UTC(2026, 5, 1, 0, 30),
-        max: Date.UTC(2026, 5, 1, 1, 0),
-      }),
-    ).toEqual([]);
   });
 });
 
@@ -220,5 +195,37 @@ describe("zoomFromEvent", () => {
   it("ignores an event without percentages", () => {
     expect(zoomFromEvent({ startValue: 1, endValue: 2 })).toBeNull();
     expect(zoomFromEvent(null)).toBeNull();
+  });
+});
+
+describe("bandRect", () => {
+  const plot = { x: 56, y: 40, width: 1000, height: 264 };
+
+  it("spans the plot's height between an off interval's ends", () => {
+    expect(bandRect(300, 340, plot)).toEqual({
+      x: 300,
+      y: 40,
+      width: 40,
+      height: 264,
+    });
+  });
+
+  it("widens an interval thinner than two pixels so it stays visible", () => {
+    expect(bandRect(300, 300.1, plot)).toEqual({
+      x: 300,
+      y: 40,
+      width: 2,
+      height: 264,
+    });
+  });
+
+  it("clips at the plot's edges and drops a band outside it", () => {
+    expect(bandRect(20, 70, plot)).toEqual({
+      x: 56,
+      y: 40,
+      width: 14,
+      height: 264,
+    });
+    expect(bandRect(1100, 1120, plot)).toBeNull();
   });
 });

@@ -73,11 +73,13 @@ function Formula({ efficiency }: { efficiency: string }) {
       gap="xs"
       m={0}
       p={0}
-      aria-label={`${words.btcPrice} times ${words.reward} divided by ${words.difficulty} equals ${words.hashprice}, divided by ${efficiency} J/TH equals ${words.breakeven}`}
+      aria-label={`${words.btcPrice} times ${words.reward} divided by ${words.difficulty} equals ${words.hashprice}, divided by ${words.efficiency} (${efficiency} J/TH) equals ${words.breakeven}`}
     >
       <Factor>{words.btcPrice}</Factor>
       <Operator>×</Operator>
-      <Factor>{words.reward}</Factor>
+      <Factor>
+        <Term tooltip={TOOLTIPS.blockReward}>{words.reward}</Term>
+      </Factor>
       <Operator>÷</Operator>
       <Factor>
         <Term tooltip={TOOLTIPS.difficulty}>{words.difficulty}</Term>
@@ -87,7 +89,11 @@ function Formula({ efficiency }: { efficiency: string }) {
         <Term tooltip={TOOLTIPS.hashprice}>{words.hashprice}</Term>
       </Factor>
       <Operator>÷</Operator>
-      <Factor>{efficiency} J/TH</Factor>
+      <Factor>
+        <Term tooltip={TOOLTIPS.efficiency(efficiency)}>
+          {words.efficiency}
+        </Term>
+      </Factor>
       <Operator>=</Operator>
       <Factor emphasis>{words.breakeven}</Factor>
     </Group>

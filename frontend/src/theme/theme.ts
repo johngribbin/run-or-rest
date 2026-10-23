@@ -40,8 +40,7 @@ const colorVariables: Record<string, string> = {
   "--ror-good": COLORS.good,
   "--ror-bad": COLORS.bad,
   "--ror-price": COLORS.price,
-  "--ror-peak": COLORS.peak,
-  "--ror-lane": COLORS.lane,
+  "--ror-off-band": COLORS.offBand,
 };
 
 export const cssVariablesResolver: CSSVariablesResolver = () => ({

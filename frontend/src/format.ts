@@ -49,10 +49,6 @@ export function formatPrice(value: string): string {
   return `${formatUsd(value)}/MWh`;
 }
 
-export function formatHours(value: string): string {
-  return formatDecimal(value);
-}
-
 export function formatPercent(value: string): string {
   const { sign, whole, fraction } = parts(value);
   const digits = `${whole}${fraction.padEnd(PERCENT_SHIFT, "0")}`;

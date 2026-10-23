@@ -25,22 +25,6 @@ describe("FourCpExplainer", () => {
     );
   });
 
-  it("shows each peak's Central time, load, price and every rule's charge", async () => {
-    respondWith(200, sampleBacktest);
-
-    renderApp();
-    const tile = await screen.findByRole("listitem", { name: "June" });
-
-    expect(within(tile).getByText("Mon, Jun 1, 00:15 CT")).toBeInTheDocument();
-    expect(within(tile).getByText("82,712.7 MW")).toBeInTheDocument();
-    expect(within(tile).getByText("$500.00/MWh")).toBeInTheDocument();
-    expect(
-      ["Always on", "Strike price", "Strike + peak guard"].map(
-        (rule) => within(tile).getByText(rule).nextSibling?.textContent,
-      ),
-    ).toEqual(["Running · $50,000", "Running · $50,000", "Off · $0"]);
-  });
-
   it("gives the lowest and highest price across the peaks", async () => {
     const [june] = sampleBacktest.fourcp.peaks;
     if (june === undefined) {
@@ -65,8 +49,10 @@ describe("FourCpExplainer", () => {
     renderApp();
     const panel = await screen.findByRole("region", { name: HEADING });
 
-    expect(within(panel).getByText(/^Power cost/)).toHaveTextContent(
-      "Power cost $20.53–$500.00/MWh at the 2 peaks. A price-only rule cannot see a peak coming.",
+    expect(
+      within(panel).getByText(/^Peaks are not price spikes/).parentElement,
+    ).toHaveTextContent(
+      "Peaks are not price spikes. Power cost $20.53–$500.00/MWh at the 2 peaks, so a price-only rule cannot see one coming.",
     );
   });
 });

@@ -24,9 +24,9 @@ export const COLORS = {
   accentSoft: "rgba(247, 147, 26, 0.12)",
   good: "#3FB97A",
   bad: "#F06A5B",
-  price: "#4C8DF6",
-  peak: "#9085E9",
-  lane: "#5B6370",
+  price: "#7DB3FF",
+  offBand: "#323B4A",
+  zoomFill: "rgba(236, 238, 241, 0.14)",
 };
 
 export const REFETCH_DEBOUNCE_MS = 300;
@@ -34,9 +34,6 @@ export const REFETCH_DEBOUNCE_MS = 300;
 export const BACKTEST_PATH = "/api/backtest";
 export const THRESHOLD_PARAM = "peak_guard_threshold";
 
-export const ANSWER_LABEL = "Which rule made the most money this summer?";
-export const BRIDGE_TITLE = "Where the extra profit came from";
-export const GAIN_LABELS = { price: "Price gain", fourcp: "4CP gain" };
 export const STRATEGY_DESCRIPTIONS = {
   always_on:
     "Never switches off. The baseline every other rule is measured against.",
@@ -54,11 +51,7 @@ export const FOURCP_EXPLAINER = {
   chargeTail:
     "Nobody knows the exact peak in advance, so the peak guard powers down whenever demand gets close to the month's high.",
   calloutTitle: "Peaks are not price spikes",
-  calloutTail: "A price-only rule cannot see a peak coming.",
-  running: "Running",
-  off: "Off",
-  load: "Grid demand",
-  price: "Power price",
+  calloutTail: "so a price-only rule cannot see one coming.",
 };
 export const BITCOIN_COPY = {
   heading: "What sets the breakeven line",
@@ -69,6 +62,7 @@ export const BITCOIN_COPY = {
     reward: "Block reward",
     difficulty: "Difficulty",
     hashprice: "Hashprice",
+    efficiency: "Efficiency",
     breakeven: "Breakeven $/MWh",
   },
   tiles: {
@@ -82,18 +76,15 @@ export const BITCOIN_COPY = {
   feesCaption: "Transaction fees as a share of subsidy plus fees",
   charts: {
     btcPrice: "BTC price, USD · Coin Metrics",
-    difficulty:
-      "Network difficulty, T · own Bitcoin Core node · change at each adjustment",
+    difficulty: "Network difficulty, T · change at each adjustment",
     hashprice: "Hashprice, USD per PH/s per day",
   },
 };
-export const BREAKDOWN_COPY = {
-  heading: "Full breakdown",
-  tableLabel: "Results by strategy",
-  noGain: "—",
-};
 export const ASSUMPTIONS_HEADING = "Model and assumptions";
+export const ASSUMPTIONS_ID = "assumptions";
 export const STRATEGIES_HEADING = "All three rules";
+export const GAIN_LABELS = { price: "Price gain", fourcp: "4CP gain" };
+export const DATA_QUALITY_LABEL = "Intervals priced";
 export const BEST_BADGE = "Best";
 export const BASELINE_DELTA = "Baseline";
 export const KPI_LABELS = {
@@ -127,10 +118,9 @@ export const HASHPRICE_UNIT = "/PH/day";
 export const THOUSANDS_SEPARATOR = ",";
 
 export const CHART_HEIGHT_PX = 360;
-export const CHART_GROUP = "backtest";
 export const SMALL_CHART_HEIGHT_PX = 120;
 export const CHART_GRID_PX = { left: 56, right: 24, top: 40, bottom: 56 };
-export const CHART_LANE_HEIGHT_PX = 10;
+export const OFF_BAND_MIN_PX = 2;
 export const CHART_COPY = {
   heading: "Power price vs. mining breakeven",
   subtitleTail:
@@ -140,19 +130,22 @@ export const CHART_COPY = {
   peakMarker: "4CP",
   rangeLabel: "Time range",
   season: "Season",
-  lanesTitle: "When each rule was switched off",
-  hoursUnit: "h",
+  offLegend: "Miners off",
+  offPicker: "Strategy",
+  off: "off",
+  running: "running",
   chartLabel: "Power price and breakeven over time, with the 4CP peaks marked",
 };
 export const DISPLAY_TIME_ZONE = "America/Chicago";
 export const DISPLAY_TIME_ZONE_LABEL = "CT";
 export const THRESHOLD_LABEL = "Peak guard trigger";
-export const THRESHOLD_HELP =
-  "Switch off when ERCOT demand reaches this share of the month's peak so far.";
+export const THRESHOLD_HELP = (percent: string) =>
+  `Switch off when ERCOT demand reaches ${percent} of the month's peak so far.`;
 export const THRESHOLD_END_LABELS = {
-  min: "off more often",
+  min: "off more",
   max: "off less",
 };
+export const LOADING_TEXT = "Running the backtest…";
 export const UPDATING_TEXT = "Updating…";
 export const STALE_OPACITY = 0.5;
 
@@ -162,9 +155,6 @@ export const CHART_SERIES_NAMES = {
 };
 
 export const TOOLTIPS = {
-  transmission:
-    "Next year’s charge, set by power used during this summer’s four 4CP peak intervals.",
-  hoursOff: "Total time the fleet was switched off.",
   priceGain:
     "Saved by avoiding expensive power, minus mining revenue given up, compared with always on.",
   fourcpGain: "Transmission charges avoided compared with always on.",
@@ -172,6 +162,10 @@ export const TOOLTIPS = {
     "What 1 PH/s of hashrate earns in a day, in USD, after the pool fee.",
   difficulty:
     "How hard it is to find a block. It adjusts every 2,016 blocks, about every two weeks, to keep blocks near 10 minutes apart.",
+  blockReward:
+    "The new bitcoin each block creates (the subsidy) plus the transaction fees paid to its miner.",
+  efficiency: (value: string) =>
+    `Energy the fleet uses per terahash in this run: ${value} J/TH. Lower is better.`,
   breakeven:
     "The power price where mining just pays for itself, using yesterday’s bitcoin price and rewards.",
 };
