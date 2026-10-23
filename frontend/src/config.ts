@@ -35,8 +35,6 @@ export const BACKTEST_PATH = "/api/backtest";
 export const THRESHOLD_PARAM = "peak_guard_threshold";
 
 export const ANSWER_LABEL = "Which rule made the most money this summer?";
-export const FLEET_LABEL = (fleetMw: string, efficiency: string) =>
-  `${fleetMw} MW fleet at ${efficiency} J/TH`;
 export const STRATEGY_DESCRIPTIONS = {
   always_on:
     "Never switches off. The baseline every other rule is measured against.",
