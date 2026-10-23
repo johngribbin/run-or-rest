@@ -13,6 +13,7 @@ import { useState } from "react";
 import { type Backtest, fetchBacktest } from "./api/backtest.ts";
 import { REFETCH_DEBOUNCE_MS, STALE_OPACITY, UPDATING_TEXT } from "./config.ts";
 import { AssumptionsSection } from "./sections/AssumptionsSection.tsx";
+import { BitcoinInputs } from "./sections/BitcoinInputs.tsx";
 import { ChartSection } from "./sections/ChartSection.tsx";
 import { Footer } from "./sections/Footer.tsx";
 import { FourCpExplainer } from "./sections/FourCpExplainer.tsx";
@@ -55,6 +56,7 @@ function Results({
         <StrategyCards backtest={backtest} />
         <FourCpExplainer backtest={backtest} />
         <ChartSection backtest={backtest} />
+        <BitcoinInputs backtest={backtest} />
         <ResultsTable backtest={backtest} />
         <AssumptionsSection backtest={backtest} />
       </Stack>

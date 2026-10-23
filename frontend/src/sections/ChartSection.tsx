@@ -8,7 +8,7 @@ import {
 } from "@mantine/core";
 import { useMemo, useState } from "react";
 import type { Backtest } from "../api/backtest.ts";
-import { BacktestChart } from "../chart/BacktestChart.tsx";
+import { EChart } from "../chart/EChart.tsx";
 import {
   FULL_ZOOM,
   type ZoomWindow,
@@ -18,7 +18,12 @@ import {
   zoomFor,
 } from "../chart/option.ts";
 import { centralMonths } from "../chart/time.ts";
-import { CHART_COPY, COLOR_TOKENS, DEFAULT_COLOR_SCHEME } from "../config.ts";
+import {
+  CHART_COPY,
+  CHART_HEIGHT_PX,
+  COLOR_TOKENS,
+  DEFAULT_COLOR_SCHEME,
+} from "../config.ts";
 import { ChartLegend } from "./ChartLegend.tsx";
 import { OffLanes } from "./OffLanes.tsx";
 import { Panel } from "./ui.tsx";
@@ -69,7 +74,13 @@ export function ChartSection({ backtest }: { backtest: Backtest }) {
           />
         </Group>
         <ChartLegend />
-        <BacktestChart option={option} zoom={requested} onZoom={setShown} />
+        <EChart
+          option={option}
+          label={CHART_COPY.chartLabel}
+          height={CHART_HEIGHT_PX}
+          zoom={requested}
+          onZoom={setShown}
+        />
         <OffLanes backtest={backtest} visible={visibleExtent(extent, shown)} />
       </Stack>
     </Panel>

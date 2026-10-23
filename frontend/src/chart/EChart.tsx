@@ -6,19 +6,16 @@ import {
   TooltipComponent,
 } from "echarts/components";
 import {
+  type EChartsCoreOption,
   type EChartsType,
+  connect,
   init,
   use as registerChartModules,
 } from "echarts/core";
 import { SVGRenderer } from "echarts/renderers";
 import { useEffect, useRef } from "react";
-import { CHART_COPY, CHART_HEIGHT_PX } from "../config.ts";
-import {
-  type ChartOption,
-  FULL_ZOOM,
-  type ZoomWindow,
-  zoomFromEvent,
-} from "./option.ts";
+import { CHART_GROUP } from "../config.ts";
+import { FULL_ZOOM, type ZoomWindow, zoomFromEvent } from "./option.ts";
 
 registerChartModules([
   LineChart,
@@ -28,15 +25,24 @@ registerChartModules([
   MarkLineComponent,
   SVGRenderer,
 ]);
+connect(CHART_GROUP);
 
-export function BacktestChart({
+function ignoreZoom(): undefined {
+  return undefined;
+}
+
+export function EChart({
   option,
+  label,
+  height,
   zoom,
-  onZoom,
+  onZoom = ignoreZoom,
 }: {
-  option: ChartOption;
-  zoom: ZoomWindow;
-  onZoom: (zoom: ZoomWindow) => void;
+  option: EChartsCoreOption;
+  label: string;
+  height: number;
+  zoom?: ZoomWindow;
+  onZoom?: (zoom: ZoomWindow) => void;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const chart = useRef<EChartsType | null>(null);
@@ -53,6 +59,7 @@ export function BacktestChart({
       return undefined;
     }
     const instance = init(element, undefined, { renderer: "svg" });
+    instance.group = CHART_GROUP;
     chart.current = instance;
     instance.on("datazoom", (event: unknown) => {
       const next = zoomFromEvent(event);
@@ -82,15 +89,17 @@ export function BacktestChart({
   }, [option]);
 
   useEffect(() => {
-    chart.current?.dispatchAction({ type: "dataZoom", ...zoom });
+    if (zoom !== undefined) {
+      chart.current?.dispatchAction({ type: "dataZoom", ...zoom });
+    }
   }, [zoom]);
 
   return (
     <div
       ref={container}
       role="img"
-      aria-label={CHART_COPY.chartLabel}
-      style={{ height: CHART_HEIGHT_PX, width: "100%" }}
+      aria-label={label}
+      style={{ height, width: "100%" }}
     />
   );
 }

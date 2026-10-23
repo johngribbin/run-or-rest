@@ -121,3 +121,13 @@ export function centralMonths(startUtc: string, endUtc: string): ChartSpan[] {
   }
   return spans;
 }
+
+const utcDay = new Intl.DateTimeFormat("en-US", {
+  timeZone: "UTC",
+  month: "short",
+  day: "numeric",
+});
+
+export function formatUtcDay(dateUtc: string): string {
+  return utcDay.format(new Date(`${dateUtc}T00:00:00Z`));
+}
