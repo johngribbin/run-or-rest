@@ -30,7 +30,7 @@ import {
 } from "../format.ts";
 import { formatCentralYear } from "../chart/time.ts";
 import { Term } from "./Term.tsx";
-import { Eyebrow } from "./ui.tsx";
+import { Eyebrow, Panel } from "./ui.tsx";
 
 function Delta({ strategy }: { strategy: Strategy }) {
   if (strategy.id === BASELINE_STRATEGY_ID) {
@@ -80,7 +80,7 @@ function StrategyCard({
       aria-label={strategy.label}
       withBorder
       p="lg"
-      bg="var(--ror-surface)"
+      bg="var(--ror-surface-raised)"
       style={{ borderColor: best ? "var(--ror-accent)" : "var(--ror-line)" }}
     >
       <Stack gap="md" h="100%">
@@ -135,24 +135,25 @@ function StrategyCard({
 }
 
 export function StrategyCards({ backtest }: { backtest: Backtest }) {
+  const heading = STRATEGIES_HEADING(
+    backtest.assumptions.fleet_mw,
+    formatCentralYear(backtest.period.start_utc),
+  );
   return (
-    <Stack component="section" gap="md" aria-labelledby="strategies-heading">
-      <Title order={2} id="strategies-heading">
-        {STRATEGIES_HEADING(
-          backtest.assumptions.fleet_mw,
-          formatCentralYear(backtest.period.start_utc),
-        )}
-      </Title>
-      <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
-        {backtest.strategies.map((strategy) => (
-          <StrategyCard
-            key={strategy.id}
-            strategy={strategy}
-            best={strategy.id === backtest.winner.id}
-            peaks={backtest.fourcp.peaks.length}
-          />
-        ))}
-      </SimpleGrid>
-    </Stack>
+    <Panel label={heading}>
+      <Stack gap="lg">
+        <Title order={2}>{heading}</Title>
+        <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
+          {backtest.strategies.map((strategy) => (
+            <StrategyCard
+              key={strategy.id}
+              strategy={strategy}
+              best={strategy.id === backtest.winner.id}
+              peaks={backtest.fourcp.peaks.length}
+            />
+          ))}
+        </SimpleGrid>
+      </Stack>
+    </Panel>
   );
 }
