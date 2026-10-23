@@ -1,6 +1,11 @@
 import { Box, Group, Text } from "@mantine/core";
 import type { ReactNode } from "react";
-import { CHART_COPY, CHART_SERIES_NAMES, TOOLTIPS } from "../config.ts";
+import {
+  CHART_COPY,
+  CHART_SERIES_NAMES,
+  OFF_MARK_HEIGHT_PX,
+  TOOLTIPS,
+} from "../config.ts";
 import { Term } from "./Term.tsx";
 
 function Entry({
@@ -44,7 +49,18 @@ export function ChartLegend() {
       <Entry swatch={<LineSwatch color="var(--ror-text)" dashed />}>
         <Term tooltip={TOOLTIPS.breakeven}>{CHART_SERIES_NAMES.breakeven}</Term>
       </Entry>
-      <Entry swatch={<Box w={16} h={12} bg="var(--ror-off-band)" />}>
+      <Entry
+        swatch={
+          <Box
+            w={16}
+            h={12}
+            bg="var(--ror-off-band)"
+            style={{
+              borderBottom: `${String(OFF_MARK_HEIGHT_PX)}px solid var(--ror-text-muted)`,
+            }}
+          />
+        }
+      >
         {CHART_COPY.offLegend}
       </Entry>
       <Entry swatch={<Box w={2} h={12} bg="var(--ror-bad)" />}>

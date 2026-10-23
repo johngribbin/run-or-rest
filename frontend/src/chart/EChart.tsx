@@ -12,6 +12,7 @@ import {
   init,
   use as registerChartModules,
 } from "echarts/core";
+import { LabelLayout } from "echarts/features";
 import { SVGRenderer } from "echarts/renderers";
 import { useEffect, useRef } from "react";
 import { FULL_ZOOM, type ZoomWindow, zoomFromEvent } from "./option.ts";
@@ -25,6 +26,7 @@ registerChartModules([
   DataZoomComponent,
   MarkAreaComponent,
   MarkLineComponent,
+  LabelLayout,
   SVGRenderer,
 ]);
 

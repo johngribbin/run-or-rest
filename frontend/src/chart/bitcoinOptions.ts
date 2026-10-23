@@ -151,9 +151,17 @@ function adjustmentPoint(adjustment: Adjustment): LinePoint {
             show: true,
             position: "top",
             color: ratio.startsWith("-") ? COLORS.bad : COLORS.good,
+            textBorderColor: COLORS.surface,
+            textBorderWidth: 3,
             formatter: formatSignedRatioPercent(ratio),
           },
   };
+}
+
+export function adjustmentTooltip(adjustment: Adjustment): string {
+  const ratio = adjustment.change_ratio;
+  const change = ratio === null ? "" : ` (${formatSignedRatioPercent(ratio)})`;
+  return `${formatDifficulty(adjustment.difficulty)}${change}<br/>since ${formatCentralTime(adjustment.start_utc)}`;
 }
 
 export function difficultyOption(backtest: Backtest): ChartOption {
@@ -177,6 +185,7 @@ export function difficultyOption(backtest: Backtest): ChartOption {
       step: "end",
       showSymbol: true,
       symbolSize: 5,
+      labelLayout: { hideOverlap: true },
       lineStyle: { width: 2, color: COLORS.text },
       itemStyle: { color: COLORS.text },
       data: [
@@ -189,9 +198,7 @@ export function difficultyOption(backtest: Backtest): ChartOption {
       const time = firstField(params, "axisValue");
       const adjustment =
         time === null ? undefined : adjustmentAt(adjustments, time);
-      return adjustment === undefined
-        ? ""
-        : `${formatDifficulty(adjustment.difficulty)}<br/>since ${formatCentralTime(adjustment.start_utc)}`;
+      return adjustment === undefined ? "" : adjustmentTooltip(adjustment);
     },
   );
 }

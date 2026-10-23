@@ -11,6 +11,7 @@ import {
   chartOption,
   intervalMs,
   offBands,
+  offMarkRect,
   priceTick,
   tooltipText,
   zoomFor,
@@ -149,6 +150,14 @@ describe("chartOption", () => {
     expect(price?.markLine?.data).toEqual([
       { name: "4CP · Jun 1", xAxis: Date.UTC(2026, 5, 1, 0, 15) },
     ]);
+    expect(price?.markLine?.label).toMatchObject({ formatter: "{b}" });
+  });
+
+  it("drops the date from 4CP labels on a narrow screen", () => {
+    const compact = chartOption(sampleBacktest, strike, true);
+    const price = Array.isArray(compact.series) ? compact.series[0] : undefined;
+
+    expect(price?.markLine?.label).toMatchObject({ formatter: "4CP" });
   });
 
   it("draws axes in the muted ink and line colours", () => {
@@ -227,5 +236,25 @@ describe("bandRect", () => {
       height: 264,
     });
     expect(bandRect(1100, 1120, plot)).toBeNull();
+  });
+});
+
+describe("offMarkRect", () => {
+  it("sits as a 4 px strip along the bottom of an off band", () => {
+    expect(offMarkRect({ x: 300, y: 40, width: 40, height: 264 })).toEqual({
+      x: 300,
+      y: 300,
+      width: 40,
+      height: 4,
+    });
+  });
+
+  it("never grows taller than its band", () => {
+    expect(offMarkRect({ x: 300, y: 40, width: 40, height: 3 })).toEqual({
+      x: 300,
+      y: 40,
+      width: 40,
+      height: 3,
+    });
   });
 });
