@@ -5,7 +5,6 @@ import sys
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from datetime import date, timedelta
-from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from urllib.parse import urlencode, urlsplit
 
@@ -15,6 +14,7 @@ from run_or_rest.config import (
     DAILY_FIRST_DATE_UTC,
     DAILY_LAST_DATE_UTC,
 )
+from run_or_rest.data import fields
 
 MIDNIGHT_SUFFIX = "T00:00:00.000000000Z"
 PAGE_SIZE = 1000
@@ -86,11 +86,9 @@ def _parse_day(time: str) -> date:
 
 def _check_price(text: str, day: date) -> str:
     try:
-        value = Decimal(text)
-    except InvalidOperation:
-        sys.exit(f"Coin Metrics {day}: PriceUSD {text!r} is not a decimal")
-    if not value.is_finite() or value <= 0:
-        sys.exit(f"Coin Metrics {day}: PriceUSD {text!r} is not a positive price")
+        fields.positive_decimal(text)
+    except ValueError as error:
+        sys.exit(f"Coin Metrics {day}: PriceUSD {error}")
     return text
 
 

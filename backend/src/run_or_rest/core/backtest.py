@@ -189,11 +189,14 @@ def _result(totals: _Totals, baseline: _Totals) -> StrategyResult:
 
 
 def _winner(results: Sequence[StrategyResult]) -> StrategyResult:
-    winner = results[0]
-    for result in results[1:]:
-        if result.net_profit_usd > winner.net_profit_usd:
-            winner = result
-    return winner
+    tie_break_order = list(StrategyId)
+    return max(
+        results,
+        key=lambda result: (
+            result.net_profit_usd,
+            -tie_break_order.index(result.id),
+        ),
+    )
 
 
 def run_backtest(

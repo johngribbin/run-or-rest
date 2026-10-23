@@ -2,10 +2,17 @@ from collections.abc import Sequence
 from dataclasses import replace
 from decimal import Decimal
 
-from run_or_rest.core.backtest import BacktestResult, StrategyResult
+from run_or_rest.core.backtest import BacktestResult
 from run_or_rest.core.models import Decision, HistoryInterval, StrategyId
 from run_or_rest.core.peaks import transmission_usd
-from tests.core.builders import ASSUMPTIONS, chicago, history, run, window
+from tests.core.builders import (
+    ASSUMPTIONS,
+    chicago,
+    history,
+    run,
+    strategy,
+    window,
+)
 
 JUNE_1 = chicago(2026, 6, 1)
 MAY_31_LAST = chicago(2026, 5, 31, 23, 45)
@@ -18,10 +25,6 @@ def quiet_history() -> list[HistoryInterval]:
 
 def worked_day_prices() -> list[int]:
     return [40] * 40 + [500] * 16 + [40] * 40
-
-
-def strategy(result: BacktestResult, strategy_id: StrategyId) -> StrategyResult:
-    return next(item for item in result.strategies if item.id is strategy_id)
 
 
 def off_indices(result: BacktestResult, strategy_id: StrategyId) -> list[int]:

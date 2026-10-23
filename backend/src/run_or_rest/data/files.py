@@ -12,7 +12,8 @@ from run_or_rest.core.models import DailyChain, Sats
 from run_or_rest.data import fields
 
 START_COLUMN = "interval_start_utc"
-HEADER_ROWS = 1
+CSV_FIRST_ROW = 2
+PARQUET_FIRST_ROW = 1
 
 
 class DataError(ValueError):
@@ -39,13 +40,18 @@ def _rows(path: Path, frame: pl.DataFrame, columns: Sequence[str]) -> list[Row]:
     return list(frame.iter_rows(named=True))
 
 
-def _parsed[T](path: Path, rows: Sequence[Row], parse: Callable[[Row], T]) -> list[T]:
+def _parsed[T](
+    path: Path,
+    rows: Sequence[Row],
+    parse: Callable[[Row], T],
+    first_row: int = CSV_FIRST_ROW,
+) -> list[T]:
     parsed: list[T] = []
     for index, row in enumerate(rows):
         try:
             parsed.append(parse(row))
         except (TypeError, ValueError) as error:
-            msg = f"{path.name} row {index + HEADER_ROWS + 1}: {error}"
+            msg = f"{path.name} row {first_row + index}: {error}"
             raise DataError(msg) from error
     return parsed
 
@@ -126,4 +132,4 @@ def read_interval_values(path: Path, column: str) -> dict[datetime, Decimal | No
         start = _interval_start(row[START_COLUMN])
         return start, fields.optional_two_place_decimal(row[column])
 
-    return _unique_by_key(path, _parsed(path, rows, parse))
+    return _unique_by_key(path, _parsed(path, rows, parse, PARQUET_FIRST_ROW))

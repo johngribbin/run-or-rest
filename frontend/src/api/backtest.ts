@@ -243,14 +243,22 @@ export function backtestUrl(threshold: string | null): string {
   return `${BACKTEST_PATH}?${new URLSearchParams({ [THRESHOLD_PARAM]: threshold }).toString()}`;
 }
 
+function errorBody(response: Response): Promise<unknown> {
+  const type = response.headers.get("Content-Type") ?? "";
+  return type.includes("application/json")
+    ? response.json()
+    : Promise.resolve(null);
+}
+
 export async function fetchBacktest(
   threshold: string | null,
   signal?: AbortSignal,
 ): Promise<Backtest> {
   const response = await fetch(backtestUrl(threshold), { signal });
-  const body: unknown = await response.json();
   if (!response.ok) {
-    throw new BacktestRequestError(errorDetail(body, response.status));
+    const detail = errorDetail(await errorBody(response), response.status);
+    throw new BacktestRequestError(detail);
   }
+  const body: unknown = await response.json();
   return parseBacktest(body);
 }
