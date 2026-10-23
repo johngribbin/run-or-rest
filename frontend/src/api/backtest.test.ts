@@ -52,6 +52,26 @@ describe("parseBacktest", () => {
     );
   });
 
+  it("rejects a response that leaves out a strategy", () => {
+    const body = {
+      ...sampleBacktest,
+      strategies: sampleBacktest.strategies.slice(0, 2),
+    };
+
+    expect(() => parseBacktest(body)).toThrow(
+      "body.strategies are always_on, strike_price, not always_on, strike_price, strike_peak_guard",
+    );
+  });
+
+  it("rejects strategies out of order", () => {
+    const [alwaysOn, strike, guard] = sampleBacktest.strategies;
+    const body = { ...sampleBacktest, strategies: [strike, alwaysOn, guard] };
+
+    expect(() => parseBacktest(body)).toThrow(
+      "body.strategies are strike_price, always_on, strike_peak_guard, not always_on, strike_price, strike_peak_guard",
+    );
+  });
+
   it("rejects a missing section", () => {
     expect(() => parseBacktest({ ...sampleBacktest, series: null })).toThrow(
       "body.series is not a list",

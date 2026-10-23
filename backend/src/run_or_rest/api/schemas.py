@@ -75,9 +75,11 @@ class FourCpPeak(_Model):
 
 
 class Decisions(_Model):
-    always_on: Decision = Field(description="Always on's decision")
-    strike_price: Decision = Field(description="Strike price's decision")
-    strike_peak_guard: Decision = Field(description="Strike + peak guard's decision")
+    always_on: Decision = Field(description="The always_on strategy's decision")
+    strike_price: Decision = Field(description="The strike_price strategy's decision")
+    strike_peak_guard: Decision = Field(
+        description="The strike_peak_guard strategy's decision",
+    )
 
 
 class SeriesPoint(_Model):

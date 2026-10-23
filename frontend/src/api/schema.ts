@@ -109,11 +109,11 @@ export interface components {
         Decision: "run" | "off";
         /** Decisions */
         Decisions: {
-            /** @description Always on's decision */
+            /** @description The always_on strategy's decision */
             always_on: components["schemas"]["Decision"];
-            /** @description Strike + peak guard's decision */
+            /** @description The strike_peak_guard strategy's decision */
             strike_peak_guard: components["schemas"]["Decision"];
-            /** @description Strike price's decision */
+            /** @description The strike_price strategy's decision */
             strike_price: components["schemas"]["Decision"];
         };
         /** ErrorResponse */
