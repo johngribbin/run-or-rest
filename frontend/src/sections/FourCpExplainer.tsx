@@ -34,7 +34,7 @@ export function FourCpIntro({ backtest }: { backtest: Backtest }) {
   const { peaks, charge_per_peak_usd: perPeak } = backtest.fourcp;
   return (
     <Panel label={FOURCP_EXPLAINER.heading}>
-      <Stack gap="sm" maw={720}>
+      <Stack gap="sm">
         <Eyebrow>{FOURCP_EXPLAINER.label}</Eyebrow>
         <Title order={2}>{FOURCP_EXPLAINER.heading}</Title>
         <Text c="var(--ror-text-secondary)">{FOURCP_EXPLAINER.intro}</Text>
