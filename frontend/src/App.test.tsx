@@ -108,7 +108,7 @@ describe("App", () => {
       screen.getByRole("row", { name: "Pool fee rate 2%" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("row", { name: "Peak guard threshold 95%" }),
+      screen.getByRole("row", { name: "Peak guard trigger 95%" }),
     ).toBeInTheDocument();
     expect(
       screen.getByText("Jun 1, 2026, 00:00 CT to Jun 1, 2026, 01:00 CT"),
@@ -215,11 +215,30 @@ describe("App", () => {
 
     expect(
       await screen.findByRole("status", {}, { timeout: 2000 }),
-    ).toHaveTextContent("Updating for the new threshold…");
+    ).toHaveTextContent("Updating…");
     expect(
       screen
         .getByRole("table", { name: "Results by strategy" })
         .closest("[aria-busy='true']"),
     ).not.toBeNull();
+  });
+});
+
+describe("Peak guard trigger", () => {
+  it("explains the control and labels both ends of its range", async () => {
+    respondWith(200, sampleBacktest);
+
+    renderApp();
+    const control = await screen.findByRole("region", {
+      name: "Peak guard trigger",
+    });
+
+    expect(within(control).getByRole("slider")).toHaveAccessibleDescription(
+      "Switch off when ERCOT demand reaches this share of the month's peak so far.",
+    );
+    expect(
+      within(control).getByText("80% · off more often"),
+    ).toBeInTheDocument();
+    expect(within(control).getByText("100% · off less")).toBeInTheDocument();
   });
 });

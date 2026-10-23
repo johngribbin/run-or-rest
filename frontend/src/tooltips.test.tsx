@@ -67,19 +67,6 @@ describe("tooltips", () => {
     expect(seen).toEqual(TABLE_TERMS);
   });
 
-  it("explain the peak guard threshold", async () => {
-    respondWith(200, sampleBacktest);
-    renderApp();
-
-    const label = await screen.findByText("Peak guard threshold", {
-      selector: "#threshold-label span",
-    });
-
-    expect(await tooltipFor(label)).toBe(
-      "Switch off when grid demand reaches this share of the month’s highest demand so far (or last month’s, if higher), to dodge the 4CP peaks.",
-    );
-  });
-
   it("explain the breakeven estimate in the chart legend", async () => {
     respondWith(200, sampleBacktest);
     renderApp();
