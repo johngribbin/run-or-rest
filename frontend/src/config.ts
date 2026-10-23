@@ -82,8 +82,7 @@ export const BITCOIN_COPY = {
   feesCaption: "Transaction fees as a share of subsidy plus fees",
   charts: {
     btcPrice: "BTC price, USD · Coin Metrics",
-    difficulty:
-      "Network difficulty, T · own Bitcoin Core node · change at each adjustment",
+    difficulty: "Network difficulty, T · change at each adjustment",
     hashprice: "Hashprice, USD per PH/s per day",
   },
 };

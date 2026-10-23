@@ -110,7 +110,7 @@ describe("BitcoinInputs", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByRole("img", {
-        name: "Network difficulty, T · own Bitcoin Core node · change at each adjustment",
+        name: "Network difficulty, T · change at each adjustment",
       }),
     ).toBeInTheDocument();
     expect(
