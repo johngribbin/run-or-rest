@@ -142,7 +142,7 @@ export const DISPLAY_TIME_ZONE_LABEL = "CT";
 export const THRESHOLD_LABEL = "Peak guard trigger";
 export const THRESHOLD_SCOPE = (rule: string) => `Tunes ${rule} only.`;
 export const THRESHOLD_HELP = (percent: string) =>
-  `Switch off when ERCOT demand reaches ${percent} of the month's peak so far.`;
+  `Switch miners off when ERCOT demand reaches ${percent} of the month's peak so far.`;
 export const THRESHOLD_END_LABELS = {
   min: "off more",
   max: "off less",

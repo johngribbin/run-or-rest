@@ -29,8 +29,8 @@ export function ThresholdControl({
   const places = decimals(control.step);
   return (
     <Panel label={THRESHOLD_LABEL}>
-      <Group gap="xl" align="center" wrap="wrap">
-        <Stack gap={2} style={{ flex: "1 1 240px" }}>
+      <Stack gap="md">
+        <Stack gap={2}>
           <Title order={3} component="h2" id="threshold-label">
             {THRESHOLD_LABEL}
           </Title>
@@ -38,12 +38,7 @@ export function ThresholdControl({
             {THRESHOLD_HELP(formatPercent(value))} {THRESHOLD_SCOPE(rule)}
           </Text>
         </Stack>
-        <Group
-          gap="lg"
-          align="center"
-          wrap="nowrap"
-          style={{ flex: "2 1 320px" }}
-        >
+        <Group gap="lg" align="center" wrap="nowrap">
           <Stack gap={6} style={{ flex: 1 }}>
             <Slider
               color="var(--ror-accent)"
@@ -83,7 +78,7 @@ export function ThresholdControl({
             {formatPercent(value)}
           </Text>
         </Group>
-      </Group>
+      </Stack>
     </Panel>
   );
 }
