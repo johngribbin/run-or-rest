@@ -67,73 +67,24 @@ describe("App", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("shows formatted totals and highlights the winner", async () => {
-    respondWith(200, sampleBacktest);
-
-    renderApp();
-
-    const table = await screen.findByRole("table", {
-      name: "Results by strategy",
-    });
-    const winnerRow = within(table)
-      .getAllByRole("row")
-      .find((row) => row.getAttribute("aria-current") === "true");
-    expect(
-      within(winnerRow ?? table)
-        .getAllByRole("cell")
-        .map((cell) => cell.textContent),
-    ).toEqual([
-      "Strike + peak guardBest",
-      "$150,000.00",
-      "$88,765.44",
-      "$0.00",
-      "$61,234.56",
-      "−$48,765.44",
-      "$50,000.00",
-      "2.2500",
-      "421.50",
-    ]);
-  });
-
-  it("shows a dash for always on's gains over itself", async () => {
-    respondWith(200, sampleBacktest);
-
-    renderApp();
-    const table = await screen.findByRole("table", {
-      name: "Results by strategy",
-    });
-    const baseline = within(table).getByRole("row", { name: /^Always on/ });
-
-    expect(
-      within(baseline)
-        .getAllByRole("cell")
-        .map((cell) => cell.textContent),
-    ).toEqual([
-      "Always on",
-      "$200,000.00",
-      "$90,000.00",
-      "$50,000.00",
-      "$60,000.00",
-      "—",
-      "—",
-      "3.0000",
-      "0.00",
-    ]);
-  });
-
-  it("says how many intervals were skipped for missing data", async () => {
+  it("says how many intervals were skipped, under the assumptions", async () => {
     respondWith(200, {
       ...sampleBacktest,
       data_quality: { expected_intervals: 11712, missing_intervals: 5 },
     });
+    const user = userEvent.setup();
 
     renderApp();
-
-    expect(await screen.findByText(/intervals priced/)).toHaveTextContent(
-      "11,707 of 11,712 intervals priced · 5 skipped for missing data",
+    await user.click(
+      await screen.findByRole("button", { name: "Model and assumptions" }),
     );
-  });
 
+    expect(
+      screen.getByRole("row", {
+        name: "Intervals priced 11,707 of 11,712 (5 skipped for missing data)",
+      }),
+    ).toBeInTheDocument();
+  });
   it("keeps the assumptions collapsed until asked", async () => {
     respondWith(200, sampleBacktest);
 
@@ -315,7 +266,7 @@ describe("App", () => {
     ).toHaveTextContent("Updating…");
     expect(
       screen
-        .getByRole("table", { name: "Results by strategy" })
+        .getByRole("article", { name: "Strike price" })
         .closest("[aria-busy='true']"),
     ).not.toBeNull();
   });
@@ -337,7 +288,6 @@ describe("Peak guard trigger", () => {
       "All three rules",
       "Power price vs. mining breakeven",
       "What sets the breakeven line",
-      "Full breakdown",
     ]);
   });
 

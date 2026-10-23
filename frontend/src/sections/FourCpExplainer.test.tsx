@@ -25,36 +25,6 @@ describe("FourCpExplainer", () => {
     );
   });
 
-  it("lists each peak's time, demand, price and what each rule was charged, in the breakdown", async () => {
-    respondWith(200, sampleBacktest);
-
-    renderApp();
-    const table = await screen.findByRole("table", { name: "4CP peaks" });
-
-    expect(
-      within(table)
-        .getAllByRole("row")
-        .map((row) =>
-          within(row)
-            .queryAllByRole("cell")
-            .map((cell) => cell.textContent),
-        )
-        .filter((cells) => cells.length > 0),
-    ).toEqual([
-      [
-        "Mon, Jun 1, 00:15 CT",
-        "82,712.7 MW",
-        "$500.00/MWh",
-        "$50,000",
-        "$50,000",
-        "$0",
-      ],
-    ]);
-    expect(table.closest("section")?.getAttribute("aria-label")).toBe(
-      "Full breakdown",
-    );
-  });
-
   it("gives the lowest and highest price across the peaks", async () => {
     const [june] = sampleBacktest.fourcp.peaks;
     if (june === undefined) {

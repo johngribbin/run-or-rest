@@ -62,20 +62,6 @@ export function chartTime(utc: string): number {
   );
 }
 
-const peakMoment = new Intl.DateTimeFormat("en-US", {
-  timeZone: DISPLAY_TIME_ZONE,
-  hourCycle: "h23",
-  weekday: "short",
-  month: "short",
-  day: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-});
-
-export function formatPeakMoment(utc: string): string {
-  return `${peakMoment.format(new Date(utc))} ${DISPLAY_TIME_ZONE_LABEL}`;
-}
-
 const peakDay = new Intl.DateTimeFormat("en-US", {
   timeZone: DISPLAY_TIME_ZONE,
   month: "short",

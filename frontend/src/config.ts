@@ -54,10 +54,7 @@ export const FOURCP_EXPLAINER = {
   chargeTail:
     "Nobody knows the exact peak in advance, so the peak guard powers down whenever demand gets close to the month's high.",
   calloutTitle: "Peaks are not price spikes",
-  peaksHeading: "4CP peaks",
   calloutTail: "A price-only rule cannot see a peak coming.",
-  load: "Grid demand",
-  price: "Power price",
 };
 export const BITCOIN_COPY = {
   heading: "What sets the breakeven line",
@@ -86,13 +83,10 @@ export const BITCOIN_COPY = {
     hashprice: "Hashprice, USD per PH/s per day",
   },
 };
-export const BREAKDOWN_COPY = {
-  heading: "Full breakdown",
-  tableLabel: "Results by strategy",
-  noGain: "—",
-};
 export const ASSUMPTIONS_HEADING = "Model and assumptions";
 export const STRATEGIES_HEADING = "All three rules";
+export const GAIN_LABELS = { price: "Price gain", fourcp: "4CP gain" };
+export const DATA_QUALITY_LABEL = "Intervals priced";
 export const BEST_BADGE = "Best";
 export const BASELINE_DELTA = "Baseline";
 export const KPI_LABELS = {
@@ -163,9 +157,6 @@ export const CHART_SERIES_NAMES = {
 };
 
 export const TOOLTIPS = {
-  transmission:
-    "Next year’s charge, set by power used during this summer’s four 4CP peak intervals.",
-  hoursOff: "Total time the fleet was switched off.",
   priceGain:
     "Saved by avoiding expensive power, minus mining revenue given up, compared with always on.",
   fourcpGain: "Transmission charges avoided compared with always on.",

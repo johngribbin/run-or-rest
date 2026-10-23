@@ -2,14 +2,17 @@ import { Accordion, List, Paper, SimpleGrid, Table } from "@mantine/core";
 import type { Backtest } from "../api/backtest.ts";
 import {
   ASSUMPTIONS_HEADING,
+  DATA_QUALITY_LABEL,
   MODEL_ASSUMPTIONS,
   THRESHOLD_LABEL,
 } from "../config.ts";
 import { formatCentralTime } from "../chart/time.ts";
-import { formatPercent, formatUsd } from "../format.ts";
+import { formatInteger, formatPercent, formatUsd } from "../format.ts";
 
 export function AssumptionsSection({ backtest }: { backtest: Backtest }) {
   const values = backtest.assumptions;
+  const { expected_intervals: expected, missing_intervals: missing } =
+    backtest.data_quality;
   const rows: [string, string][] = [
     ["Fleet size", `${values.fleet_mw} MW`],
     ["Efficiency", `${values.efficiency_j_per_th} J/TH`],
@@ -24,6 +27,10 @@ export function AssumptionsSection({ backtest }: { backtest: Backtest }) {
       `${formatCentralTime(backtest.period.start_utc)} to ${formatCentralTime(backtest.period.end_utc)}`,
     ],
     ["Settlement point", backtest.period.settlement_point],
+    [
+      DATA_QUALITY_LABEL,
+      `${formatInteger(expected - missing)} of ${formatInteger(expected)} (${formatInteger(missing)} skipped for missing data)`,
+    ],
   ];
   return (
     <Paper

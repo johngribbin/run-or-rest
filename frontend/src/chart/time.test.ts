@@ -4,7 +4,6 @@ import {
   chartTime,
   formatCentralTime,
   formatPeakDay,
-  formatPeakMoment,
   formatPeriod,
 } from "./time.ts";
 
@@ -44,14 +43,6 @@ describe("formatPeriod", () => {
   it("names the window's first and last Central days", () => {
     expect(formatPeriod("2026-06-01T05:00:00Z", "2026-10-01T05:00:00Z")).toBe(
       "Jun 1 – Sep 30, 2026",
-    );
-  });
-});
-
-describe("formatPeakMoment", () => {
-  it("writes a peak's weekday, date and Central time", () => {
-    expect(formatPeakMoment("2026-07-22T21:45:00Z")).toBe(
-      "Wed, Jul 22, 16:45 CT",
     );
   });
 });
