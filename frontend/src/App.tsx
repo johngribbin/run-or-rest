@@ -55,8 +55,8 @@ function Results({
   return (
     <Stack gap="lg">
       <Stack gap="lg" style={shown} aria-busy={stale}>
-        <StrategyCards backtest={backtest} />
         <FourCpIntro backtest={backtest} />
+        <StrategyCards backtest={backtest} />
       </Stack>
       <ThresholdControl
         control={control}
