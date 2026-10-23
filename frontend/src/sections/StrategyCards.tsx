@@ -94,6 +94,7 @@ function StrategyCard({
               c="var(--ror-accent)"
               tt="none"
               radius="xl"
+              fz="xs"
             >
               {BEST_BADGE}
             </Badge>

@@ -81,6 +81,21 @@ def test_exponent_below_three_scales_the_mantissa_down() -> None:
     )
 
 
+def test_one_ph_per_second_for_a_day_at_the_example_difficulty_is_1_1024_block() -> (
+    None
+):
+    assert expected_blocks(10**15, 86_400, Decimal(20_599_365_234_375)) == Decimal(
+        "0.0009765625",
+    )
+
+
+def test_1_1024_block_at_320m_sats_less_2_percent_is_306250_sats() -> None:
+    assert (
+        net_sats(Decimal("0.0009765625"), Decimal(320_000_000), Decimal("0.02"))
+        == 306_250
+    )
+
+
 def test_hashprice_of_one_ph_per_second_for_a_day() -> None:
     day = DayEconomics(
         chain=DailyChain(

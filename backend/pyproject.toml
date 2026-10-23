@@ -71,4 +71,4 @@ branch = true
 omit = ["tools/canaries/*"]
 
 [tool.coverage.report]
-exclude_also = ["assert_never\\("]
+exclude_lines = ["assert_never\\("]

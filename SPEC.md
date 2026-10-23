@@ -172,7 +172,7 @@ Each strategy returns `RUN` (full load) or `OFF` (zero load) for every window in
 | `month_to_date_peak_mw` | Highest load in the current Chicago calendar month, up to and including the previous interval; zero for the month's first interval |
 | `peak_guard_threshold` | From the request |
 
-Earlier intervals include the history intervals (section 6.1). If no earlier price or load exists, the backtest fails with a clear error.
+Earlier intervals include the history intervals (section 6.1). If no earlier price or load exists, or the previous Chicago month has no load, the backtest fails with a clear error.
 
 | Id | Label | Returns `OFF` when |
 | --- | --- | --- |
@@ -205,7 +205,7 @@ The strike rule reacts one interval late: interval 40 runs at $500 ($125.00) and
 
 ### 5.1 Peaks
 
-For each Chicago calendar month in the window (June to September for the real window), the 4CP peak is the window interval with the highest ERCOT system load; on a tie, the earliest. A month's 4CP peak is never used for decisions within that month.
+For each Chicago calendar month in the window (June to September for the real window), the 4CP peak is the window interval with the highest ERCOT system load; on a tie, the earliest. A month's 4CP peak is never used for decisions within that month. A window month with no load value at all fails the backtest with a clear error.
 
 ### 5.2 Transmission charge
 
@@ -405,7 +405,7 @@ Response `200`. Every decimal is a string, rounded independently from its unroun
 | `fourcp` | What running at one 4CP peak costs (section 5.2), and the 4CP peak intervals (section 5.1), one per peak month, with the system load, the price and each strategy's decision at each |
 | `bitcoin` | The bitcoin inputs behind the breakeven line: one row per UTC day (section 3.10) and the difficulty adjustments (section 3.11) |
 | `series` | One entry per non-skipped window interval: the actual price, the breakeven estimate the strategies decided on (section 3.7), and each strategy's decision |
-| `data_quality` | Window intervals expected (11,712) and how many were skipped for missing data (section 6.5) |
+| `data_quality` | Window intervals expected and how many were skipped for missing data (section 6.5) |
 
 These meanings are also the Pydantic field descriptions.
 
@@ -415,16 +415,16 @@ Errors: `422` for an out-of-range or off-step parameter; `503` with `{"detail": 
 
 The audience knows bitcoin mining (hashrate, difficulty, hashprice, pools) but not the Texas grid. The page explains the grid side in plain words and shows the bitcoin inputs behind every result.
 
-**Header:** title "Run or Rest", subtitle "ERCOT curtailment backtest for bitcoin miners", and, once results load, a link "Model and assumptions" that opens that section and scrolls it into view. The page has one colour scheme, dark; there is no light scheme or toggle.
+**Header:** title "Run or Rest", subtitle "ERCOT curtailment backtest for bitcoin miners", and, once results load, a link "Model and assumptions ↓" (the arrow hidden from screen readers) that opens that section and scrolls it into view. The page has one colour scheme, dark; there is no light scheme or toggle.
 
 One page, top to bottom:
 
 1. **4CP explainer** (full width): label "New to ERCOT?", heading "4CP: four 15-minute windows that set a year of transmission cost", and the static text: "Each summer month, ERCOT marks the single 15 minutes when Texas used the most power. How much your site draws in those four intervals sets next year's transmission charge." and "Every peak you run through costs this fleet {charge_per_peak_usd}. Nobody knows the exact peak in advance, so the peak guard powers down whenever demand gets close to the month's high." Then a closing paragraph led in bold by "Peaks are not price spikes." that gives the lowest and highest price across the peaks and ends "so a price-only rule cannot see one coming."
-2. **Peak guard trigger:** Mantine slider using `controls.peak_guard_threshold` (min, max, step, default), the current value beside it, the helper text "Switch off when ERCOT demand reaches {value}% of the month's peak so far." with the current value, and end labels "off more" (min) and "off less" (max). A change refetches `/api/backtest` after 300 ms without further input and updates every section; while it loads, the sections dim and a status reads "Updating…".
+2. **Peak guard trigger:** Mantine slider using `controls.peak_guard_threshold` (min, max, step, default), the current value beside it, the helper text "Switch off when ERCOT demand reaches {value}% of the month's peak so far." with the current value, and end labels "{min}% · off more" and "{max}% · off less". A change refetches `/api/backtest` after 300 ms without further input and updates every section; while it loads, the sections dim and a status reads "Updating…".
 3. **Strategy cards:** one card per strategy, in API order: its label, its description (table below) as visible text, net profit, change vs always on ("Baseline" for always on) with the split beneath it ("Price gain +$4,657 · 4CP gain $0"; none for always on), hours off, BTC mined, and 4CP peaks run in. The winner's card has the accent border and a "Best" badge.
 4. **Price chart (ECharts):** heading "Power price vs. mining breakeven", subtitle "LZ_WEST real-time price, $/MWh, Central time. Above the breakeven line, mining loses money." Price as a line, the breakeven estimate as a dashed reference line, each 4CP peak as a marker labelled "4CP · Jun 18". Range buttons "Season" and one per window month, plus zoom. Shaded bands mark the intervals the selected strategy decided `off` (legend "Miners off"); a segmented control (accessible name "Strategy", no visible label) picks between the strategies that can switch off, defaulting to the winner (the first such strategy when always on wins). The hover tooltip gives the interval's time, both prices, and whether the selected strategy was off or running.
-5. **What sets the breakeven line:** a formula strip "BTC price × block reward ÷ difficulty = hashprice ÷ efficiency = breakeven $/MWh"; tiles for BTC price (first and last day), difficulty adjustments (count, after the first entry), hashprice (first and last day) and fees share (first and last day); then three charts that share the price chart's time axis, zoom and hover: BTC price (source "Coin Metrics"), difficulty as a step line with each adjustment's change as a signed percent, and hashprice in USD per PH/s per day. One series per chart; no chart has two y-axes.
-6. **Assumptions:** collapsed by default under "Model and assumptions": the `assumptions` values from the API, a row "Intervals priced" reading "{expected − missing} of {expected} ({missing} skipped for missing data)", and the list in section 3.8 as static text.
+5. **What sets the breakeven line:** the subtitle "The bitcoin side of the model: each day's breakeven comes from the BTC price, the block reward and the difficulty in effect."; a formula strip "BTC price × block reward ÷ difficulty = hashprice ÷ efficiency = breakeven $/MWh"; tiles for BTC price (first and last day), difficulty adjustments (count, after the first entry), hashprice (first and last day) and fees share (first and last day); then three charts that share the price chart's time axis, zoom and hover: BTC price (source "Coin Metrics"), difficulty as a step line with each adjustment's change as a signed percent, and hashprice in USD per PH/s per day. One series per chart; no chart has two y-axes.
+6. **Assumptions:** collapsed by default under "Model and assumptions": the `assumptions` values from the API, the period in Central time and the settlement point (from `period`), a row "Intervals priced" reading "{expected − missing} of {expected} ({missing} skipped for missing data)", and the list in section 3.8 as static text.
 7. **Footer:** "Data provided by Grid Status" linking to https://www.gridstatus.io/; Coin Metrics attribution with licence link.
 
 Strategy descriptions, shown as text on the cards:
@@ -449,9 +449,9 @@ Tooltips: these terms show a Mantine `Tooltip` with exactly this text, marked by
 
 React + TypeScript + Vite, Mantine, TanStack Query, ECharts. Types come from `schema.ts`. States: loading (only a centred spinner, with its status text visually hidden; nothing else on the page), error (shows `detail`), success.
 
-Look: one type scale of five sizes (40, 24, 16, 14 and 12 px), the system font stack with tabular figures, three text colours (primary, secondary, muted), and colour tokens defined once. Gains and losses show a sign as well as a colour. Text meets WCAG AA contrast. The page works at 390 px wide with no horizontal page scroll; the breakdown table scrolls inside its box.
+Look: one small type scale, the system font stack with tabular figures, three text colours (primary, secondary, muted), and colour tokens defined once. Gains and losses show a sign as well as a colour. Text meets WCAG AA contrast. The page works at 390 px wide with no horizontal page scroll.
 
-Formatting: in the breakdown table, USD as `$1,234.56`; elsewhere, USD rounded with ROUND_HALF_EVEN to whole dollars as `$1,235`; negatives as `−$1,234.56`, and gains with an explicit sign (`+$1,235`); hours to one decimal outside the table and two in it; BTC as sats ÷ 100,000,000 to 4 places; sats with thousands separators; prices as `$12.34/MWh`; difficulty in T (÷ 10^12) to one decimal; ratios as percents to one decimal. Formatting only; no rounding of values used in any calculation.
+Formatting: USD rounded with ROUND_HALF_EVEN to whole dollars as `$1,235`, except the assumptions panel, which shows the configured values with cents (`$50,000.00 per MW-year`); negatives with a minus sign (`−$17,261`), and gains with an explicit sign (`+$1,235`); hours to one decimal; BTC as sats ÷ 100,000,000 to 4 places; prices as `$12.34/MWh`; hashprice as a rate with cents (`$31.89`, and `$31.89/PH/day` in chart tooltips); difficulty in T (÷ 10^12) to one decimal; fees share and difficulty changes as percents to one decimal; the peak guard threshold and pool fee as the API sends them, in percent (`95%`, `2%`). Chart axis ticks are labels, rounded to the nearest whole unit (`$80k`, `130 T`). Formatting only; no rounding of values used in any calculation.
 
 ## 10. Defaults
 
@@ -518,7 +518,7 @@ Defined once, in `config.py`. Values are fixed; never tune them to the backtest'
 A broken checker or a loosened config passes bad code silently, so every guardrail has a test, and the tests run in `make verify-ci` on every change:
 
 - **Custom checkers** (comments, docstrings, suppressions, line cap): unit tests with a violating and a clean example for every rule.
-- **Tool-based guardrails** (Ruff rules, complexity, `Any`, `cast`, Pyright strict, TypeScript `any` and assertions, formatting): one canary per guardrail, a fixture with exactly one violation, run through the real tool with the repository's config. The test passes only if the tool fails and names the expected rule.
+- **Tool-based guardrails** (Ruff rules, complexity, `Any`, `cast`, Pyright strict, TypeScript `any` and assertions, formatting): one canary per guardrail, a fixture with exactly one violation (except `ANN401`: annotating with `Any` also trips the `typing.Any` ban, so that canary expects both rules), run through the real tool with the repository's config. The test passes only if the tool fails and names the expected rule.
 - **Coverage and CRAP thresholds:** one canary each, a tiny fixture project with partial test coverage (for CRAP, a function of complexity 6 with half its branches covered, scoring about 10.5), run through the real gate. The test passes only if the gate fails.
 - **Not testable from the repository:** CI running on GitHub and the `main` branch ruleset. The human checks these once.
 
