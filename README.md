@@ -4,6 +4,8 @@ Backtests curtailment rules for a bitcoin mining fleet on ERCOT West (LZ_WEST) r
 
 ![The 4CP explainer and the three strategies, with Strike + peak guard marked best](docs/images/overview.png)
 
+Power price and load data provided by [Grid Status](https://www.gridstatus.io/).
+
 ## Get started
 
 Needs uv 0.13.4, Node 26 and GNU Make.
