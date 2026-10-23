@@ -67,35 +67,6 @@ describe("tooltips", () => {
     expect(seen).toEqual(TABLE_TERMS);
   });
 
-  it("explain the three rules where the question names them", async () => {
-    respondWith(200, sampleBacktest);
-    renderApp();
-    const question = await screen.findByRole("heading", {
-      name: "Which curtailment rule made the most money: always on, strike price, or strike price plus peak guard?",
-    });
-
-    const seen: [string, string | null][] = [];
-    for (const rule of [
-      "always on",
-      "strike price",
-      "strike price plus peak guard",
-    ]) {
-      seen.push([rule, await tooltipFor(within(question).getByText(rule))]);
-    }
-
-    expect(seen).toEqual([
-      ["always on", "Never switches off. The baseline."],
-      [
-        "strike price",
-        "Switches off when the last 15 minutes\u2019 power price was above breakeven.",
-      ],
-      [
-        "strike price plus peak guard",
-        "Strike price, plus switching off when grid demand nears the month\u2019s peak.",
-      ],
-    ]);
-  });
-
   it("explain the peak guard threshold", async () => {
     respondWith(200, sampleBacktest);
     renderApp();

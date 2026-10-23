@@ -1,5 +1,3 @@
-import type { StrategyId } from "./api/backtest.ts";
-
 export const APP_TITLE = "Run or Rest";
 export const APP_SUBTITLE = "ERCOT curtailment backtest for bitcoin miners";
 
@@ -76,17 +74,15 @@ export const REFETCH_DEBOUNCE_MS = 300;
 export const BACKTEST_PATH = "/api/backtest";
 export const THRESHOLD_PARAM = "peak_guard_threshold";
 
-export const QUESTION: readonly (
-  string | { strategy: StrategyId; text: string }
-)[] = [
-  "Which curtailment rule made the most money: ",
-  { strategy: "always_on", text: "always on" },
-  ", ",
-  { strategy: "strike_price", text: "strike price" },
-  ", or ",
-  { strategy: "strike_peak_guard", text: "strike price plus peak guard" },
-  "?",
-];
+export const ANSWER_LABEL = "Which rule made the most money this summer?";
+export const BRIDGE_TITLE = "Where the extra profit came from";
+export const GAIN_LABELS = { price: "Price gain", fourcp: "4CP gain" };
+export const KPI_LABELS = {
+  netProfit: "Net profit",
+  btcMined: "BTC mined",
+  hoursOff: "Hours off",
+  peaksRunIn: "4CP peaks run in",
+};
 
 export const MODEL_ASSUMPTIONS = [
   "The fleet pays the LZ_WEST real-time settlement point price for every interval it runs (index pricing).",
@@ -102,6 +98,10 @@ export const COIN_METRICS_LICENCE_URL =
   "https://creativecommons.org/licenses/by-nc/4.0/";
 
 export const MINUS_SIGN = "−";
+export const PLUS_SIGN = "+";
+export const SATS_DECIMAL_PLACES = 8;
+export const BTC_DISPLAY_PLACES = 4;
+export const HOURS_SUMMARY_PLACES = 1;
 export const THOUSANDS_SEPARATOR = ",";
 
 export const CHART_HEIGHT_PX = 420;

@@ -12,11 +12,11 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { type Backtest, fetchBacktest } from "./api/backtest.ts";
 import { REFETCH_DEBOUNCE_MS, STALE_OPACITY, UPDATING_TEXT } from "./config.ts";
-import { Answer } from "./sections/Answer.tsx";
 import { AssumptionsSection } from "./sections/AssumptionsSection.tsx";
 import { ChartSection } from "./sections/ChartSection.tsx";
 import { Footer } from "./sections/Footer.tsx";
 import { Header } from "./sections/Header.tsx";
+import { Hero } from "./sections/Hero.tsx";
 import { ResultsTable } from "./sections/ResultsTable.tsx";
 import { ThresholdControl } from "./sections/ThresholdControl.tsx";
 
@@ -36,7 +36,7 @@ function Results({
   return (
     <Stack gap="xl">
       <Stack gap="xl" style={shown} aria-busy={stale}>
-        <Answer backtest={backtest} />
+        <Hero backtest={backtest} />
       </Stack>
       <ThresholdControl
         control={control}

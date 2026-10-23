@@ -65,32 +65,6 @@ describe("App", () => {
     ).toBeInTheDocument();
   });
 
-  it("answers the question with the winner and its advantage", async () => {
-    respondWith(200, sampleBacktest);
-
-    renderApp();
-
-    expect(await screen.findByText(/more than always on\./)).toHaveTextContent(
-      "Strike + peak guard made the most money: $1,234.56 more than always on.",
-    );
-  });
-
-  it("names the baseline with the API's label", async () => {
-    const [alwaysOn, ...rest] = sampleBacktest.strategies;
-    respondWith(200, {
-      ...sampleBacktest,
-      strategies: [{ ...alwaysOn, label: "Run nonstop" }, ...rest],
-    });
-
-    renderApp();
-
-    expect(
-      await screen.findByText(/more than run nonstop\./),
-    ).toHaveTextContent(
-      "Strike + peak guard made the most money: $1,234.56 more than run nonstop.",
-    );
-  });
-
   it("shows formatted totals and highlights the winner", async () => {
     respondWith(200, sampleBacktest);
 
@@ -183,21 +157,6 @@ describe("App", () => {
         expect.anything(),
       );
     });
-  });
-
-  it("says when always on beat both curtailment rules", async () => {
-    respondWith(200, {
-      ...sampleBacktest,
-      winner: { id: "always_on", advantage_over_always_on_usd: "0.00" },
-    });
-
-    renderApp();
-
-    expect(
-      await screen.findByText(/neither curtailment rule/),
-    ).toHaveTextContent(
-      "Always on made the most money; neither curtailment rule beat it.",
-    );
   });
 
   it("switches the strategy shown on the chart", async () => {

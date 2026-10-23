@@ -1,11 +1,15 @@
 import { describe, expect, it } from "vitest";
 import {
+  formatBtc,
   formatDecimal,
   formatHours,
+  formatHoursSummary,
   formatInteger,
   formatPercent,
   formatPrice,
+  formatSignedUsdWhole,
   formatUsd,
+  formatUsdWhole,
 } from "./format.ts";
 
 describe("formatUsd", () => {
@@ -77,5 +81,52 @@ describe("formatInteger", () => {
 
   it("leaves small values alone", () => {
     expect(formatInteger(0)).toBe("0");
+  });
+});
+
+describe("formatUsdWhole", () => {
+  it.each([
+    ["154095.35", "$154,095"],
+    ["32739.50", "$32,740"],
+    ["32738.50", "$32,738"],
+    ["0.49", "$0"],
+    ["-17260.81", "−$17,261"],
+    ["-0.40", "$0"],
+    ["999.99", "$1,000"],
+  ])("rounds %s half to even as %s", (value, expected) => {
+    expect(formatUsdWhole(value)).toBe(expected);
+  });
+});
+
+describe("formatSignedUsdWhole", () => {
+  it.each([
+    ["32739.19", "+$32,739"],
+    ["-17260.81", "−$17,261"],
+    ["0.00", "$0"],
+  ])("shows the sign of %s as %s", (value, expected) => {
+    expect(formatSignedUsdWhole(value)).toBe(expected);
+  });
+});
+
+describe("formatBtc", () => {
+  it.each([
+    [334528131, "3.3453"],
+    [15000, "0.0002"],
+    [5000, "0.0000"],
+    [100000000, "1.0000"],
+    [123456789012, "1,234.5679"],
+  ])("shows %i sats as %s BTC", (sats, expected) => {
+    expect(formatBtc(sats)).toBe(expected);
+  });
+});
+
+describe("formatHoursSummary", () => {
+  it.each([
+    ["421.50", "421.5"],
+    ["62.25", "62.2"],
+    ["62.75", "62.8"],
+    ["0.00", "0.0"],
+  ])("rounds %s hours half to even as %s", (value, expected) => {
+    expect(formatHoursSummary(value)).toBe(expected);
   });
 });
