@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from datetime import datetime
+from datetime import UTC, datetime
 from decimal import Decimal
 
 from run_or_rest.config import INTERVAL, MONTH_TIMEZONE
@@ -41,8 +41,9 @@ def history(
     prices: Sequence[int | None],
     loads: Sequence[int | None],
 ) -> list[HistoryInterval]:
+    first = start.astimezone(UTC)
     return [
-        HistoryInterval(start + index * INTERVAL, _decimal(price), _decimal(load))
+        HistoryInterval(first + index * INTERVAL, _decimal(price), _decimal(load))
         for index, (price, load) in enumerate(zip(prices, loads, strict=True))
     ]
 
@@ -54,9 +55,10 @@ def window(
     day: DayEconomics = DAY,
     previous_day: DayEconomics = DAY,
 ) -> list[WindowInterval]:
+    first = start.astimezone(UTC)
     return [
         WindowInterval(
-            start=start + index * INTERVAL,
+            start=first + index * INTERVAL,
             price_usd_per_mwh=_decimal(price),
             load_mw=_decimal(load),
             difficulty=ONE_BLOCK_DIFFICULTY,
