@@ -2,11 +2,15 @@ import { describe, expect, it } from "vitest";
 import {
   formatBtc,
   formatDecimal,
+  formatDifficulty,
+  formatHashprice,
   formatHours,
   formatHoursSummary,
   formatInteger,
   formatPercent,
   formatPrice,
+  formatRatioPercent,
+  formatSignedRatioPercent,
   formatSignedUsdWhole,
   formatUsd,
   formatUsdWhole,
@@ -128,5 +132,44 @@ describe("formatHoursSummary", () => {
     ["0.00", "0.0"],
   ])("rounds %s hours half to even as %s", (value, expected) => {
     expect(formatHoursSummary(value)).toBe(expected);
+  });
+});
+
+describe("formatRatioPercent", () => {
+  it.each([
+    ["0.0084", "0.8%"],
+    ["0.0715", "7.2%"],
+    ["0.0725", "7.2%"],
+    ["-0.1009", "−10.1%"],
+    ["255.0000", "25,500.0%"],
+  ])("shows the ratio %s as %s", (value, expected) => {
+    expect(formatRatioPercent(value)).toBe(expected);
+  });
+});
+
+describe("formatSignedRatioPercent", () => {
+  it.each([
+    ["0.0715", "+7.2%"],
+    ["-0.0074", "−0.7%"],
+    ["0.0004", "0.0%"],
+  ])("signs the change %s as %s", (value, expected) => {
+    expect(formatSignedRatioPercent(value)).toBe(expected);
+  });
+});
+
+describe("formatDifficulty", () => {
+  it.each([
+    ["138955357012247", "139.0 T"],
+    ["124932866006548", "124.9 T"],
+    ["125850000000000", "125.8 T"],
+    ["1", "0.0 T"],
+  ])("shows difficulty %s in T as %s", (value, expected) => {
+    expect(formatDifficulty(value)).toBe(expected);
+  });
+});
+
+describe("formatHashprice", () => {
+  it("shows hashprice as dollars per PH/s per day", () => {
+    expect(formatHashprice("31.89")).toBe("$31.89/PH/day");
   });
 });

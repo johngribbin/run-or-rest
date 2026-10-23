@@ -77,6 +77,25 @@ describe("tooltips", () => {
     );
   });
 
+  it("explain hashprice and difficulty in the formula", async () => {
+    respondWith(200, sampleBacktest);
+    renderApp();
+    const panel = await screen.findByRole("region", {
+      name: "What sets the breakeven line",
+    });
+    const [formula] = within(panel).getAllByRole("list");
+    if (formula === undefined) {
+      throw new Error("The panel has no formula");
+    }
+
+    expect(await tooltipFor(within(formula).getByText("Hashprice"))).toBe(
+      "What 1 PH/s of hashrate earns in a day, in USD, after the pool fee.",
+    );
+    expect(await tooltipFor(within(formula).getByText("Difficulty"))).toBe(
+      "How hard it is to find a block. It adjusts every 2,016 blocks, about every two weeks, to keep blocks near 10 minutes apart.",
+    );
+  });
+
   it("open from the keyboard too", async () => {
     respondWith(200, sampleBacktest);
     const user = userEvent.setup();

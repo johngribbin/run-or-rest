@@ -1,8 +1,11 @@
 import {
   BTC_DISPLAY_PLACES,
+  DIFFICULTY_UNIT,
+  HASHPRICE_UNIT,
   HOURS_SUMMARY_PLACES,
   MINUS_SIGN,
   PLUS_SIGN,
+  RATIO_PERCENT_PLACES,
   SATS_DECIMAL_PLACES,
   THOUSANDS_SEPARATOR,
 } from "./config.ts";
@@ -102,4 +105,40 @@ export function formatBtc(sats: number): string {
 
 export function formatHoursSummary(value: string): string {
   return formatDecimal(roundedHalfEven(value, HOURS_SUMMARY_PLACES));
+}
+
+function shiftedPoint(value: string, power: number): string {
+  const match = DECIMAL.exec(value);
+  if (match === null) {
+    throw new Error(`Not a decimal string: ${value}`);
+  }
+  const [, sign = "", whole = "", fraction = ""] = match;
+  const point = whole.length + power;
+  const digits = `${"0".repeat(Math.max(0, -point))}${whole}${fraction}`;
+  const padded = digits.padEnd(Math.max(point, 0), "0");
+  const cut = Math.max(point, 0);
+  const integer = padded.slice(0, cut).replace(/^0+(?=\d)/, "") || "0";
+  const rest = padded.slice(cut);
+  return rest === "" ? `${sign}${integer}` : `${sign}${integer}.${rest}`;
+}
+
+export function formatRatioPercent(value: string): string {
+  const percent = roundedHalfEven(shiftedPoint(value, 2), RATIO_PERCENT_PLACES);
+  return `${formatDecimal(percent)}%`;
+}
+
+export function formatSignedRatioPercent(value: string): string {
+  const shown = formatRatioPercent(value);
+  return shown.startsWith(MINUS_SIGN) || /^0(\.0+)?%$/.test(shown)
+    ? shown
+    : `${PLUS_SIGN}${shown}`;
+}
+
+export function formatDifficulty(value: string): string {
+  const scaled = shiftedPoint(value, -DIFFICULTY_UNIT.power);
+  return `${formatDecimal(roundedHalfEven(scaled, DIFFICULTY_UNIT.places))} ${DIFFICULTY_UNIT.suffix}`;
+}
+
+export function formatHashprice(value: string): string {
+  return `${formatUsd(value)}${HASHPRICE_UNIT}`;
 }

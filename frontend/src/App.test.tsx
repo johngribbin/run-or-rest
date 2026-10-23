@@ -102,7 +102,9 @@ describe("App", () => {
 
     renderApp();
 
-    expect(await screen.findByText("15 J/TH")).toBeInTheDocument();
+    expect(
+      await screen.findByRole("row", { name: "Efficiency 15 J/TH" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("$50,000.00 per MW-year")).toBeInTheDocument();
     expect(
       screen.getByRole("row", { name: "Pool fee rate 2%" }),

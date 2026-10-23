@@ -100,6 +100,32 @@ export const FOURCP_EXPLAINER = {
   load: "Grid demand",
   price: "Power price",
 };
+export const BITCOIN_COPY = {
+  heading: "What sets the breakeven line",
+  subtitle:
+    "The bitcoin side of the model: each day's breakeven comes from the BTC price, the block reward and the difficulty in effect.",
+  formula: {
+    btcPrice: "BTC price",
+    reward: "Block reward",
+    difficulty: "Difficulty",
+    hashprice: "Hashprice",
+    breakeven: "Breakeven $/MWh",
+  },
+  tiles: {
+    btcPrice: "BTC price",
+    adjustments: "Difficulty adjustments",
+    hashprice: "Hashprice",
+    feesShare: "Fees share of reward",
+  },
+  hashpriceCaption: "USD per PH/s per day, after the pool fee",
+  feesCaption: "Transaction fees as a share of subsidy plus fees",
+  charts: {
+    btcPrice: "BTC price, USD · Coin Metrics",
+    difficulty:
+      "Network difficulty, T · own Bitcoin Core node · change at each adjustment",
+    hashprice: "Hashprice, USD per PH/s per day",
+  },
+};
 export const BEST_BADGE = "Best";
 export const BASELINE_DELTA = "Baseline";
 export const KPI_LABELS = {
@@ -127,9 +153,14 @@ export const PLUS_SIGN = "+";
 export const SATS_DECIMAL_PLACES = 8;
 export const BTC_DISPLAY_PLACES = 4;
 export const HOURS_SUMMARY_PLACES = 1;
+export const RATIO_PERCENT_PLACES = 1;
+export const DIFFICULTY_UNIT = { power: 12, places: 1, suffix: "T" };
+export const HASHPRICE_UNIT = "/PH/day";
 export const THOUSANDS_SEPARATOR = ",";
 
 export const CHART_HEIGHT_PX = 360;
+export const CHART_GROUP = "backtest";
+export const SMALL_CHART_HEIGHT_PX = 120;
 export const CHART_GRID_PX = { left: 56, right: 24, top: 40, bottom: 56 };
 export const CHART_LANE_HEIGHT_PX = 10;
 export const CHART_COPY = {
@@ -176,6 +207,10 @@ export const TOOLTIPS = {
   priceGain:
     "Saved by avoiding expensive power, minus mining revenue given up, compared with always on.",
   fourcpGain: "Transmission charges avoided compared with always on.",
+  hashprice:
+    "What 1 PH/s of hashrate earns in a day, in USD, after the pool fee.",
+  difficulty:
+    "How hard it is to find a block. It adjusts every 2,016 blocks, about every two weeks, to keep blocks near 10 minutes apart.",
   breakeven:
     "The power price where mining just pays for itself, using yesterday’s bitcoin price and rewards.",
 };
