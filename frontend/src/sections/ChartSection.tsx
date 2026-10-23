@@ -20,8 +20,13 @@ import { ChartLegend } from "./ChartLegend.tsx";
 import { Panel } from "./ui.tsx";
 
 export function ChartSection({ backtest }: { backtest: Backtest }) {
-  const [range, setRange] = useState(CHART_COPY.season);
+  const [range, setRange] = useState<string>(CHART_COPY.season);
   const [requested, setRequested] = useState<ZoomWindow>(FULL_ZOOM);
+  const followZoom = (shown: ZoomWindow) => {
+    if (shown.start !== requested.start || shown.end !== requested.end) {
+      setRange("");
+    }
+  };
   const curtailing = backtest.strategies.filter(
     (strategy) => strategy.id !== BASELINE_STRATEGY_ID,
   );
@@ -67,7 +72,7 @@ export function ChartSection({ backtest }: { backtest: Backtest }) {
                 const match = ranges.find((item) => item.label === label);
                 if (match !== undefined) {
                   setRange(match.label);
-                  setRequested(match.zoom);
+                  setRequested({ ...match.zoom });
                 }
               }}
             />
@@ -93,6 +98,7 @@ export function ChartSection({ backtest }: { backtest: Backtest }) {
           label={CHART_COPY.chartLabel}
           height={CHART_HEIGHT_PX}
           zoom={requested}
+          onZoom={followZoom}
         />
       </Stack>
     </Panel>
