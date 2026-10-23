@@ -129,10 +129,24 @@ export const BTC_DISPLAY_PLACES = 4;
 export const HOURS_SUMMARY_PLACES = 1;
 export const THOUSANDS_SEPARATOR = ",";
 
-export const CHART_HEIGHT_PX = 420;
+export const CHART_HEIGHT_PX = 360;
+export const CHART_GRID_PX = { left: 56, right: 24, top: 40, bottom: 56 };
+export const CHART_LANE_HEIGHT_PX = 10;
+export const CHART_COPY = {
+  heading: "Power price vs. mining breakeven",
+  subtitleTail:
+    "real-time price, $/MWh, Central time. Above the breakeven line, mining loses money.",
+  priceAxis: "$/MWh",
+  peakLegend: "4CP peak",
+  peakMarker: "4CP",
+  rangeLabel: "Time range",
+  season: "Season",
+  lanesTitle: "When each rule was switched off",
+  hoursUnit: "h",
+  chartLabel: "Power price and breakeven over time, with the 4CP peaks marked",
+};
 export const DISPLAY_TIME_ZONE = "America/Chicago";
 export const DISPLAY_TIME_ZONE_LABEL = "CT";
-export const CHART_TIME_AXIS_NAME = "Central time";
 export const THRESHOLD_LABEL = "Peak guard trigger";
 export const THRESHOLD_HELP =
   "Switch off when ERCOT demand reaches this share of the month's peak so far.";
@@ -144,14 +158,8 @@ export const UPDATING_TEXT = "Updating…";
 export const STALE_OPACITY = 0.5;
 
 export const CHART_SERIES_NAMES = {
-  price: "Price",
-  breakeven: "Breakeven estimate",
-};
-export const CHART_COLORS = {
-  price: "#1c7ed6",
-  breakeven: "#e8590c",
-  offBand: "rgba(250, 82, 82, 0.18)",
-  peak: "#7048e8",
+  price: "Power price",
+  breakeven: "Breakeven",
 };
 
 export const TOOLTIPS = {
@@ -168,7 +176,7 @@ export const TOOLTIPS = {
   priceGain:
     "Saved by avoiding expensive power, minus mining revenue given up, compared with always on.",
   fourcpGain: "Transmission charges avoided compared with always on.",
-  breakevenEstimate:
+  breakeven:
     "The power price where mining just pays for itself, using yesterday’s bitcoin price and rewards.",
 };
 

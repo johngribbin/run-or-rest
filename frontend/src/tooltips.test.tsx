@@ -67,14 +67,12 @@ describe("tooltips", () => {
     expect(seen).toEqual(TABLE_TERMS);
   });
 
-  it("explain the breakeven estimate in the chart legend", async () => {
+  it("explain breakeven in the chart legend", async () => {
     respondWith(200, sampleBacktest);
     renderApp();
     const legend = await screen.findByRole("list", { name: "Chart legend" });
 
-    expect(
-      await tooltipFor(within(legend).getByText("Breakeven estimate")),
-    ).toBe(
+    expect(await tooltipFor(within(legend).getByText("Breakeven"))).toBe(
       "The power price where mining just pays for itself, using yesterday’s bitcoin price and rewards.",
     );
   });
@@ -84,7 +82,7 @@ describe("tooltips", () => {
     const user = userEvent.setup();
     renderApp();
     const legend = await screen.findByRole("list", { name: "Chart legend" });
-    const term = within(legend).getByText("Breakeven estimate");
+    const term = within(legend).getByText("Breakeven");
 
     expect(term).not.toHaveAttribute("aria-describedby");
     for (

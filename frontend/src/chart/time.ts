@@ -84,3 +84,40 @@ export function formatPeakMoment(utc: string): string {
 export function formatCentralMonth(utc: string): string {
   return monthName.format(new Date(utc));
 }
+
+const peakDay = new Intl.DateTimeFormat("en-US", {
+  timeZone: DISPLAY_TIME_ZONE,
+  month: "short",
+  day: "numeric",
+});
+
+const shortMonth = new Intl.DateTimeFormat("en-US", {
+  timeZone: "UTC",
+  month: "short",
+});
+
+export function formatPeakDay(utc: string): string {
+  return peakDay.format(new Date(utc));
+}
+
+export interface ChartSpan {
+  label: string;
+  from: number;
+  to: number;
+}
+
+export function centralMonths(startUtc: string, endUtc: string): ChartSpan[] {
+  const end = chartTime(endUtc);
+  const spans: ChartSpan[] = [];
+  let from = chartTime(startUtc);
+  while (from < end) {
+    const moment = new Date(from);
+    const to = Math.min(
+      end,
+      Date.UTC(moment.getUTCFullYear(), moment.getUTCMonth() + 1, 1),
+    );
+    spans.push({ label: shortMonth.format(moment), from, to });
+    from = to;
+  }
+  return spans;
+}
