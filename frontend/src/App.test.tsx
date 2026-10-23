@@ -173,7 +173,7 @@ describe("App", () => {
 
     renderApp();
     const picker = await screen.findByRole("radiogroup", {
-      name: "Show when the miners were off under",
+      name: "Strategy",
     });
     const radios = within(picker).getAllByRole("radio");
 
@@ -200,7 +200,7 @@ describe("App", () => {
 
     renderApp();
     const picker = await screen.findByRole("radiogroup", {
-      name: "Show when the miners were off under",
+      name: "Strategy",
     });
 
     expect(

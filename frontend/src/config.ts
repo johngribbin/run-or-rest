@@ -133,7 +133,7 @@ export const CHART_COPY = {
   rangeLabel: "Time range",
   season: "Season",
   offLegend: "Miners off",
-  offPicker: "Show when the miners were off under",
+  offPicker: "Strategy",
   off: "off",
   running: "running",
   chartLabel: "Power price and breakeven over time, with the 4CP peaks marked",
