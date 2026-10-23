@@ -34,6 +34,8 @@ flowchart LR
 
 Data loads once at startup. Each request reruns the backtest for the chosen peak guard threshold; nothing is cached or stored.
 
+Each month's 4CP peak is the 15-minute interval with the highest system load in the Grid Status data. ERCOT publishes the official 4CP intervals once a year ([NP9-83-M](https://www.ercot.com/mp/data-products/data-product-details?id=np9-83-m)); these peaks have not yet been checked against it.
+
 The page also shows where the breakeven line comes from: BTC price, difficulty and hashprice over the season.
 
 ![BTC price, network difficulty and hashprice, June to September 2026](docs/images/bitcoin-inputs.png)
