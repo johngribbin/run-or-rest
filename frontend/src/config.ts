@@ -52,7 +52,7 @@ export const FOURCP_EXPLAINER = {
   chargeTail:
     "Nobody knows the exact peak in advance, so the peak guard powers down whenever demand gets close to the month's high.",
   calloutTitle: "Peaks are not price spikes",
-  peaksHeading: "This summer's 4CP peaks",
+  peaksHeading: "4CP peaks",
   calloutTail: "A price-only rule cannot see a peak coming.",
   running: "Running",
   off: "Off",

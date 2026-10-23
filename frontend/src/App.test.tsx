@@ -314,7 +314,6 @@ describe("Peak guard trigger", () => {
       "Peak guard trigger",
       "All three rules",
       "Power price vs. mining breakeven",
-      "This summer's 4CP peaks",
       "What sets the breakeven line",
       "Full breakdown",
     ]);

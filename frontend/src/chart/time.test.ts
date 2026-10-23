@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   centralMonths,
   chartTime,
-  formatCentralMonth,
   formatCentralTime,
   formatPeakDay,
   formatPeakMoment,
@@ -54,12 +53,6 @@ describe("formatPeakMoment", () => {
     expect(formatPeakMoment("2026-07-22T21:45:00Z")).toBe(
       "Wed, Jul 22, 16:45 CT",
     );
-  });
-});
-
-describe("formatCentralMonth", () => {
-  it("names the Central month of a late-evening UTC-next-day interval", () => {
-    expect(formatCentralMonth("2026-08-01T04:45:00Z")).toBe("July");
   });
 });
 

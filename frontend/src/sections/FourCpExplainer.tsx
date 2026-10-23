@@ -1,13 +1,7 @@
-import { Box, Group, SimpleGrid, Stack, Text, Title } from "@mantine/core";
+import { Box, Stack, Text, Title } from "@mantine/core";
 import type { Backtest } from "../api/backtest.ts";
-import { formatCentralMonth, formatPeakMoment } from "../chart/time.ts";
 import { FOURCP_EXPLAINER } from "../config.ts";
-import {
-  formatDecimal,
-  formatPrice,
-  formatUsd,
-  formatUsdWhole,
-} from "../format.ts";
+import { formatPrice, formatUsd, formatUsdWhole } from "../format.ts";
 import { Eyebrow, Panel } from "./ui.tsx";
 
 type Peak = Backtest["fourcp"]["peaks"][number];
@@ -47,74 +41,6 @@ function Callout({ peaks }: { peaks: readonly Peak[] }) {
   );
 }
 
-function PeakTile({
-  peak,
-  backtest,
-  charge,
-}: {
-  peak: Peak;
-  backtest: Backtest;
-  charge: string;
-}) {
-  return (
-    <Box
-      component="li"
-      aria-label={formatCentralMonth(peak.interval_start_utc)}
-      p="md"
-      style={{
-        border: "1px solid var(--ror-line)",
-        borderRadius: "var(--mantine-radius-md)",
-        listStyle: "none",
-      }}
-    >
-      <Stack gap="sm">
-        <Stack gap={0}>
-          <Text fw={600} size="lg">
-            {formatCentralMonth(peak.interval_start_utc)}
-          </Text>
-          <Text size="xs" c="dimmed">
-            {formatPeakMoment(peak.interval_start_utc)}
-          </Text>
-        </Stack>
-        <Group gap="lg">
-          <Stack gap={0}>
-            <Eyebrow>{FOURCP_EXPLAINER.load}</Eyebrow>
-            <Text fw={500}>{formatDecimal(peak.system_load_mw)} MW</Text>
-          </Stack>
-          <Stack gap={0}>
-            <Eyebrow>{FOURCP_EXPLAINER.price}</Eyebrow>
-            <Text fw={500}>{formatPrice(peak.price_usd_per_mwh)}</Text>
-          </Stack>
-        </Group>
-        <Stack
-          gap={4}
-          pt="sm"
-          style={{ borderTop: "1px solid var(--ror-line)" }}
-        >
-          {backtest.strategies.map((strategy) => {
-            const running = peak.decisions[strategy.id] === "run";
-            return (
-              <Group key={strategy.id} justify="space-between" gap="xs">
-                <Text size="xs" c="var(--ror-text-secondary)">
-                  {strategy.label}
-                </Text>
-                <Text
-                  size="xs"
-                  c={running ? "var(--ror-bad)" : "var(--ror-good)"}
-                >
-                  {running
-                    ? `${FOURCP_EXPLAINER.running} · ${charge}`
-                    : `${FOURCP_EXPLAINER.off} · ${formatUsdWhole("0")}`}
-                </Text>
-              </Group>
-            );
-          })}
-        </Stack>
-      </Stack>
-    </Box>
-  );
-}
-
 export function FourCpIntro({ backtest }: { backtest: Backtest }) {
   const { peaks, charge_per_peak_usd: perPeak } = backtest.fourcp;
   return (
@@ -131,37 +57,6 @@ export function FourCpIntro({ backtest }: { backtest: Backtest }) {
           . {FOURCP_EXPLAINER.chargeTail}
         </Text>
         <Callout peaks={peaks} />
-      </Stack>
-    </Panel>
-  );
-}
-
-export function FourCpPeaks({ backtest }: { backtest: Backtest }) {
-  const { peaks, charge_per_peak_usd: perPeak } = backtest.fourcp;
-  const charge = formatUsdWhole(perPeak);
-  return (
-    <Panel label={FOURCP_EXPLAINER.peaksHeading}>
-      <Stack gap="md">
-        <Title order={3} component="h2">
-          {FOURCP_EXPLAINER.peaksHeading}
-        </Title>
-        <SimpleGrid
-          component="ul"
-          cols={{ base: 1, sm: 2, lg: 4 }}
-          spacing="sm"
-          m={0}
-          p={0}
-          aria-label="4CP peaks"
-        >
-          {peaks.map((peak) => (
-            <PeakTile
-              key={peak.month}
-              peak={peak}
-              backtest={backtest}
-              charge={charge}
-            />
-          ))}
-        </SimpleGrid>
       </Stack>
     </Panel>
   );

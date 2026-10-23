@@ -22,7 +22,6 @@ import { AssumptionsSection } from "./sections/AssumptionsSection.tsx";
 import { BitcoinInputs } from "./sections/BitcoinInputs.tsx";
 import { ChartSection } from "./sections/ChartSection.tsx";
 import { Footer } from "./sections/Footer.tsx";
-import { FourCpPeaks } from "./sections/FourCpExplainer.tsx";
 import { Header } from "./sections/Header.tsx";
 import { Hero } from "./sections/Hero.tsx";
 import { ResultsTable } from "./sections/ResultsTable.tsx";
@@ -61,7 +60,6 @@ function Results({
       <Stack gap="lg" style={shown} aria-busy={stale}>
         <StrategyCards backtest={backtest} />
         <ChartSection backtest={backtest} />
-        <FourCpPeaks backtest={backtest} />
         <BitcoinInputs backtest={backtest} />
         <ResultsTable backtest={backtest} />
         <AssumptionsSection backtest={backtest} />

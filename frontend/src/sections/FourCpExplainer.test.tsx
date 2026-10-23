@@ -25,20 +25,34 @@ describe("FourCpExplainer", () => {
     );
   });
 
-  it("shows each peak's Central time, load, price and every rule's charge", async () => {
+  it("lists each peak's time, demand, price and every rule's charge in the breakdown", async () => {
     respondWith(200, sampleBacktest);
 
     renderApp();
-    const tile = await screen.findByRole("listitem", { name: "June" });
+    const table = await screen.findByRole("table", { name: "4CP peaks" });
 
-    expect(within(tile).getByText("Mon, Jun 1, 00:15 CT")).toBeInTheDocument();
-    expect(within(tile).getByText("82,712.7 MW")).toBeInTheDocument();
-    expect(within(tile).getByText("$500.00/MWh")).toBeInTheDocument();
     expect(
-      ["Always on", "Strike price", "Strike + peak guard"].map(
-        (rule) => within(tile).getByText(rule).nextSibling?.textContent,
-      ),
-    ).toEqual(["Running · $50,000", "Running · $50,000", "Off · $0"]);
+      within(table)
+        .getAllByRole("row")
+        .map((row) =>
+          within(row)
+            .queryAllByRole("cell")
+            .map((cell) => cell.textContent),
+        )
+        .filter((cells) => cells.length > 0),
+    ).toEqual([
+      [
+        "Mon, Jun 1, 00:15 CT",
+        "82,712.7 MW",
+        "$500.00/MWh",
+        "Running · $50,000",
+        "Running · $50,000",
+        "Off · $0",
+      ],
+    ]);
+    expect(table.closest("section")?.getAttribute("aria-label")).toBe(
+      "Full breakdown",
+    );
   });
 
   it("gives the lowest and highest price across the peaks", async () => {

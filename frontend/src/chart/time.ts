@@ -72,17 +72,8 @@ const peakMoment = new Intl.DateTimeFormat("en-US", {
   minute: "2-digit",
 });
 
-const monthName = new Intl.DateTimeFormat("en-US", {
-  timeZone: DISPLAY_TIME_ZONE,
-  month: "long",
-});
-
 export function formatPeakMoment(utc: string): string {
   return `${peakMoment.format(new Date(utc))} ${DISPLAY_TIME_ZONE_LABEL}`;
-}
-
-export function formatCentralMonth(utc: string): string {
-  return monthName.format(new Date(utc));
 }
 
 const peakDay = new Intl.DateTimeFormat("en-US", {

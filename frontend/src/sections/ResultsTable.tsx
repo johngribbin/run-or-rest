@@ -6,6 +6,7 @@ import {
 } from "../api/backtest.ts";
 import { BEST_BADGE, BREAKDOWN_COPY, TOOLTIPS } from "../config.ts";
 import { formatBtc, formatHours, formatInteger, formatUsd } from "../format.ts";
+import { PeakTable } from "./PeakTable.tsx";
 import { Term } from "./Term.tsx";
 
 interface Column {
@@ -155,6 +156,7 @@ export function ResultsTable({ backtest }: { backtest: Backtest }) {
           </Table.Tbody>
         </Table>
       </Table.ScrollContainer>
+      <PeakTable backtest={backtest} />
     </Paper>
   );
 }
