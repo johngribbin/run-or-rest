@@ -5,7 +5,6 @@ import {
   Stack,
   Text,
   Title,
-  useComputedColorScheme,
   VisuallyHidden,
 } from "@mantine/core";
 import { type ReactNode, useMemo } from "react";
@@ -17,13 +16,7 @@ import {
 } from "../chart/bitcoinOptions.ts";
 import { EChart } from "../chart/EChart.tsx";
 import { formatCentralTime, formatUtcDay } from "../chart/time.ts";
-import {
-  BITCOIN_COPY,
-  COLOR_TOKENS,
-  DEFAULT_COLOR_SCHEME,
-  SMALL_CHART_HEIGHT_PX,
-  TOOLTIPS,
-} from "../config.ts";
+import { BITCOIN_COPY, SMALL_CHART_HEIGHT_PX, TOOLTIPS } from "../config.ts";
 import {
   formatDifficulty,
   formatInteger,
@@ -213,15 +206,14 @@ function AdjustmentList({ backtest }: { backtest: Backtest }) {
 }
 
 export function BitcoinInputs({ backtest }: { backtest: Backtest }) {
-  const scheme = useComputedColorScheme(DEFAULT_COLOR_SCHEME);
-  const options = useMemo(() => {
-    const colors = COLOR_TOKENS[scheme];
-    return {
-      btcPrice: btcPriceOption(backtest, colors),
-      difficulty: difficultyOption(backtest, colors),
-      hashprice: hashpriceOption(backtest, colors),
-    };
-  }, [backtest, scheme]);
+  const options = useMemo(
+    () => ({
+      btcPrice: btcPriceOption(backtest),
+      difficulty: difficultyOption(backtest),
+      hashprice: hashpriceOption(backtest),
+    }),
+    [backtest],
+  );
   return (
     <Panel label={BITCOIN_COPY.heading}>
       <Stack gap="lg">

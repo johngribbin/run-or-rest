@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import type { Decision, SeriesPoint } from "../api/backtest.ts";
-import { COLOR_TOKENS } from "../config.ts";
 import { sampleBacktest } from "../test/sampleBacktest.ts";
 import {
   chartOption,
@@ -98,7 +97,7 @@ describe("tooltipText", () => {
 });
 
 describe("chartOption", () => {
-  const option = chartOption(sampleBacktest, COLOR_TOKENS.dark);
+  const option = chartOption(sampleBacktest);
   const series = Array.isArray(option.series) ? option.series : [];
 
   it("draws every price and breakeven point at its Central time", () => {
@@ -139,7 +138,7 @@ describe("chartOption", () => {
     ]);
   });
 
-  it("draws axes in the scheme's muted ink and line colours", () => {
+  it("draws axes in the muted ink and line colours", () => {
     expect(option.yAxis).toMatchObject({
       axisLabel: { color: "#8C939E" },
       splitLine: { lineStyle: { color: "#232831" } },

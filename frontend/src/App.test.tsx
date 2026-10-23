@@ -41,7 +41,7 @@ describe("App", () => {
     ).toEqual(["Jun 1, 2026", "LZ_WEST", "1 MW · 15 J/TH · 2% pool fee"]);
   });
 
-  it("starts dark and switches to the light theme", async () => {
+  it("always uses the dark scheme, with no theme toggle", () => {
     vi.stubGlobal(
       "fetch",
       vi.fn(() => new Promise<Response>(() => undefined)),
@@ -53,16 +53,9 @@ describe("App", () => {
       "data-mantine-color-scheme",
       "dark",
     );
-    await userEvent.click(
-      screen.getByRole("button", { name: "Switch to light theme" }),
-    );
-    expect(document.documentElement).toHaveAttribute(
-      "data-mantine-color-scheme",
-      "light",
-    );
     expect(
-      screen.getByRole("button", { name: "Switch to dark theme" }),
-    ).toBeInTheDocument();
+      screen.queryByRole("button", { name: /theme/ }),
+    ).not.toBeInTheDocument();
   });
 
   it("shows formatted totals and highlights the winner", async () => {

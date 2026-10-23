@@ -1,11 +1,4 @@
-import {
-  Group,
-  SegmentedControl,
-  Stack,
-  Text,
-  Title,
-  useComputedColorScheme,
-} from "@mantine/core";
+import { Group, SegmentedControl, Stack, Text, Title } from "@mantine/core";
 import { useMemo, useState } from "react";
 import type { Backtest } from "../api/backtest.ts";
 import { EChart } from "../chart/EChart.tsx";
@@ -18,25 +11,16 @@ import {
   zoomFor,
 } from "../chart/option.ts";
 import { centralMonths } from "../chart/time.ts";
-import {
-  CHART_COPY,
-  CHART_HEIGHT_PX,
-  COLOR_TOKENS,
-  DEFAULT_COLOR_SCHEME,
-} from "../config.ts";
+import { CHART_COPY, CHART_HEIGHT_PX } from "../config.ts";
 import { ChartLegend } from "./ChartLegend.tsx";
 import { OffLanes } from "./OffLanes.tsx";
 import { Panel } from "./ui.tsx";
 
 export function ChartSection({ backtest }: { backtest: Backtest }) {
-  const scheme = useComputedColorScheme(DEFAULT_COLOR_SCHEME);
   const [range, setRange] = useState(CHART_COPY.season);
   const [requested, setRequested] = useState<ZoomWindow>(FULL_ZOOM);
   const [shown, setShown] = useState<ZoomWindow>(FULL_ZOOM);
-  const option = useMemo(
-    () => chartOption(backtest, COLOR_TOKENS[scheme]),
-    [backtest, scheme],
-  );
+  const option = useMemo(() => chartOption(backtest), [backtest]);
   const extent = chartExtent(backtest);
   const ranges = [
     { label: CHART_COPY.season, zoom: FULL_ZOOM },
