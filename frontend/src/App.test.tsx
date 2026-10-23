@@ -21,13 +21,48 @@ describe("App", () => {
       screen.getByRole("heading", { level: 1, name: "Run or Rest" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(
-        "A transparent ERCOT curtailment backtest for bitcoin miners",
-      ),
+      screen.getByText("ERCOT curtailment backtest for bitcoin miners"),
     ).toBeInTheDocument();
     expect(screen.getByRole("status")).toHaveTextContent(
       "Running the backtest",
     );
+  });
+
+  it("names the period, settlement point and fleet of the run", async () => {
+    respondWith(200, sampleBacktest);
+
+    renderApp();
+
+    const chips = await screen.findByRole("list", { name: "This run" });
+    expect(
+      within(chips)
+        .getAllByRole("listitem")
+        .map((chip) => chip.textContent),
+    ).toEqual(["Jun 1, 2026", "LZ_WEST", "1 MW · 15 J/TH · 2% pool fee"]);
+  });
+
+  it("starts dark and switches to the light theme", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => new Promise<Response>(() => undefined)),
+    );
+
+    renderApp();
+
+    expect(document.documentElement).toHaveAttribute(
+      "data-mantine-color-scheme",
+      "dark",
+    );
+    await userEvent.click(
+      screen.getByRole("button", { name: "Switch to light theme" }),
+    );
+    expect(document.documentElement).toHaveAttribute(
+      "data-mantine-color-scheme",
+      "light",
+    );
+    expect(
+      screen.getByRole("button", { name: "Switch to dark theme" }),
+    ).toBeInTheDocument();
   });
 
   it("answers the question with the winner and its advantage", async () => {

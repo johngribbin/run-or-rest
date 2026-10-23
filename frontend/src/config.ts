@@ -1,8 +1,76 @@
 import type { StrategyId } from "./api/backtest.ts";
 
 export const APP_TITLE = "Run or Rest";
-export const APP_SUBTITLE =
-  "A transparent ERCOT curtailment backtest for bitcoin miners";
+export const APP_SUBTITLE = "ERCOT curtailment backtest for bitcoin miners";
+
+export const DEFAULT_COLOR_SCHEME = "dark";
+export const FONT_FAMILY =
+  'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+export const FONT_SIZES_PX = {
+  label: 12,
+  body: 14,
+  title: 16,
+  kpi: 24,
+  hero: 40,
+};
+export const RADIUS_PX = 12;
+
+export interface ColorTokens {
+  background: string;
+  surface: string;
+  surfaceRaised: string;
+  line: string;
+  text: string;
+  textSecondary: string;
+  textMuted: string;
+  accent: string;
+  accentSoft: string;
+  good: string;
+  bad: string;
+  price: string;
+  peak: string;
+  lane: string;
+}
+
+export const COLOR_TOKENS: { dark: ColorTokens; light: ColorTokens } = {
+  dark: {
+    background: "#0A0C0F",
+    surface: "#111418",
+    surfaceRaised: "#171B21",
+    line: "#232831",
+    text: "#ECEEF1",
+    textSecondary: "#A9AFB8",
+    textMuted: "#8C939E",
+    accent: "#F7931A",
+    accentSoft: "rgba(247, 147, 26, 0.12)",
+    good: "#3FB97A",
+    bad: "#F06A5B",
+    price: "#4C8DF6",
+    peak: "#9085E9",
+    lane: "#5B6370",
+  },
+  light: {
+    background: "#F5F6F8",
+    surface: "#FFFFFF",
+    surfaceRaised: "#F1F3F6",
+    line: "#E3E6EB",
+    text: "#0E1116",
+    textSecondary: "#454C57",
+    textMuted: "#646B76",
+    accent: "#A85200",
+    accentSoft: "rgba(168, 82, 0, 0.08)",
+    good: "#117A45",
+    bad: "#C2372A",
+    price: "#2A78D6",
+    peak: "#6250D6",
+    lane: "#B4BAC4",
+  },
+};
+
+export const COLOR_SCHEME_TOGGLE_LABELS = {
+  dark: "Switch to light theme",
+  light: "Switch to dark theme",
+};
 export const REFETCH_DEBOUNCE_MS = 300;
 
 export const BACKTEST_PATH = "/api/backtest";

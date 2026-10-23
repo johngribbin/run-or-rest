@@ -22,7 +22,7 @@ export function ThresholdControl({
   const places = decimals(control.step);
   return (
     <Stack gap={4}>
-      <Text fw={600} id="threshold-label">
+      <Text fw={600} size="lg" id="threshold-label">
         <Term tooltip={TOOLTIPS.peakGuardThreshold}>{THRESHOLD_LABEL}</Term>
       </Text>
       <Group gap="md" wrap="nowrap">
@@ -39,7 +39,7 @@ export function ThresholdControl({
             onChange(current.toFixed(places));
           }}
         />
-        <Text ff="monospace" data-testid="threshold-value">
+        <Text fw={600} size="lg" data-testid="threshold-value">
           {formatPercent(value)}
         </Text>
       </Group>

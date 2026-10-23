@@ -6,23 +6,17 @@ import {
   Loader,
   Stack,
   Text,
-  Title,
 } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { type Backtest, fetchBacktest } from "./api/backtest.ts";
-import {
-  APP_SUBTITLE,
-  APP_TITLE,
-  REFETCH_DEBOUNCE_MS,
-  STALE_OPACITY,
-  UPDATING_TEXT,
-} from "./config.ts";
+import { REFETCH_DEBOUNCE_MS, STALE_OPACITY, UPDATING_TEXT } from "./config.ts";
 import { Answer } from "./sections/Answer.tsx";
 import { AssumptionsSection } from "./sections/AssumptionsSection.tsx";
 import { ChartSection } from "./sections/ChartSection.tsx";
 import { Footer } from "./sections/Footer.tsx";
+import { Header } from "./sections/Header.tsx";
 import { ResultsTable } from "./sections/ResultsTable.tsx";
 import { ThresholdControl } from "./sections/ThresholdControl.tsx";
 
@@ -74,34 +68,33 @@ export function App() {
   });
 
   return (
-    <Container size="lg" py="xl">
-      <Stack gap="xl">
-        <Stack gap={4}>
-          <Title order={1}>{APP_TITLE}</Title>
-          <Text c="dimmed">{APP_SUBTITLE}</Text>
+    <>
+      <Header backtest={query.data} />
+      <Container size="lg" py="xl">
+        <Stack gap="xl">
+          {query.isPending ? (
+            <Stack align="center" gap="xs" role="status">
+              <Loader />
+              <Text>Running the backtest…</Text>
+            </Stack>
+          ) : null}
+          {query.isError ? (
+            <Alert color="red" title="The backtest could not be loaded">
+              {query.error.message}
+            </Alert>
+          ) : null}
+          {query.isSuccess ? (
+            <Results
+              backtest={query.data}
+              stale={query.isPlaceholderData}
+              threshold={threshold}
+              onThresholdChange={setThreshold}
+            />
+          ) : null}
+          <Divider />
+          <Footer />
         </Stack>
-        {query.isPending ? (
-          <Stack align="center" gap="xs" role="status">
-            <Loader />
-            <Text>Running the backtest…</Text>
-          </Stack>
-        ) : null}
-        {query.isError ? (
-          <Alert color="red" title="The backtest could not be loaded">
-            {query.error.message}
-          </Alert>
-        ) : null}
-        {query.isSuccess ? (
-          <Results
-            backtest={query.data}
-            stale={query.isPlaceholderData}
-            threshold={threshold}
-            onThresholdChange={setThreshold}
-          />
-        ) : null}
-        <Divider />
-        <Footer />
-      </Stack>
-    </Container>
+      </Container>
+    </>
   );
 }
