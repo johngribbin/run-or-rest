@@ -127,7 +127,6 @@ export const HASHPRICE_UNIT = "/PH/day";
 export const THOUSANDS_SEPARATOR = ",";
 
 export const CHART_HEIGHT_PX = 360;
-export const CHART_GROUP = "backtest";
 export const SMALL_CHART_HEIGHT_PX = 120;
 export const CHART_GRID_PX = { left: 56, right: 24, top: 40, bottom: 56 };
 export const CHART_LANE_HEIGHT_PX = 10;

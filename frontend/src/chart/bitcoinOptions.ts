@@ -32,20 +32,29 @@ function tickLabel(scale: number, prefix: string, suffix: string) {
     `${prefix}${String(Math.round(value / scale))}${suffix}`;
 }
 
-function dataIndexOf(params: unknown): number {
+function firstField(params: unknown, key: string): number | null {
   const first: unknown = Array.isArray(params) ? params.at(0) : params;
   if (typeof first !== "object" || first === null) {
-    return -1;
+    return null;
   }
-  const index: unknown = Reflect.get(first, "dataIndex");
-  return typeof index === "number" ? index : -1;
+  const found: unknown = Reflect.get(first, key);
+  return typeof found === "number" ? found : null;
+}
+
+export function adjustmentAt(
+  adjustments: readonly Adjustment[],
+  time: number,
+): Adjustment | undefined {
+  return adjustments.findLast(
+    (adjustment) => chartTime(adjustment.start_utc) <= time,
+  );
 }
 
 function smallOption(
   extent: Extent,
   series: LineSeriesOption,
   tick: (value: number) => string,
-  tooltip: (index: number) => string,
+  tooltip: (params: unknown) => string,
 ): ChartOption {
   return {
     animation: false,
@@ -56,10 +65,11 @@ function smallOption(
       backgroundColor: COLORS.surface,
       borderColor: COLORS.line,
       textStyle: { color: COLORS.text },
-      formatter: (params) => tooltip(dataIndexOf(params)),
+      formatter: (params) => tooltip(params),
     },
     xAxis: {
       type: "time",
+      axisPointer: { snap: false },
       min: extent.min,
       max: extent.max,
       axisLine: { lineStyle: { color: COLORS.line } },
@@ -100,8 +110,8 @@ function dailyLine(
 }
 
 function dayTooltip(daily: readonly Day[], value: (day: Day) => string) {
-  return (index: number) => {
-    const day = daily[index];
+  return (params: unknown) => {
+    const day = daily[firstField(params, "dataIndex") ?? -1];
     return day === undefined
       ? ""
       : `${formatUtcDay(day.date_utc)} (UTC)<br/>${value(day)}`;
@@ -174,11 +184,13 @@ export function difficultyOption(backtest: Backtest): ChartOption {
       ],
     },
     tickLabel(TERA, "", " T"),
-    (index) => {
-      const adjustment = adjustments[index] ?? last;
+    (params) => {
+      const time = firstField(params, "axisValue");
+      const adjustment =
+        time === null ? undefined : adjustmentAt(adjustments, time);
       return adjustment === undefined
         ? ""
-        : `${formatCentralTime(adjustment.start_utc)}<br/>${formatDifficulty(adjustment.difficulty)}`;
+        : `${formatDifficulty(adjustment.difficulty)}<br/>since ${formatCentralTime(adjustment.start_utc)}`;
     },
   );
 }

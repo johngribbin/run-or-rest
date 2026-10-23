@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { sampleBacktest } from "../test/sampleBacktest.ts";
 import {
+  adjustmentAt,
   btcPriceOption,
   dayTime,
   difficultyOption,
@@ -98,5 +99,41 @@ describe("small chart zoom", () => {
     expect(difficultyOption(sampleBacktest).dataZoom).toMatchObject([
       { type: "inside", filterMode: "none" },
     ]);
+  });
+});
+
+describe("adjustmentAt", () => {
+  const adjustments = [
+    {
+      start_utc: "2026-06-01T05:00:00Z",
+      difficulty: "125000000000000",
+      change_ratio: null,
+    },
+    {
+      start_utc: "2026-06-14T00:30:00Z",
+      difficulty: "133937500000000",
+      change_ratio: "0.0715",
+    },
+  ];
+
+  it("finds the difficulty in effect at a moment, not the nearest change", () => {
+    expect(
+      adjustmentAt(adjustments, Date.UTC(2026, 5, 13, 19, 0))?.difficulty,
+    ).toBe("125000000000000");
+    expect(
+      adjustmentAt(adjustments, Date.UTC(2026, 5, 13, 19, 30))?.difficulty,
+    ).toBe("133937500000000");
+  });
+
+  it("finds nothing before the first adjustment", () => {
+    expect(adjustmentAt(adjustments, Date.UTC(2026, 4, 31))).toBeUndefined();
+  });
+});
+
+describe("small chart pointer", () => {
+  it("sits at the hovered time rather than snapping to a data point", () => {
+    expect(difficultyOption(sampleBacktest).xAxis).toMatchObject({
+      axisPointer: { snap: false },
+    });
   });
 });

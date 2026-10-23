@@ -8,14 +8,13 @@ import {
 import {
   type EChartsCoreOption,
   type EChartsType,
-  connect,
   init,
   use as registerChartModules,
 } from "echarts/core";
 import { SVGRenderer } from "echarts/renderers";
 import { useEffect, useRef } from "react";
-import { CHART_GROUP } from "../config.ts";
 import { FULL_ZOOM, type ZoomWindow, zoomFromEvent } from "./option.ts";
+import { joinSync } from "./sync.ts";
 
 registerChartModules([
   LineChart,
@@ -25,7 +24,6 @@ registerChartModules([
   MarkLineComponent,
   SVGRenderer,
 ]);
-connect(CHART_GROUP);
 
 function ignoreZoom(): undefined {
   return undefined;
@@ -59,7 +57,6 @@ export function EChart({
       return undefined;
     }
     const instance = init(element, undefined, { renderer: "svg" });
-    instance.group = CHART_GROUP;
     chart.current = instance;
     instance.on("datazoom", (event: unknown) => {
       const next = zoomFromEvent(event);
@@ -72,7 +69,9 @@ export function EChart({
       instance.resize();
     });
     observer.observe(element);
+    const leaveSync = joinSync(instance);
     return () => {
+      leaveSync();
       observer.disconnect();
       instance.dispose();
       chart.current = null;
