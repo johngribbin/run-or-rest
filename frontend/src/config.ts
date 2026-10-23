@@ -122,6 +122,8 @@ export const CHART_HEIGHT_PX = 360;
 export const SMALL_CHART_HEIGHT_PX = 120;
 export const CHART_GRID_PX = { left: 56, right: 24, top: 40, bottom: 56 };
 export const OFF_BAND_MIN_PX = 2;
+export const OFF_MARK_HEIGHT_PX = 4;
+export const CHART_COMPACT_QUERY = "(max-width: 48em)";
 export const CHART_COPY = {
   heading: "Power price vs. mining breakeven",
   subtitleTail:

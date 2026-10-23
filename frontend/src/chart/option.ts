@@ -17,6 +17,7 @@ import {
   CHART_SERIES_NAMES,
   COLORS,
   OFF_BAND_MIN_PX,
+  OFF_MARK_HEIGHT_PX,
 } from "../config.ts";
 import { formatDecimal, formatPrice } from "../format.ts";
 import { chartTime, formatCentralTime, formatPeakDay } from "./time.ts";
@@ -153,6 +154,11 @@ export function bandRect(
     : { x: left, y: plot.y, width: right - left, height: plot.height };
 }
 
+export function offMarkRect(band: PlotRect): PlotRect {
+  const height = Math.min(OFF_MARK_HEIGHT_PX, band.height);
+  return { ...band, y: band.y + band.height - height, height };
+}
+
 function plotOf(params: unknown): PlotRect | null {
   if (typeof params !== "object" || params === null) {
     return null;
@@ -196,7 +202,17 @@ function offShading(
           : bandRect(from, to, plot);
       return rect === null
         ? null
-        : { type: "rect", shape: rect, style: { fill: COLORS.offBand } };
+        : {
+            type: "group",
+            children: [
+              { type: "rect", shape: rect, style: { fill: COLORS.offBand } },
+              {
+                type: "rect",
+                shape: offMarkRect(rect),
+                style: { fill: COLORS.textMuted },
+              },
+            ],
+          };
     },
   };
 }
@@ -229,13 +245,16 @@ function axisColors() {
   };
 }
 
-function peakMarkers(backtest: Backtest): LineSeriesOption["markLine"] {
+function peakMarkers(
+  backtest: Backtest,
+  compact: boolean,
+): LineSeriesOption["markLine"] {
   return {
     silent: true,
     symbol: "none",
     lineStyle: { color: COLORS.bad, type: "solid", width: 2 },
     label: {
-      formatter: "{b}",
+      formatter: compact ? CHART_COPY.peakMarker : "{b}",
       position: "end",
       color: COLORS.textSecondary,
     },
@@ -282,6 +301,7 @@ function zoomControls(): DataZoomComponentOption[] {
 export function chartOption(
   backtest: Backtest,
   strategy: Strategy,
+  compact = false,
 ): ChartOption {
   const at = (point: SeriesPoint) => chartTime(point.interval_start_utc);
   const price = line(
@@ -302,7 +322,7 @@ export function chartOption(
     ]),
     true,
   );
-  price.markLine = peakMarkers(backtest);
+  price.markLine = peakMarkers(backtest, compact);
 
   const extent = chartExtent(backtest);
   return {
@@ -332,6 +352,7 @@ export function chartOption(
       ...axisColors(),
       type: "value",
       name: CHART_COPY.priceAxis,
+      nameTextStyle: { color: COLORS.textMuted, align: "right" },
       axisLabel: { formatter: priceTick, color: COLORS.textMuted },
     },
     dataZoom: zoomControls(),

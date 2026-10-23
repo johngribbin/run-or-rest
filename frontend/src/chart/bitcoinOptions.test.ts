@@ -4,6 +4,7 @@ import {
   adjustmentAt,
   btcPriceOption,
   dayTime,
+  adjustmentTooltip,
   difficultyOption,
   hashpriceOption,
 } from "./bitcoinOptions.ts";
@@ -82,6 +83,8 @@ describe("difficultyOption", () => {
           show: true,
           position: "top",
           color: "#3FB97A",
+          textBorderColor: "#111418",
+          textBorderWidth: 3,
           formatter: "+7.2%",
         },
       },
@@ -91,6 +94,28 @@ describe("difficultyOption", () => {
         symbol: "none",
       },
     ]);
+  });
+});
+
+describe("adjustmentTooltip", () => {
+  it("gives an adjustment's change, which a narrow chart may hide", () => {
+    expect(
+      adjustmentTooltip({
+        start_utc: "2026-06-14T00:30:00Z",
+        difficulty: "124932866006548",
+        change_ratio: "-0.1009",
+      }),
+    ).toBe("124.9 T (−10.1%)<br/>since Jun 13, 2026, 19:30 CT");
+  });
+
+  it("gives no change for the difficulty in effect at the start", () => {
+    expect(
+      adjustmentTooltip({
+        start_utc: "2026-06-01T05:00:00Z",
+        difficulty: "138955357012247",
+        change_ratio: null,
+      }),
+    ).toBe("139.0 T<br/>since Jun 1, 2026, 00:00 CT");
   });
 });
 

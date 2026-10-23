@@ -1,4 +1,5 @@
 import { Group, SegmentedControl, Stack, Text, Title } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import { useMemo, useState } from "react";
 import {
   BASELINE_STRATEGY_ID,
@@ -15,7 +16,7 @@ import {
   zoomFor,
 } from "../chart/option.ts";
 import { centralMonths } from "../chart/time.ts";
-import { CHART_COPY, CHART_HEIGHT_PX } from "../config.ts";
+import { CHART_COMPACT_QUERY, CHART_COPY, CHART_HEIGHT_PX } from "../config.ts";
 import { ChartLegend } from "./ChartLegend.tsx";
 import { Panel } from "./ui.tsx";
 
@@ -35,9 +36,10 @@ export function ChartSection({ backtest }: { backtest: Backtest }) {
       ? (curtailing[0]?.id ?? BASELINE_STRATEGY_ID)
       : backtest.winner.id,
   );
+  const compact = useMediaQuery(CHART_COMPACT_QUERY);
   const option = useMemo(
-    () => chartOption(backtest, strategyById(backtest, picked)),
-    [backtest, picked],
+    () => chartOption(backtest, strategyById(backtest, picked), compact),
+    [backtest, picked, compact],
   );
   const extent = chartExtent(backtest);
   const ranges = [
