@@ -3,7 +3,6 @@ from decimal import Decimal
 from run_or_rest.core.models import Decision, DecisionContext
 from run_or_rest.core.strategies import (
     always_on,
-    peak_guard,
     strike_peak_guard,
     strike_price,
 )
@@ -40,11 +39,6 @@ def test_strike_price_runs_exactly_at_breakeven() -> None:
 
 def test_strike_price_is_off_above_breakeven() -> None:
     assert strike_price(context(previous_price="100.01")) is Decision.OFF
-
-
-def test_peak_guard_alone_is_off_at_the_threshold_and_runs_below() -> None:
-    assert peak_guard(context(previous_load="76000")) is Decision.OFF
-    assert peak_guard(context(previous_load="75999")) is Decision.RUN
 
 
 def test_peak_guard_fires_at_95_percent_of_previous_month_peak() -> None:

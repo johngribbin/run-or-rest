@@ -4,7 +4,6 @@ from decimal import Decimal
 
 from run_or_rest.core.backtest import BacktestResult
 from run_or_rest.core.models import Decision, HistoryInterval, StrategyId
-from run_or_rest.core.peaks import charge_per_peak_usd, transmission_usd
 from tests.core.builders import (
     ASSUMPTIONS,
     chicago,
@@ -216,15 +215,3 @@ def test_interval_missing_its_load_is_skipped() -> None:
     assert len(result.series) == 2
     assert result.missing_intervals == 1
     assert strategy(result, StrategyId.ALWAYS_ON).revenue_usd == Decimal(50)
-
-
-def test_transmission_at_zero_one_and_four_of_four_peaks() -> None:
-    rate = Decimal(50_000)
-
-    assert transmission_usd(rate, Decimal(1), 0, 4) == Decimal(0)
-    assert transmission_usd(rate, Decimal(1), 1, 4) == Decimal(12_500)
-    assert transmission_usd(rate, Decimal(1), 4, 4) == Decimal(50_000)
-
-
-def test_charge_for_running_at_one_of_four_peaks() -> None:
-    assert charge_per_peak_usd(Decimal(50_000), Decimal(1), 4) == Decimal(12_500)

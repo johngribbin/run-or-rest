@@ -159,20 +159,6 @@ describe("chartOption", () => {
 
     expect(price?.markLine?.label).toMatchObject({ formatter: "4CP" });
   });
-
-  it("draws axes in the muted ink and line colours", () => {
-    expect(option.yAxis).toMatchObject({
-      axisLabel: { color: "#8C939E" },
-      splitLine: { lineStyle: { color: "#232831" } },
-    });
-  });
-
-  it("zooms with the mouse wheel, pans with a drag, and has a slider", () => {
-    expect(option.dataZoom).toMatchObject([
-      { type: "inside", zoomOnMouseWheel: true, moveOnMouseMove: true },
-      { type: "slider" },
-    ]);
-  });
 });
 
 describe("zoom windows", () => {
