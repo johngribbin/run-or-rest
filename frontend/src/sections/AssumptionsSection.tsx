@@ -23,7 +23,7 @@ export function AssumptionsSection({ backtest }: { backtest: Backtest }) {
   ];
   return (
     <Stack gap="xs">
-      <Title order={2} size="h4">
+      <Title order={3} component="h2">
         Assumptions
       </Title>
       <Table>

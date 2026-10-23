@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Decision, SeriesPoint } from "../api/backtest.ts";
+import { COLOR_TOKENS } from "../config.ts";
 import { sampleBacktest } from "../test/sampleBacktest.ts";
 import {
   chartOption,
@@ -93,12 +94,12 @@ describe("tooltipText", () => {
 });
 
 describe("chartOption", () => {
-  const option = chartOption(sampleBacktest, "strike_price");
+  const option = chartOption(sampleBacktest, "strike_price", COLOR_TOKENS.dark);
   const series = Array.isArray(option.series) ? option.series : [];
 
   it("draws every price and breakeven point at its Central time", () => {
     expect(option.useUTC).toBe(true);
-    expect(option.xAxis).toEqual({
+    expect(option.xAxis).toMatchObject({
       type: "time",
       name: "Central time",
       axisLabel: { hideOverlap: true },
@@ -131,6 +132,13 @@ describe("chartOption", () => {
         xAxis: Date.UTC(2026, 5, 1, 0, 15),
       },
     ]);
+  });
+
+  it("draws axes and gridlines in the scheme's muted ink and line colours", () => {
+    expect(option.yAxis).toMatchObject({
+      axisLabel: { color: "#8C939E" },
+      splitLine: { lineStyle: { color: "#232831" } },
+    });
   });
 
   it("lets the user zoom", () => {

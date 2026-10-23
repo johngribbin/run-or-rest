@@ -1,8 +1,8 @@
-import { MantineProvider } from "@mantine/core";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
 import { render } from "@testing-library/react";
 import { vi } from "vitest";
 import { App } from "../App.tsx";
+import { AppProviders } from "../theme/AppProviders.tsx";
 
 export function respondWith(status: number, body: unknown) {
   const fetchStub = vi.fn(() =>
@@ -22,10 +22,8 @@ export function renderApp() {
     defaultOptions: { queries: { retry: false } },
   });
   return render(
-    <MantineProvider>
-      <QueryClientProvider client={client}>
-        <App />
-      </QueryClientProvider>
-    </MantineProvider>,
+    <AppProviders client={client}>
+      <App />
+    </AppProviders>,
   );
 }

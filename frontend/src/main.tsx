@@ -1,9 +1,10 @@
 import "@mantine/core/styles.css";
-import { MantineProvider } from "@mantine/core";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import "./theme/global.css";
+import { QueryClient } from "@tanstack/react-query";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./App.tsx";
+import { AppProviders } from "./theme/AppProviders.tsx";
 
 const root = document.getElementById("root");
 if (root === null) {
@@ -16,10 +17,8 @@ const queryClient = new QueryClient({
 
 createRoot(root).render(
   <StrictMode>
-    <MantineProvider>
-      <QueryClientProvider client={queryClient}>
-        <App />
-      </QueryClientProvider>
-    </MantineProvider>
+    <AppProviders client={queryClient}>
+      <App />
+    </AppProviders>
   </StrictMode>,
 );

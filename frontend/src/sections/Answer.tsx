@@ -14,7 +14,7 @@ export function Answer({ backtest }: { backtest: Backtest }) {
   const baseline = strategyById(backtest, BASELINE_STRATEGY_ID).label;
   return (
     <Stack gap="xs">
-      <Title order={2} size="h4">
+      <Title order={3} component="h2">
         {QUESTION.map((segment) =>
           typeof segment === "string" ? (
             segment

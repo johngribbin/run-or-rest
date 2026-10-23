@@ -10,6 +10,7 @@ import {
   CHART_COLORS,
   CHART_SERIES_NAMES,
   CHART_TIME_AXIS_NAME,
+  type ColorTokens,
 } from "../config.ts";
 import { formatDecimal, formatPrice } from "../format.ts";
 import { chartTime, formatCentralTime } from "./time.ts";
@@ -89,9 +90,19 @@ function line(
   };
 }
 
+function axisColors(colors: ColorTokens) {
+  return {
+    nameTextStyle: { color: colors.textMuted },
+    axisLabel: { color: colors.textMuted },
+    axisLine: { lineStyle: { color: colors.line } },
+    splitLine: { lineStyle: { color: colors.line } },
+  };
+}
+
 export function chartOption(
   backtest: Backtest,
   strategy: StrategyId,
+  colors: ColorTokens,
 ): ChartOption {
   const price = line(
     CHART_SERIES_NAMES.price,
@@ -142,14 +153,16 @@ export function chartOption(
     },
     grid: { left: 56, right: 24, top: 24, bottom: 72 },
     xAxis: {
+      ...axisColors(colors),
       type: "time",
       name: CHART_TIME_AXIS_NAME,
-      axisLabel: { hideOverlap: true },
+      axisLabel: { hideOverlap: true, color: colors.textMuted },
     },
     yAxis: {
+      ...axisColors(colors),
       type: "value",
       name: "$/MWh",
-      axisLabel: { formatter: priceTick },
+      axisLabel: { formatter: priceTick, color: colors.textMuted },
     },
     dataZoom: [{ type: "inside" }, { type: "slider" }],
     series: [price, breakeven],
