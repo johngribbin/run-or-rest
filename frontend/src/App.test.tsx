@@ -40,6 +40,22 @@ describe("App", () => {
     );
   });
 
+  it("names the baseline with the API's label", async () => {
+    const [alwaysOn, ...rest] = sampleBacktest.strategies;
+    respondWith(200, {
+      ...sampleBacktest,
+      strategies: [{ ...alwaysOn, label: "Run nonstop" }, ...rest],
+    });
+
+    renderApp();
+
+    expect(
+      await screen.findByText(/more than run nonstop\./),
+    ).toHaveTextContent(
+      "Strike + peak guard made the most money: $1,234.56 more than run nonstop.",
+    );
+  });
+
   it("shows formatted totals and highlights the winner", async () => {
     respondWith(200, sampleBacktest);
 

@@ -10,12 +10,18 @@ export type SeriesPoint = Schemas["SeriesPoint"];
 
 export class BacktestRequestError extends Error {}
 
-const STRATEGY_IDS: readonly StrategyId[] = [
-  "always_on",
-  "strike_price",
-  "strike_peak_guard",
-];
-const DECISIONS: readonly Decision[] = ["run", "off"];
+type Members<T extends string> = { [K in T]: K };
+
+const STRATEGY_ID_MEMBERS: Members<StrategyId> = {
+  always_on: "always_on",
+  strike_price: "strike_price",
+  strike_peak_guard: "strike_peak_guard",
+};
+const DECISION_MEMBERS: Members<Decision> = { run: "run", off: "off" };
+const STRATEGY_IDS = Object.values(STRATEGY_ID_MEMBERS);
+const DECISIONS = Object.values(DECISION_MEMBERS);
+
+export const BASELINE_STRATEGY_ID: StrategyId = "always_on";
 
 function shapeError(path: string, expected: string): Error {
   return new BacktestRequestError(`Unexpected response: ${path} ${expected}`);
@@ -169,10 +175,30 @@ function parseHeader(
   };
 }
 
+function checkStrategyOrder(strategies: readonly Strategy[]): void {
+  const found = strategies.map((strategy) => strategy.id).join(", ");
+  const expected = STRATEGY_IDS.join(", ");
+  if (found !== expected) {
+    throw shapeError("body.strategies", `are ${found}, not ${expected}`);
+  }
+}
+
+export function strategyById(backtest: Backtest, id: StrategyId): Strategy {
+  const match = backtest.strategies.find((strategy) => strategy.id === id);
+  if (match === undefined) {
+    throw new BacktestRequestError(`No strategy ${id} in the response`);
+  }
+  return match;
+}
+
 export function parseBacktest(value: unknown): Backtest {
   const body = object(value, "body");
   const winner = child(body, "winner", "body");
   const quality = child(body, "data_quality", "body");
+  const strategies = list(body, "strategies", "body").map((item, index) =>
+    parseStrategy(item, `body.strategies[${String(index)}]`),
+  );
+  checkStrategyOrder(strategies);
   return {
     ...parseHeader(body),
     winner: {
@@ -183,9 +209,7 @@ export function parseBacktest(value: unknown): Backtest {
         "body.winner",
       ),
     },
-    strategies: list(body, "strategies", "body").map((item, index) =>
-      parseStrategy(item, `body.strategies[${String(index)}]`),
-    ),
+    strategies,
     fourcp_peaks: list(body, "fourcp_peaks", "body").map((item, index) => {
       const path = `body.fourcp_peaks[${String(index)}]`;
       return {

@@ -15,7 +15,6 @@ from run_or_rest.config import (
     USD_DECIMAL_PLACES,
 )
 from run_or_rest.core.backtest import BacktestResult, SeriesPoint, StrategyResult
-from run_or_rest.core.models import StrategyId
 from run_or_rest.core.peaks import FourCpPeak
 
 
@@ -82,9 +81,10 @@ def _point(point: SeriesPoint) -> schemas.SeriesPoint:
             PRICE_DECIMAL_PLACES,
         ),
         decisions=schemas.Decisions(
-            always_on=point.decisions[StrategyId.ALWAYS_ON],
-            strike_price=point.decisions[StrategyId.STRIKE_PRICE],
-            strike_peak_guard=point.decisions[StrategyId.STRIKE_PEAK_GUARD],
+            **{
+                strategy.value: decision
+                for strategy, decision in point.decisions.items()
+            },
         ),
     )
 
