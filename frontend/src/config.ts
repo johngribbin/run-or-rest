@@ -54,8 +54,6 @@ export const FOURCP_EXPLAINER = {
   calloutTitle: "Peaks are not price spikes",
   peaksHeading: "4CP peaks",
   calloutTail: "A price-only rule cannot see a peak coming.",
-  running: "Running",
-  off: "Off",
   load: "Grid demand",
   price: "Power price",
 };

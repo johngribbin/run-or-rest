@@ -25,7 +25,7 @@ describe("FourCpExplainer", () => {
     );
   });
 
-  it("lists each peak's time, demand, price and every rule's charge in the breakdown", async () => {
+  it("lists each peak's time, demand, price and what each rule was charged, in the breakdown", async () => {
     respondWith(200, sampleBacktest);
 
     renderApp();
@@ -45,9 +45,9 @@ describe("FourCpExplainer", () => {
         "Mon, Jun 1, 00:15 CT",
         "82,712.7 MW",
         "$500.00/MWh",
-        "Running · $50,000",
-        "Running · $50,000",
-        "Off · $0",
+        "$50,000",
+        "$50,000",
+        "$0",
       ],
     ]);
     expect(table.closest("section")?.getAttribute("aria-label")).toBe(

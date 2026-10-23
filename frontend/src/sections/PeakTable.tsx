@@ -70,9 +70,7 @@ export function PeakTable({ backtest }: { backtest: Backtest }) {
                       c={running ? "var(--ror-bad)" : "var(--ror-good)"}
                       style={index === 0 ? GROUP_BORDER : undefined}
                     >
-                      {running
-                        ? `${FOURCP_EXPLAINER.running} · ${charge}`
-                        : `${FOURCP_EXPLAINER.off} · ${formatUsdWhole("0")}`}
+                      {running ? charge : formatUsdWhole("0")}
                     </Table.Td>
                   );
                 })}
