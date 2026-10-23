@@ -72,26 +72,21 @@ export function ChartSection({ backtest }: { backtest: Backtest }) {
         </Group>
         <Group justify="space-between" gap="md">
           <ChartLegend />
-          <Group gap="xs">
-            <Text size="xs" c="dimmed" id="off-picker-label">
-              {CHART_COPY.offPicker}
-            </Text>
-            <SegmentedControl
-              aria-labelledby="off-picker-label"
-              size="xs"
-              value={picked}
-              data={curtailing.map((strategy) => ({
-                label: strategy.label,
-                value: strategy.id,
-              }))}
-              onChange={(value) => {
-                const match = curtailing.find((item) => item.id === value);
-                if (match !== undefined) {
-                  setPicked(match.id);
-                }
-              }}
-            />
-          </Group>
+          <SegmentedControl
+            aria-label={CHART_COPY.offPicker}
+            size="xs"
+            value={picked}
+            data={curtailing.map((strategy) => ({
+              label: strategy.label,
+              value: strategy.id,
+            }))}
+            onChange={(value) => {
+              const match = curtailing.find((item) => item.id === value);
+              if (match !== undefined) {
+                setPicked(match.id);
+              }
+            }}
+          />
         </Group>
         <EChart
           option={option}
