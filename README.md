@@ -1,6 +1,6 @@
 # Run or Rest
 
-Backtests curtailment rules for a bitcoin mining fleet on ERCOT West (LZ_WEST) real-time power prices, June to September 2026. It compares always on, strike price, and strike price plus a 4CP peak guard, and shows which made the most money and why. See `SPEC.md`.
+Backtests curtailment rules for a bitcoin mining fleet on ERCOT West (LZ_WEST) real-time power prices, June to September 2026. It compares always on, strike price, and strike price plus a 4CP peak guard, and shows which made the most money and why. See [`SPEC.md`](SPEC.md).
 
 ![The 4CP explainer and the three strategies, with Strike + peak guard marked best](docs/images/overview.png)
 
