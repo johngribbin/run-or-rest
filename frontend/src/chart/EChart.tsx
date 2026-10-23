@@ -1,4 +1,4 @@
-import { LineChart } from "echarts/charts";
+import { CustomChart, LineChart } from "echarts/charts";
 import {
   DataZoomComponent,
   GridComponent,
@@ -18,6 +18,7 @@ import { FULL_ZOOM, type ZoomWindow, zoomFromEvent } from "./option.ts";
 import { joinSync } from "./sync.ts";
 
 registerChartModules([
+  CustomChart,
   LineChart,
   GridComponent,
   TooltipComponent,

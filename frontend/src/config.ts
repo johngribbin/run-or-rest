@@ -25,9 +25,9 @@ export const COLORS = {
   good: "#3FB97A",
   bad: "#F06A5B",
   price: "#7DB3FF",
-  peak: "#9085E9",
+  peak: "#5EEAD4",
   lane: "#5B6370",
-  offBand: "rgba(247, 147, 26, 0.38)",
+  offBand: "#684419",
   zoomFill: "rgba(247, 147, 26, 0.3)",
 };
 
@@ -129,6 +129,7 @@ export const THOUSANDS_SEPARATOR = ",";
 export const CHART_HEIGHT_PX = 360;
 export const SMALL_CHART_HEIGHT_PX = 120;
 export const CHART_GRID_PX = { left: 56, right: 24, top: 40, bottom: 56 };
+export const OFF_BAND_MIN_PX = 2;
 export const CHART_COPY = {
   heading: "Power price vs. mining breakeven",
   subtitleTail:

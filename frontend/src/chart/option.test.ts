@@ -7,6 +7,7 @@ if (strike === undefined) {
   throw new Error("The sample needs the strike price strategy");
 }
 import {
+  bandRect,
   chartOption,
   intervalMs,
   offBands,
@@ -105,11 +106,14 @@ describe("chartOption", () => {
 
   it("draws every price and breakeven point at its Central time", () => {
     expect(option.useUTC).toBe(true);
-    expect(series.map((item) => item.name)).toEqual([
+    const lines = series.flatMap((item) =>
+      item.type === "line" ? [item] : [],
+    );
+    expect(lines.map((item) => item.name)).toEqual([
       "Power price",
       "Breakeven",
     ]);
-    expect(series.map((item) => item.sampling)).toEqual([undefined, undefined]);
+    expect(lines.map((item) => item.sampling)).toEqual([undefined, undefined]);
     expect(series[0]?.data).toEqual([
       [Date.UTC(2026, 5, 1, 0, 0), 40],
       [Date.UTC(2026, 5, 1, 0, 15), 500],
@@ -132,12 +136,10 @@ describe("chartOption", () => {
     });
   });
 
-  it("shades the chosen rule's off intervals", () => {
-    expect(series[0]?.markArea?.data).toEqual([
-      [
-        { xAxis: Date.UTC(2026, 5, 1, 0, 30) },
-        { xAxis: Date.UTC(2026, 5, 1, 0, 45) },
-      ],
+  it("shades the chosen rule's off intervals beneath the lines", () => {
+    expect(series[2]).toMatchObject({ type: "custom", z: 1, silent: true });
+    expect(series[2]?.data).toEqual([
+      [Date.UTC(2026, 5, 1, 0, 30), Date.UTC(2026, 5, 1, 0, 45)],
     ]);
   });
 
@@ -193,5 +195,37 @@ describe("zoomFromEvent", () => {
   it("ignores an event without percentages", () => {
     expect(zoomFromEvent({ startValue: 1, endValue: 2 })).toBeNull();
     expect(zoomFromEvent(null)).toBeNull();
+  });
+});
+
+describe("bandRect", () => {
+  const plot = { x: 56, y: 40, width: 1000, height: 264 };
+
+  it("spans the plot's height between an off interval's ends", () => {
+    expect(bandRect(300, 340, plot)).toEqual({
+      x: 300,
+      y: 40,
+      width: 40,
+      height: 264,
+    });
+  });
+
+  it("widens an interval thinner than two pixels so it stays visible", () => {
+    expect(bandRect(300, 300.1, plot)).toEqual({
+      x: 300,
+      y: 40,
+      width: 2,
+      height: 264,
+    });
+  });
+
+  it("clips at the plot's edges and drops a band outside it", () => {
+    expect(bandRect(20, 70, plot)).toEqual({
+      x: 56,
+      y: 40,
+      width: 14,
+      height: 264,
+    });
+    expect(bandRect(1100, 1120, plot)).toBeNull();
   });
 });

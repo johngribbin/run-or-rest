@@ -1,4 +1,4 @@
-import type { LineSeriesOption } from "echarts/charts";
+import type { CustomSeriesOption, LineSeriesOption } from "echarts/charts";
 import type {
   DataZoomComponentOption,
   GridComponentOption,
@@ -16,12 +16,14 @@ import {
   CHART_GRID_PX,
   CHART_SERIES_NAMES,
   COLORS,
+  OFF_BAND_MIN_PX,
 } from "../config.ts";
 import { formatDecimal, formatPrice } from "../format.ts";
 import { chartTime, formatCentralTime, formatPeakDay } from "./time.ts";
 
 export type ChartOption = ComposeOption<
   | LineSeriesOption
+  | CustomSeriesOption
   | GridComponentOption
   | TooltipComponentOption
   | DataZoomComponentOption
@@ -131,16 +133,71 @@ export function tooltipText(point: SeriesPoint, strategy: Strategy): string {
   ].join("<br/>");
 }
 
-function offShading(backtest: Backtest, strategy: StrategyId) {
+export interface PlotRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export function bandRect(
+  fromPx: number,
+  toPx: number,
+  plot: PlotRect,
+): PlotRect | null {
+  const width = Math.max(toPx - fromPx, OFF_BAND_MIN_PX);
+  const left = Math.max(fromPx, plot.x);
+  const right = Math.min(fromPx + width, plot.x + plot.width);
+  return right <= left
+    ? null
+    : { x: left, y: plot.y, width: right - left, height: plot.height };
+}
+
+function plotOf(params: unknown): PlotRect | null {
+  if (typeof params !== "object" || params === null) {
+    return null;
+  }
+  const system: unknown = Reflect.get(params, "coordSys");
+  if (typeof system !== "object" || system === null) {
+    return null;
+  }
+  const [x, y, width, height] = ["x", "y", "width", "height"].map(
+    (key): unknown => Reflect.get(system, key),
+  );
+  return typeof x === "number" &&
+    typeof y === "number" &&
+    typeof width === "number" &&
+    typeof height === "number"
+    ? { x, y, width, height }
+    : null;
+}
+
+function offShading(
+  backtest: Backtest,
+  strategy: StrategyId,
+): CustomSeriesOption {
   return {
+    type: "custom",
     silent: true,
-    itemStyle: { color: COLORS.offBand },
+    z: 1,
+    clip: true,
+    tooltip: { show: false },
+    encode: { x: [0, 1] },
     data: offBands(backtest.series, strategy, intervalMs(backtest)).map(
-      (band): [{ xAxis: number }, { xAxis: number }] => [
-        { xAxis: chartTime(band.start) },
-        { xAxis: chartTime(band.end) },
-      ],
+      (band) => [chartTime(band.start), chartTime(band.end)],
     ),
+    renderItem: (params, api) => {
+      const plot = plotOf(params);
+      const from = api.coord([api.value(0), 0])[0];
+      const to = api.coord([api.value(1), 0])[0];
+      const rect =
+        plot === null || from === undefined || to === undefined
+          ? null
+          : bandRect(from, to, plot);
+      return rect === null
+        ? null
+        : { type: "rect", shape: rect, style: { fill: COLORS.offBand } };
+    },
   };
 }
 
@@ -241,7 +298,7 @@ export function chartOption(
     true,
   );
   price.markLine = peakMarkers(backtest);
-  price.markArea = offShading(backtest, strategy.id);
+
   const extent = chartExtent(backtest);
   return {
     animation: false,
@@ -273,6 +330,6 @@ export function chartOption(
       axisLabel: { formatter: priceTick, color: COLORS.textMuted },
     },
     dataZoom: zoomControls(),
-    series: [price, breakeven],
+    series: [price, breakeven, offShading(backtest, strategy.id)],
   };
 }
