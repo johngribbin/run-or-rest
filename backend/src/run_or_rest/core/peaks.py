@@ -5,6 +5,7 @@ from decimal import Decimal
 
 from run_or_rest.core.models import BacktestError, WindowInterval
 from run_or_rest.core.months import MonthKey, month_of
+from run_or_rest.core.timestamps import utc_text
 
 
 @dataclass(frozen=True)
@@ -43,7 +44,7 @@ def _peak(month: MonthKey, candidate: _Candidate | None) -> FourCpPeak:
         msg = f"No system load in month {month.year}-{month.month:02d}"
         raise BacktestError(msg)
     if candidate.price_usd_per_mwh is None:
-        msg = f"4CP peak interval {candidate.start.isoformat()} has no price"
+        msg = f"4CP peak interval {utc_text(candidate.start)} has no price"
         raise BacktestError(msg)
     return FourCpPeak(month, candidate.start, candidate.load_mw)
 

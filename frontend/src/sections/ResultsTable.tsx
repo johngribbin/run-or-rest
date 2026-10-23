@@ -10,6 +10,7 @@ const HEADERS: { title: string; tooltip?: string }[] = [
   { title: "Energy cost" },
   { title: "Transmission", tooltip: TOOLTIPS.transmission },
   { title: "Net profit" },
+  { title: "Mined sats" },
   { title: "Hours off", tooltip: TOOLTIPS.hoursOff },
   { title: "Price gain", tooltip: TOOLTIPS.priceGain },
   { title: "4CP gain", tooltip: TOOLTIPS.fourcpGain },
@@ -28,7 +29,7 @@ function DataQuality({ backtest }: { backtest: Backtest }) {
 export function ResultsTable({ backtest }: { backtest: Backtest }) {
   return (
     <Stack gap="xs">
-      <Table.ScrollContainer minWidth={760}>
+      <Table.ScrollContainer minWidth={860}>
         <Table striped highlightOnHover aria-label="Results by strategy">
           <Table.Thead>
             <Table.Tr>
@@ -66,6 +67,7 @@ export function ResultsTable({ backtest }: { backtest: Backtest }) {
                   <Table.Td>{formatUsd(strategy.energy_cost_usd)}</Table.Td>
                   <Table.Td>{formatUsd(strategy.transmission_usd)}</Table.Td>
                   <Table.Td>{formatUsd(strategy.net_profit_usd)}</Table.Td>
+                  <Table.Td>{formatInteger(strategy.mined_sats)}</Table.Td>
                   <Table.Td>{formatHours(strategy.hours_off)}</Table.Td>
                   <Table.Td>
                     {formatUsd(strategy.gain_vs_always_on.price_usd)}

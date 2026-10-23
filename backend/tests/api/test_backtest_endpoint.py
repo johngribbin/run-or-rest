@@ -131,7 +131,7 @@ def test_fourcp_peak_without_price_returns_500_with_detail(tmp_path: Path) -> No
 
     assert response.status_code == 500
     assert response.json() == {
-        "detail": "4CP peak interval 2026-06-01T05:15:00+00:00 has no price",
+        "detail": "4CP peak interval 2026-06-01T05:15:00Z has no price",
     }
 
 

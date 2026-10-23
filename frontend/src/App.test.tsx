@@ -72,6 +72,7 @@ describe("App", () => {
     expect(winnerRow).toHaveTextContent("−$48,765.44");
     expect(winnerRow).toHaveTextContent("421.50");
     expect(winnerRow).toHaveTextContent("$50,000.00");
+    expect(winnerRow).toHaveTextContent("225,000,000");
   });
 
   it("says how many intervals were skipped for missing data", async () => {
@@ -93,7 +94,16 @@ describe("App", () => {
     renderApp();
 
     expect(await screen.findByText("15 J/TH")).toBeInTheDocument();
-    expect(screen.getByText("$50,000 per MW-year")).toBeInTheDocument();
+    expect(screen.getByText("$50,000.00 per MW-year")).toBeInTheDocument();
+    expect(
+      screen.getByRole("row", { name: "Pool fee rate 2%" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("row", { name: "Peak guard threshold 95%" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Jun 1, 2026, 00:00 CT to Jun 1, 2026, 01:00 CT"),
+    ).toBeInTheDocument();
     expect(
       screen.getByText(/The fleet switches fully on or off instantly/),
     ).toBeInTheDocument();
@@ -130,7 +140,7 @@ describe("App", () => {
     await user.click(slider);
     await user.keyboard("{ArrowRight}");
 
-    expect(screen.getByTestId("threshold-value")).toHaveTextContent("0.96");
+    expect(screen.getByTestId("threshold-value")).toHaveTextContent("96%");
     expect(fetchStub).toHaveBeenCalledTimes(1);
     await waitFor(() => {
       expect(fetchStub).toHaveBeenLastCalledWith(

@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 import type { Decision, SeriesPoint } from "../api/backtest.ts";
 import { sampleBacktest } from "../test/sampleBacktest.ts";
-import { chartOption, intervalMs, offBands } from "./option.ts";
+import {
+  chartOption,
+  intervalMs,
+  offBands,
+  priceTick,
+  tooltipText,
+} from "./option.ts";
 
 const FIFTEEN_MINUTES_MS = 900000;
 
@@ -70,6 +76,22 @@ describe("offBands", () => {
   });
 });
 
+describe("priceTick", () => {
+  it("labels price ticks with a minus sign and thousands separators", () => {
+    expect(priceTick(-1000)).toBe("−1,000");
+  });
+});
+
+describe("tooltipText", () => {
+  it("shows the Central time and both prices as $/MWh", () => {
+    const point = sampleBacktest.series[2];
+
+    expect(point === undefined ? "" : tooltipText(point)).toBe(
+      "Jun 1, 2026, 00:30 CT<br/>Price: −$3.10/MWh<br/>Breakeven estimate: $100.00/MWh",
+    );
+  });
+});
+
 describe("chartOption", () => {
   const option = chartOption(sampleBacktest, "strike_price");
   const series = Array.isArray(option.series) ? option.series : [];
@@ -100,7 +122,10 @@ describe("chartOption", () => {
       ],
     ]);
     expect(price?.markLine?.data).toEqual([
-      { name: "4CP 2026-06", xAxis: Date.UTC(2026, 5, 1, 0, 15) },
+      {
+        name: "4CP 2026-06: 82,712.7 MW",
+        xAxis: Date.UTC(2026, 5, 1, 0, 15),
+      },
     ]);
   });
 

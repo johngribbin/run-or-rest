@@ -6,8 +6,13 @@ import type {
 } from "echarts/components";
 import type { ComposeOption } from "echarts/core";
 import type { Backtest, SeriesPoint, StrategyId } from "../api/backtest.ts";
-import { CHART_COLORS, CHART_TIME_AXIS_NAME } from "../config.ts";
-import { chartTime } from "./time.ts";
+import {
+  CHART_COLORS,
+  CHART_SERIES_NAMES,
+  CHART_TIME_AXIS_NAME,
+} from "../config.ts";
+import { formatDecimal, formatPrice } from "../format.ts";
+import { chartTime, formatCentralTime } from "./time.ts";
 
 export type ChartOption = ComposeOption<
   | LineSeriesOption
@@ -57,6 +62,18 @@ export function offBands(
   return bands;
 }
 
+export function priceTick(value: number): string {
+  return formatDecimal(String(value));
+}
+
+export function tooltipText(point: SeriesPoint): string {
+  return [
+    formatCentralTime(point.interval_start_utc),
+    `${CHART_SERIES_NAMES.price}: ${formatPrice(point.price_usd_per_mwh)}`,
+    `${CHART_SERIES_NAMES.breakeven}: ${formatPrice(point.breakeven_estimate_usd_per_mwh)}`,
+  ].join("<br/>");
+}
+
 function line(
   name: string,
   color: string,
@@ -77,7 +94,7 @@ export function chartOption(
   strategy: StrategyId,
 ): ChartOption {
   const price = line(
-    "Price",
+    CHART_SERIES_NAMES.price,
     CHART_COLORS.price,
     backtest.series.map((point) => [
       chartTime(point.interval_start_utc),
@@ -85,7 +102,7 @@ export function chartOption(
     ]),
   );
   const breakeven = line(
-    "Breakeven estimate",
+    CHART_SERIES_NAMES.breakeven,
     CHART_COLORS.breakeven,
     backtest.series.map((point) => [
       chartTime(point.interval_start_utc),
@@ -108,17 +125,28 @@ export function chartOption(
     lineStyle: { color: CHART_COLORS.peak, type: "dashed" },
     label: { formatter: "{b}" },
     data: backtest.fourcp_peaks.map((peak) => ({
-      name: `4CP ${peak.month}`,
+      name: `4CP ${peak.month}: ${formatDecimal(peak.system_load_mw)} MW`,
       xAxis: chartTime(peak.interval_start_utc),
     })),
   };
   return {
     animation: false,
     useUTC: true,
-    tooltip: { trigger: "axis" },
+    tooltip: {
+      trigger: "axis",
+      formatter: (params) => {
+        const first = Array.isArray(params) ? params[0] : params;
+        const point = backtest.series[first?.dataIndex ?? -1];
+        return point === undefined ? "" : tooltipText(point);
+      },
+    },
     grid: { left: 56, right: 24, top: 24, bottom: 72 },
     xAxis: { type: "time", name: CHART_TIME_AXIS_NAME },
-    yAxis: { type: "value", name: "$/MWh" },
+    yAxis: {
+      type: "value",
+      name: "$/MWh",
+      axisLabel: { formatter: priceTick },
+    },
     dataZoom: [{ type: "inside" }, { type: "slider" }],
     series: [price, breakeven],
   };

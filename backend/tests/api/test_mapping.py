@@ -1,10 +1,8 @@
-from datetime import UTC, datetime
 from decimal import Decimal
-from zoneinfo import ZoneInfo
 
 import pytest
 
-from run_or_rest.api.mapping import rounded, utc
+from run_or_rest.api.mapping import rounded, unrounded
 
 
 @pytest.mark.parametrize(
@@ -31,8 +29,6 @@ def test_a_value_rounding_to_zero_has_no_minus_sign() -> None:
     assert rounded(Decimal("-0.004"), 2) == "0.00"
 
 
-def test_timestamps_are_written_in_utc_with_z() -> None:
-    chicago_midnight = datetime(2026, 6, 1, tzinfo=ZoneInfo("America/Chicago"))
-
-    assert utc(chicago_midnight) == "2026-06-01T05:00:00Z"
-    assert utc(datetime(2026, 10, 1, 4, 45, tzinfo=UTC)) == "2026-10-01T04:45:00Z"
+def test_unrounded_values_keep_their_digits_in_fixed_point() -> None:
+    assert unrounded(Decimal("5E+4")) == "50000"
+    assert unrounded(Decimal("0.950")) == "0.950"

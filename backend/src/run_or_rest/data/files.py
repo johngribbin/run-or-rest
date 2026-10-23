@@ -9,6 +9,7 @@ import polars as pl
 from run_or_rest.config import INTERVAL
 from run_or_rest.core.economics import difficulty_from_bits
 from run_or_rest.core.models import DailyChain, Sats
+from run_or_rest.core.timestamps import utc_text
 from run_or_rest.data import fields
 
 START_COLUMN = "interval_start_utc"
@@ -117,7 +118,7 @@ def _interval_start(value: object) -> datetime:
         msg = f"{START_COLUMN} {value!r} is not a timezone-aware timestamp"
         raise ValueError(msg)
     if (value - datetime.min.replace(tzinfo=value.tzinfo)) % INTERVAL:
-        msg = f"{START_COLUMN} {value.isoformat()} is not on a 15-minute boundary"
+        msg = f"{START_COLUMN} {utc_text(value)} is not on a 15-minute boundary"
         raise ValueError(msg)
     return value
 
