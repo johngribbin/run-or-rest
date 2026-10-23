@@ -58,6 +58,19 @@ describe("App", () => {
     expect(winnerRow).toHaveTextContent("$50,000.00");
   });
 
+  it("says how many intervals were skipped for missing data", async () => {
+    respondWith(200, {
+      ...sampleBacktest,
+      data_quality: { expected_intervals: 11712, missing_intervals: 5 },
+    });
+
+    renderApp();
+
+    expect(
+      await screen.findByText(/Intervals skipped for missing data/),
+    ).toHaveTextContent("Intervals skipped for missing data: 5 of 11,712");
+  });
+
   it("lists the assumptions and the data attributions", async () => {
     respondWith(200, sampleBacktest);
 

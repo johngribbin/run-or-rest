@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { formatHours, formatPrice, formatSats, formatUsd } from "./format.ts";
+import {
+  formatHours,
+  formatPrice,
+  formatInteger,
+  formatUsd,
+} from "./format.ts";
 
 describe("formatUsd", () => {
   it.each([
@@ -38,12 +43,12 @@ describe("formatHours", () => {
   });
 });
 
-describe("formatSats", () => {
+describe("formatInteger", () => {
   it("adds thousands separators", () => {
-    expect(formatSats(311150000)).toBe("311,150,000");
+    expect(formatInteger(311150000)).toBe("311,150,000");
   });
 
   it("leaves small values alone", () => {
-    expect(formatSats(0)).toBe("0");
+    expect(formatInteger(0)).toBe("0");
   });
 });

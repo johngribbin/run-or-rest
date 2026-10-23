@@ -29,6 +29,6 @@ export function formatHours(value: string): string {
   return `${negative ? MINUS_SIGN : ""}${text}`;
 }
 
-export function formatSats(value: number): string {
+export function formatInteger(value: number): string {
   return grouped(String(value));
 }

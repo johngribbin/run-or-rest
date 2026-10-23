@@ -37,6 +37,8 @@ export const MINUS_SIGN = "−";
 export const THOUSANDS_SEPARATOR = ",";
 
 export const CHART_HEIGHT_PX = 420;
+export const CHART_TIME_ZONE = "America/Chicago";
+export const CHART_TIME_AXIS_NAME = "Central time";
 export const CHART_COLORS = {
   price: "#1c7ed6",
   breakeven: "#e8590c",
