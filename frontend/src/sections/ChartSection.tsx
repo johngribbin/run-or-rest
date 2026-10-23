@@ -20,6 +20,19 @@ import { CHART_COMPACT_QUERY, CHART_COPY, CHART_HEIGHT_PX } from "../config.ts";
 import { ChartLegend } from "./ChartLegend.tsx";
 import { Panel } from "./ui.tsx";
 
+function curtailingStrategies(backtest: Backtest) {
+  return backtest.strategies.filter(
+    (strategy) => strategy.id !== BASELINE_STRATEGY_ID,
+  );
+}
+
+function shadedByDefault(backtest: Backtest): StrategyId {
+  const winner = backtest.winner.id;
+  return winner === BASELINE_STRATEGY_ID
+    ? (curtailingStrategies(backtest)[0]?.id ?? BASELINE_STRATEGY_ID)
+    : winner;
+}
+
 export function ChartSection({ backtest }: { backtest: Backtest }) {
   const [range, setRange] = useState<string>(CHART_COPY.season);
   const [requested, setRequested] = useState<ZoomWindow>(FULL_ZOOM);
@@ -28,14 +41,9 @@ export function ChartSection({ backtest }: { backtest: Backtest }) {
       setRange("");
     }
   };
-  const curtailing = backtest.strategies.filter(
-    (strategy) => strategy.id !== BASELINE_STRATEGY_ID,
-  );
-  const [picked, setPicked] = useState<StrategyId>(
-    backtest.winner.id === BASELINE_STRATEGY_ID
-      ? (curtailing[0]?.id ?? BASELINE_STRATEGY_ID)
-      : backtest.winner.id,
-  );
+  const curtailing = curtailingStrategies(backtest);
+  const [chosen, setChosen] = useState<StrategyId | null>(null);
+  const picked = chosen ?? shadedByDefault(backtest);
   const compact = useMediaQuery(CHART_COMPACT_QUERY);
   const option = useMemo(
     () => chartOption(backtest, strategyById(backtest, picked), compact),
@@ -89,7 +97,7 @@ export function ChartSection({ backtest }: { backtest: Backtest }) {
               onChange={(value) => {
                 const match = curtailing.find((item) => item.id === value);
                 if (match !== undefined) {
-                  setPicked(match.id);
+                  setChosen(match.id);
                 }
               }}
             />
