@@ -2,6 +2,8 @@
 
 Backtests curtailment rules for a bitcoin mining fleet on ERCOT West (LZ_WEST) real-time power prices, June to September 2026. It compares always on, strike price, and strike price plus a 4CP peak guard, and shows which made the most money and why. See `SPEC.md`.
 
+![The 4CP explainer and the three strategies, with Strike + peak guard marked best](docs/images/overview.png)
+
 ## Get started
 
 Needs uv 0.13.4, Node 26 and GNU Make.
@@ -29,6 +31,12 @@ flowchart LR
 ```
 
 Data loads once at startup. Each request reruns the backtest for the chosen peak guard threshold; nothing is cached or stored.
+
+The page also shows where the breakeven line comes from: BTC price, difficulty and hashprice over the season.
+
+![BTC price, network difficulty and hashprice, June to September 2026](docs/images/bitcoin-inputs.png)
+
+BTC price data from [Coin Metrics](https://coinmetrics.io/), licensed under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).
 
 ## The backend
 
