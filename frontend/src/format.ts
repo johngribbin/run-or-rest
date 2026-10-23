@@ -1,4 +1,11 @@
-import { MINUS_SIGN, THOUSANDS_SEPARATOR } from "./config.ts";
+import {
+  BTC_DISPLAY_PLACES,
+  HOURS_SUMMARY_PLACES,
+  MINUS_SIGN,
+  PLUS_SIGN,
+  SATS_DECIMAL_PLACES,
+  THOUSANDS_SEPARATOR,
+} from "./config.ts";
 
 const DECIMAL = /^(-?)(\d+)(?:\.(\d+))?$/;
 const CENTS = 2;
@@ -53,4 +60,46 @@ export function formatPercent(value: string): string {
 
 export function formatInteger(value: number): string {
   return grouped(String(value));
+}
+
+function roundedHalfEven(value: string, places: number): string {
+  const match = DECIMAL.exec(value);
+  if (match === null) {
+    throw new Error(`Not a decimal string: ${value}`);
+  }
+  const [, sign = "", whole = "", fraction = ""] = match;
+  const padded = fraction.padEnd(places + 1, "0");
+  const kept = BigInt(`${whole}${padded.slice(0, places)}`);
+  const rest = padded.slice(places);
+  const half = "5".padEnd(rest.length, "0");
+  const roundsUp = rest > half || (rest === half && kept % 2n === 1n);
+  const digits = String(roundsUp ? kept + 1n : kept).padStart(places + 1, "0");
+  const shownSign = /^0+$/.test(digits) ? "" : sign;
+  const cut = digits.length - places;
+  return places === 0
+    ? `${shownSign}${digits}`
+    : `${shownSign}${digits.slice(0, cut)}.${digits.slice(cut)}`;
+}
+
+export function formatUsdWhole(value: string): string {
+  const { sign, whole } = parts(roundedHalfEven(value, 0));
+  return `${sign}$${grouped(whole)}`;
+}
+
+export function formatSignedUsdWhole(value: string): string {
+  const shown = formatUsdWhole(value);
+  return shown.startsWith(MINUS_SIGN) || shown === "$0"
+    ? shown
+    : `${PLUS_SIGN}${shown}`;
+}
+
+export function formatBtc(sats: number): string {
+  const digits = String(sats).padStart(SATS_DECIMAL_PLACES + 1, "0");
+  const cut = digits.length - SATS_DECIMAL_PLACES;
+  const btc = `${digits.slice(0, cut)}.${digits.slice(cut)}`;
+  return formatDecimal(roundedHalfEven(btc, BTC_DISPLAY_PLACES));
+}
+
+export function formatHoursSummary(value: string): string {
+  return formatDecimal(roundedHalfEven(value, HOURS_SUMMARY_PLACES));
 }
