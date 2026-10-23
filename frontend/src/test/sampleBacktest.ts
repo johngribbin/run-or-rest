@@ -3,7 +3,7 @@ import type { Backtest } from "../api/backtest.ts";
 export const sampleBacktest: Backtest = {
   period: {
     start_utc: "2026-06-01T05:00:00Z",
-    end_utc: "2026-10-01T05:00:00Z",
+    end_utc: "2026-06-01T06:00:00Z",
     settlement_point: "LZ_WEST",
   },
   controls: {
