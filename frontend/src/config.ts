@@ -150,7 +150,7 @@ export const THRESHOLD_LABEL = "Peak guard trigger";
 export const THRESHOLD_HELP =
   "Switch off when ERCOT demand reaches this share of the month's peak so far.";
 export const THRESHOLD_END_LABELS = {
-  min: "off more often",
+  min: "off more",
   max: "off less",
 };
 export const LOADING_TEXT = "Running the backtest…";

@@ -352,9 +352,7 @@ describe("Peak guard trigger", () => {
     expect(within(control).getByRole("slider")).toHaveAccessibleDescription(
       "Switch off when ERCOT demand reaches this share of the month's peak so far.",
     );
-    expect(
-      within(control).getByText("80% · off more often"),
-    ).toBeInTheDocument();
+    expect(within(control).getByText("80% · off more")).toBeInTheDocument();
     expect(within(control).getByText("100% · off less")).toBeInTheDocument();
   });
 });
