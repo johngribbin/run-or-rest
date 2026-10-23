@@ -8,5 +8,6 @@ def utc_text(moment: datetime) -> str:
 
 
 def interval_starts(first: datetime, end: datetime) -> list[datetime]:
-    count = (end - first) // INTERVAL
-    return [(first + index * INTERVAL).astimezone(UTC) for index in range(count)]
+    first_utc = first.astimezone(UTC)
+    count = (end.astimezone(UTC) - first_utc) // INTERVAL
+    return [first_utc + index * INTERVAL for index in range(count)]
