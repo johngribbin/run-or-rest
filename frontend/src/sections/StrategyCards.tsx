@@ -6,6 +6,7 @@ import {
   Stack,
   Text,
   Title,
+  VisuallyHidden,
 } from "@mantine/core";
 import {
   BASELINE_STRATEGY_ID,
@@ -16,6 +17,7 @@ import {
   BASELINE_DELTA,
   BEST_BADGE,
   KPI_LABELS,
+  STRATEGIES_HEADING,
   STRATEGY_DESCRIPTIONS,
 } from "../config.ts";
 import {
@@ -118,15 +120,20 @@ function StrategyCard({
 
 export function StrategyCards({ backtest }: { backtest: Backtest }) {
   return (
-    <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
-      {backtest.strategies.map((strategy) => (
-        <StrategyCard
-          key={strategy.id}
-          strategy={strategy}
-          best={strategy.id === backtest.winner.id}
-          peaks={backtest.fourcp.peaks.length}
-        />
-      ))}
-    </SimpleGrid>
+    <section aria-labelledby="strategies-heading">
+      <VisuallyHidden component="h2" id="strategies-heading">
+        {STRATEGIES_HEADING}
+      </VisuallyHidden>
+      <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
+        {backtest.strategies.map((strategy) => (
+          <StrategyCard
+            key={strategy.id}
+            strategy={strategy}
+            best={strategy.id === backtest.winner.id}
+            peaks={backtest.fourcp.peaks.length}
+          />
+        ))}
+      </SimpleGrid>
+    </section>
   );
 }

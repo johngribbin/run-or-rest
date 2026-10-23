@@ -19,8 +19,9 @@ describe("Hero", () => {
     const panel = await answer();
 
     expect(within(panel).getByRole("heading", { level: 2 })).toHaveTextContent(
-      "Strike + peak guard",
+      "Which rule made the most money this summer?",
     );
+    expect(within(panel).getByText("Strike + peak guard")).toBeInTheDocument();
     expect(within(panel).getByText("+$1,235")).toBeInTheDocument();
     expect(
       within(panel).getByText("net profit vs. always on"),

@@ -298,6 +298,25 @@ describe("App", () => {
 });
 
 describe("Peak guard trigger", () => {
+  it("gives the control and the strategy cards their own headings", async () => {
+    respondWith(200, sampleBacktest);
+
+    renderApp();
+    await screen.findByRole("region", { name: "Peak guard trigger" });
+
+    expect(
+      screen.getAllByRole("heading", { level: 2 }).map((h) => h.textContent),
+    ).toEqual([
+      "Which rule made the most money this summer?",
+      "Peak guard trigger",
+      "All three rules",
+      "4CP: four 15-minute windows that set a year of transmission cost",
+      "Power price vs. mining breakeven",
+      "What sets the breakeven line",
+      "Full breakdown",
+    ]);
+  });
+
   it("explains the control and labels both ends of its range", async () => {
     respondWith(200, sampleBacktest);
 
