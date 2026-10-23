@@ -233,7 +233,7 @@ function peakMarkers(backtest: Backtest) {
   return {
     silent: true,
     symbol: "none",
-    lineStyle: { color: COLORS.peak, type: "solid" as const, width: 1.5 },
+    lineStyle: { color: COLORS.bad, type: "solid" as const, width: 2 },
     label: {
       formatter: "{b}",
       position: "end" as const,
@@ -264,11 +264,14 @@ function zoomControls(): DataZoomComponentOption[] {
       fillerColor: COLORS.zoomFill,
       textStyle: { color: COLORS.textSecondary },
       handleSize: "120%",
-      handleStyle: { color: COLORS.accent, borderColor: COLORS.accent },
-      moveHandleStyle: { color: COLORS.accent, opacity: 0.6 },
+      handleStyle: {
+        color: COLORS.textSecondary,
+        borderColor: COLORS.textSecondary,
+      },
+      moveHandleStyle: { color: COLORS.textMuted, opacity: 0.6 },
       emphasis: {
-        handleStyle: { color: COLORS.accent, borderColor: COLORS.text },
-        moveHandleStyle: { color: COLORS.accent, opacity: 1 },
+        handleStyle: { color: COLORS.text, borderColor: COLORS.text },
+        moveHandleStyle: { color: COLORS.textSecondary, opacity: 1 },
       },
     },
   ];

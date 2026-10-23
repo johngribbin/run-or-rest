@@ -47,7 +47,7 @@ export function ChartLegend() {
       <Entry swatch={<Box w={16} h={12} bg="var(--ror-off-band)" />}>
         {CHART_COPY.offLegend}
       </Entry>
-      <Entry swatch={<Box w={2} h={12} bg="var(--ror-peak)" />}>
+      <Entry swatch={<Box w={2} h={12} bg="var(--ror-bad)" />}>
         {CHART_COPY.peakLegend}
       </Entry>
     </Group>

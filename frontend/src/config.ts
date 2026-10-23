@@ -25,10 +25,8 @@ export const COLORS = {
   good: "#3FB97A",
   bad: "#F06A5B",
   price: "#7DB3FF",
-  peak: "#5EEAD4",
-  lane: "#5B6370",
-  offBand: "#684419",
-  zoomFill: "rgba(247, 147, 26, 0.3)",
+  offBand: "#323B4A",
+  zoomFill: "rgba(236, 238, 241, 0.14)",
 };
 
 export const REFETCH_DEBOUNCE_MS = 300;
