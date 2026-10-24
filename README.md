@@ -22,19 +22,6 @@ Power price and load data provided by [Grid Status](https://www.gridstatus.io/).
 3. Fetch the ERCOT data: `make fetch`
 4. Start the app: `make dev`, then open http://localhost:5173
 
-## Scope and trade-offs
-
-Choices made to keep the project small, for now:
-
-- Runs locally only: no deployment, auth or monitoring.
-- Data is a one-off snapshot fetched to local files, not a live feed.
-- No caching: each request reruns the backtest (about 0.15 s). Only 21 thresholds are valid, so precomputing them is the obvious next step.
-- Every request sends the full 15-minute series (about 2.2 MB) uncompressed. Gzip or downsampling would come next.
-- The 4CP peaks come from Grid Status load data and haven't been checked against ERCOT's official intervals.
-- The transmission rate is a round $50,000 per MW-year, not a specific utility's tariff.
-
-Planned work is in [issues](https://github.com/johngribbin/run-or-rest/issues).
-
 ## How it works
 
 ```mermaid
@@ -119,6 +106,17 @@ uv run python -m scripts.fetch_price
 BITCOIN_RPC_URL=… BITCOIN_RPC_USER=… BITCOIN_RPC_PASSWORD=… \
   uv run python -m scripts.fetch_chain
 ```
+
+## Scope and trade-offs
+
+Choices made to keep the project small, for now:
+
+- Runs locally only: no deployment, auth or monitoring.
+- Data is a one-off snapshot fetched to local files, not a live feed.
+- No caching: each request reruns the backtest (about 0.15 s). Only 21 thresholds are valid, so precomputing them is the obvious next step.
+- Every request sends the full 15-minute series (about 2.2 MB) uncompressed. Gzip or downsampling would come next.
+- The 4CP peaks come from Grid Status load data and haven't been checked against ERCOT's official intervals.
+- The transmission rate is a round $50,000 per MW-year, not a specific utility's tariff.
 
 ## Roadmap
 
