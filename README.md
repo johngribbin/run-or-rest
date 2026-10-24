@@ -19,6 +19,8 @@ make dev
 
 `make dev` serves the page at http://localhost:5173.
 
+Grid Status price and load data isn't committed: their terms of use allow internal use, not redistribution. So `make fetch` needs your own API key. The screenshot above shows what you'll see.
+
 ## Scope
 
 The backtest logic, data validation, API and frontend are written to production standard. These are out of scope:
