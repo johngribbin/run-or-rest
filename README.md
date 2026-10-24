@@ -22,9 +22,9 @@ Power price and load data provided by [Grid Status](https://www.gridstatus.io/).
 3. Fetch the ERCOT data: `make fetch`
 4. Start the app: `make dev`, then open http://localhost:5173
 
-## Scope
+## Scope and trade-offs
 
-These are out of scope:
+Choices made to keep the project small, for now:
 
 - Runs locally only: no deployment, auth or monitoring.
 - Data is a one-off snapshot fetched to local files, not a live feed.
