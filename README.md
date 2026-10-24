@@ -8,18 +8,33 @@ Power price and load data provided by [Grid Status](https://www.gridstatus.io/).
 
 ## Get started
 
-Needs uv 0.13.4, Node 26 and GNU Make.
+Needs uv 0.13.4, Node 26, GNU Make and a [Grid Status](https://www.gridstatus.io/) API key.
 
-```sh
-make setup
-cp .env.example .env    # then add your GRIDSTATUS_API_KEY
-make fetch
-make dev
-```
+1. Install the dependencies:
 
-`make dev` serves the page at http://localhost:5173.
+   ```sh
+   make setup
+   ```
 
-Grid Status price and load data isn't committed: their terms of use allow internal use, not redistribution. So `make fetch` needs your own API key. The screenshot above shows what you'll see.
+2. Add your Grid Status API key. Grid Status data isn't committed, because their terms of use allow internal use, not redistribution.
+
+   ```sh
+   cp .env.example .env
+   ```
+
+   Then set `GRIDSTATUS_API_KEY=` in `.env`.
+
+3. Fetch the ERCOT prices and load:
+
+   ```sh
+   make fetch
+   ```
+
+4. Start the app, then open http://localhost:5173:
+
+   ```sh
+   make dev
+   ```
 
 ## Scope
 
