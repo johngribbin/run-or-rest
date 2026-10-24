@@ -120,4 +120,4 @@ Choices made to keep the project small, for now:
 
 ## Roadmap
 
-Planned improvements and known issues are tracked as [GitHub issues](https://github.com/johngribbin/run-or-rest/issues). Ideas for later carry the [`later`](https://github.com/johngribbin/run-or-rest/labels/later) label; known bugs carry [`bug`](https://github.com/johngribbin/run-or-rest/labels/bug).
+Planned improvements are tracked as [GitHub issues](https://github.com/johngribbin/run-or-rest/issues), labelled [`later`](https://github.com/johngribbin/run-or-rest/labels/later).
