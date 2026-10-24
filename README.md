@@ -24,7 +24,7 @@ Power price and load data provided by [Grid Status](https://www.gridstatus.io/).
 
 ## Scope
 
-The backtest logic, data validation, API and frontend are written to production standard. These are out of scope:
+These are out of scope:
 
 - Runs locally only: no deployment, auth or monitoring.
 - Data is a one-off snapshot fetched to local files, not a live feed.
